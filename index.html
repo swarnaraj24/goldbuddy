@@ -746,30 +746,55 @@ CREATE POLICY "Allow public write on tranches" ON public.buy_tranches FOR ALL US
     // -------------------------------------------------------------------------
     // Manual Refresh (Live Edge Function or Demo Tick Simulation)
     // -------------------------------------------------------------------------
-    async function handleManualRefresh() {
-      const btn = document.getElementById("refresh-btn");
-      const icon = document.getElementById("refresh-icon");
-      btn.disabled = true;
-      icon.classList.add("animate-spin");
+async function handleManualRefresh() {
+  const btn = document.getElementById("refresh-btn");
+  const icon = document.getElementById("refresh-icon");
+  if (btn.disabled) return;
 
-      try {
-        if (isDemoMode || !supabaseClient) {
-          // Simulate a fresh market tick in Demo Mode
-          const prev = appState.history[0];
-          const deltaPct = (Math.random() - 0.56) * 0.005; // Slight downward bias to test dip alerts
-          const new24 = Number((Number(prev.rate_24k_gram) * (1 + deltaPct)).toFixed(2));
-          const new22 = Number((new24 * (22 / 24)).toFixed(2));
-          const newRow = {
-            id: prev.id + 1,
-            xau_usd: Number((Number(prev.xau_usd) * (1 + deltaPct)).toFixed(2)),
-            usd_inr: prev.usd_inr,
-            rate_24k_gram: new24,
-            rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)),
-            rate_22k_gram: new22,
-            rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)),
-            fetched_at: new Date().toISOString(),
-          };
+  btn.disabled = true;
+  if (icon) icon.classList.add("animate-spin");
 
+  // Safety guard: always stop spinner after 15 seconds max
+  const safetyTimer = setTimeout(() => {
+    btn.disabled = false;
+    const currentIcon = document.getElementById("refresh-icon");
+    if (currentIcon) currentIcon.classList.remove("animate-spin");
+  }, 15000);
+
+  try {
+    if (isDemoMode || !supabaseClient) {
+      const prev = appState.history[0];
+      const deltaPct = (Math.random() - 0.56) * 0.005;
+      const new24 = Number((Number(prev.rate_24k_gram) * (1 + deltaPct)).toFixed(2));
+      const new22 = Number((new24 * (22 / 24)).toFixed(2));
+      appState.history.unshift({
+        id: prev.id + 1,
+        xau_usd: Number((Number(prev.xau_usd) * (1 + deltaPct)).toFixed(2)),
+        usd_inr: prev.usd_inr,
+        rate_24k_gram: new24,
+        rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)),
+        rate_22k_gram: new22,
+        rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)),
+        fetched_at: new Date().toISOString(),
+      });
+      recomputeAndRender();
+      showToast("Simulated Tick Logged", `22K: ${formatINR(new22)}/g | 24K: ${formatINR(new24)}/g`, "info");
+    } else {
+      const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
+      if (error) throw error;
+      await fetchDashboardData();
+      showToast("Live Spot Rate Updated", "Fetched latest XAU/USD & USD/INR parity.", "info");
+    }
+  } catch (err) {
+    console.error("Refresh failed:", err);
+    showToast("Refresh Failed", err.message || "Could not invoke fetch-gold-rate Edge Function.", "error");
+  } finally {
+    clearTimeout(safetyTimer);
+    btn.disabled = false;
+    const currentIcon = document.getElementById("refresh-icon");
+    if (currentIcon) currentIcon.classList.remove("animate-spin");
+  }
+}
           appState.history.unshift(newRow);
 
           // Check demo tranches

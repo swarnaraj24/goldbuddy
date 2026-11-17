@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoldBuddy — Live Spot & Staggered Buying Engine</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js & Date Adapter -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#0B0F17',
+            card: '#131A26',
+            cardHover: '#192232',
+            borderSubtle: '#1E293B',
+            gold: {
+              300: '#FDE68A',
+              400: '#FBBF24',
+              500: '#F59E0B',
+              600: '#D97706',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    body {
+      background-color: #0B0F17;
+      color: #F1F5F9;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .gold-glow {
+      box-shadow: 0 0 28px -8px rgba(245, 158, 11, 0.25);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#0B0F17]/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+          <i data-lucide="coins" class="w-5 h-5 text-slate-950 stroke-[2.2]"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              TN Retail Parity
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Staggered Bullion Accumulation & 5-Day Band Engine</p>
+        </div>
+      </div>
+
+      <!-- Right Controls -->
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <!-- Data Source Status Pill -->
+        <button id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300">
+          <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="status-text">Demo Mode</span>
+        </button>
+
+        <!-- GST Toggle -->
+        <button id="gst-toggle-btn" onclick="toggleGst()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors">
+          <i data-lucide="percent" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span id="gst-toggle-label">Excl. 3% GST</span>
+        </button>
+
+        <!-- Manual Poll Button -->
+        <button id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-sm shadow-amber-500/20 disabled:opacity-50">
+          <i id="refresh-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Refresh Rate Now</span>
+        </button>
+
+        <!-- Settings Gear -->
+        <button onclick="openSettingsModal()" title="Configure Supabase Backend" class="p-2 rounded-lg border border-slate-800 bg-slate-900/70 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- Demo / Info Banner -->
+    <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-start sm:items-center gap-3">
+        <div class="p-1.5 rounded-lg bg-amber-500/15 text-amber-400 shrink-0 mt-0.5 sm:mt-0">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300">
+          <span class="font-semibold text-amber-300">Simulation Preview Active:</span> Showing realistic Tamil Nadu spot rates (~₹12,470/g 22K & ~₹13,604/g 24K). Connect your Supabase project to sync live cron polls and persistent tranches.
+        </p>
+      </div>
+      <button onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 transition-colors">
+        Connect Supabase &rarr;
+      </button>
+    </div>
+
+    <!-- Top KPI Cards Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- 22K Card -->
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/25">22K &bull; 916</span>
+            <span class="text-xs text-slate-400">Standard Jewellery</span>
+          </div>
+          <span id="zone-badge-22k" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300">
+            Neutral Band
+          </span>
+        </div>
+
+        <div class="flex items-baseline gap-2">
+          <span id="price-22k" class="text-3xl font-bold font-mono tracking-tight text-white">₹12,470.00</span>
+          <span class="text-xs text-slate-400">/ gram</span>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span id="subprice-22k" class="text-slate-400">Incl. 3% GST: ₹12,844.10</span>
+          <span id="delta-22k" class="font-mono font-medium text-emerald-400">-0.32% vs 5D Avg</span>
+        </div>
+      </div>
+
+      <!-- 24K Card -->
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300 border border-yellow-500/25">24K &bull; 999</span>
+            <span class="text-xs text-slate-400">24 Karat Bullion</span>
+          </div>
+          <span id="zone-badge-24k" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300">
+            Neutral Band
+          </span>
+        </div>
+
+        <div class="flex items-baseline gap-2">
+          <span id="price-24k" class="text-3xl font-bold font-mono tracking-tight text-white">₹13,603.64</span>
+          <span class="text-xs text-slate-400">/ gram</span>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span id="subprice-24k" class="text-slate-400">Incl. 3% GST: ₹14,011.75</span>
+          <span id="delta-24k" class="font-mono font-medium text-emerald-400">-0.32% vs 5D Avg</span>
+        </div>
+      </div>
+
+      <!-- Global Spot & Sync Telemetry Card -->
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Global Parity & Sync</span>
+            <span id="last-updated" class="text-xs text-slate-400 flex items-center gap-1">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
+              Just now
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-2">
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div class="text-[11px] text-slate-400">XAU / USD Spot</div>
+              <div id="xau-usd-val" class="text-sm font-mono font-semibold text-slate-100 mt-0.5">$4,687.34</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+              <div class="text-[11px] text-slate-400">USD / INR FX</div>
+              <div id="usd-inr-val" class="text-sm font-mono font-semibold text-slate-100 mt-0.5">₹85.8042</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span class="text-slate-400">5D Buy-Zone Floor (22K):</span>
+          <span id="floor-22k-val" class="font-mono font-semibold text-emerald-400">₹12,385.00 / g</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5-Day Projection Band Chart Section -->
+    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <h2 class="text-base font-semibold text-white">5-Day Price History & Projection Band</h2>
+            <span id="chart-sample-badge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+              48 polls
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            Rolling 5-day mean &plusmn;1.5&sigma; volatility channel highlighting staggered dip-buying zones
+          </p>
+        </div>
+
+        <!-- Karat Selector Pills -->
+        <div class="flex items-center gap-2 self-start sm:self-center">
+          <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800">
+            <button id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 transition-colors">
+              22K Gold
+            </button>
+            <button id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-colors">
+              24K Gold
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projection Band Summary Strip -->
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">Lower Dip Band (Buy Zone)</div>
+          <div id="band-lower" class="text-sm sm:text-base font-mono font-semibold text-emerald-400 mt-0.5">₹12,385.00</div>
+        </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">5-Day Rolling Mean</div>
+          <div id="band-mean" class="text-sm sm:text-base font-mono font-semibold text-amber-300 mt-0.5">₹12,510.20</div>
+        </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">Upper Resistance Band</div>
+          <div id="band-upper" class="text-sm sm:text-base font-mono font-semibold text-rose-400 mt-0.5">₹12,635.40</div>
+        </div>
+      </div>
+
+      <!-- Canvas Container -->
+      <div class="relative h-72 sm:h-80 w-full">
+        <canvas id="goldChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Bottom Grid: Staggered Buy Tranches & Triggered Dip Alerts -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left 7 Cols: Staggered Buy Tranches -->
+      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
+        <div class="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-white">Staggered Buy Tranches</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Target allocation buckets checked automatically on every rate poll</p>
+          </div>
+          <button onclick="openTrancheModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            Add Tranche
+          </button>
+        </div>
+
+        <!-- Tranches List -->
+        <div id="tranches-list" class="space-y-3 flex-1">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Right 5 Cols: Dip Alert Log -->
+      <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <i data-lucide="bell-ring" class="w-4 h-4 text-amber-400"></i>
+              Dip Alert Feed
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Triggered when spot crosses below tranche target</p>
+          </div>
+          <span id="alert-count-badge" class="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">0</span>
+        </div>
+
+        <div id="alerts-list" class="space-y-3 flex-1 max-h-[380px] overflow-y-auto pr-1">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 1: Add Staggered Buy Tranche                                      -->
+  <!-- ======================================================================= -->
+  <div id="tranche-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-white">New Staggered Buy Tranche</h3>
+        <button onclick="closeTrancheModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="tranche-form" onsubmit="handleCreateTranche(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Tranche Label</label>
+          <input type="text" id="tranche-label" required placeholder="e.g., Tranche 3 - Deep Correction (-2.5%)"
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Purity</label>
+            <select id="tranche-karat" onchange="prefillSuggestedTarget()"
+              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none">
+              <option value="22K">22K (916)</option>
+              <option value="24K">24K (999)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Target Rate (₹/g, Excl. GST)</label>
+            <input type="number" step="0.01" id="tranche-target" required
+              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Planned Allocation (₹ INR)</label>
+          <input type="number" step="100" id="tranche-allocation" required value="20000"
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeTrancheModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
+            Save Tranche
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- MODAL 2: Supabase Backend Configuration                                 -->
+  <!-- ======================================================================= -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-lg rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-lg bg-amber-500/15 text-amber-400">
+            <i data-lucide="database" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">Supabase Backend Connection</h3>
+            <p class="text-xs text-slate-400">Credentials are stored locally in your browser</p>
+          </div>
+        </div>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Project URL</label>
+          <input type="url" id="cfg-supabase-url" placeholder="https://xyzcompany.supabase.co"
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Anon Public Key</label>
+          <input type="password" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 text-xs text-slate-400 space-y-1.5">
+          <div class="font-semibold text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i>
+            Required SQL Grants & RLS Policy
+          </div>
+          <p>Run this in your Supabase SQL Editor so the dashboard can read rates and manage tranches:</p>
+          <pre class="bg-black/50 p-2 rounded text-[11px] font-mono text-amber-300 overflow-x-auto">GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT SELECT ON TABLE public.gold_rates_history, public.alert_logs, public.gold_config TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.buy_tranches TO anon, authenticated;
+CREATE POLICY "Allow public write on tranches" ON public.buy_tranches FOR ALL USING (true) WITH CHECK (true);</pre>
+        </div>
+
+        <div class="pt-2 flex flex-wrap items-center justify-between gap-2">
+          <button type="button" onclick="resetToDemoMode()" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white border border-slate-700 hover:bg-slate-800">
+            Use Demo Mode
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
+              Cancel
+            </button>
+            <button type="button" onclick="saveSupabaseSettings()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
+              Save & Connect
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================= -->
+  <!-- Application Logic                                                       -->
+  <!-- ======================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // State Management
+    // -------------------------------------------------------------------------
+    const STORAGE_URL_KEY = "goldbuddy_supabase_url";
+    const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
+
+    let supabaseClient = null;
+    let pollingFallbackInterval = null;
+    let isDemoMode = true;
+    let includeGst = false;
+    let activeChartKarat = "22K";
+    let chartInstance = null;
+
+    let appState = {
+      history: [],
+      tranches: [],
+      alerts: [],
+      projection22K: null,
+      projection24K: null,
+    };
+
+    // -------------------------------------------------------------------------
+    // Formatting Helpers
+    // -------------------------------------------------------------------------
+    function formatINR(value, decimals = 2) {
+      return "₹" + Number(value).toLocaleString("en-IN", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+    }
+
+    function timeAgo(isoString) {
+      const diffSec = Math.max(1, Math.floor((Date.now() - new Date(isoString).getTime()) / 1000));
+      if (diffSec < 60) return `${diffSec}s ago`;
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return `${diffHr}h ago`;
+      return `${Math.floor(diffHr / 24)}d ago`;
+    }
+
+    function showToast(title, body, type = "info") {
+      const container = document.getElementById("toast-container");
+      const el = document.createElement("div");
+      const borderClass =
+        type === "alert"
+          ? "border-emerald-500/50 bg-slate-900/95"
+          : type === "error"
+          ? "border-rose-500/50 bg-slate-900/95"
+          : "border-amber-500/40 bg-slate-900/95";
+
+      const iconColor =
+        type === "alert" ? "text-emerald-400" : type === "error" ? "text-rose-400" : "text-amber-400";
+
+      el.className = `pointer-events-auto rounded-xl border ${borderClass} p-3.5 shadow-xl backdrop-blur-md transition-all transform translate-y-0`;
+      el.innerHTML = `
+        <div class="flex items-start gap-3">
+          <i data-lucide="${type === "alert" ? "bell-ring" : type === "error" ? "alert-circle" : "info"}" class="w-4 h-4 ${iconColor} shrink-0 mt-0.5"></i>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-semibold text-white">${title}</div>
+            <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${body}</div>
+          </div>
+        </div>
+      `;
+      container.appendChild(el);
+      lucide.createIcons({ nodes: [el] });
+      setTimeout(() => {
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 300);
+      }, 4500);
+    }
+
+    // -------------------------------------------------------------------------
+    // Demo Data Generator (Calibrated to ~₹12,470 22K / ~₹13,604 24K)
+    // -------------------------------------------------------------------------
+    function buildDemoDataset() {
+      const now = Date.now();
+      const rows = [];
+      let base24k = 13680;
+
+      for (let i = 47; i >= 0; i--) {
+        const ts = new Date(now - i * 2.5 * 60 * 60 * 1000).toISOString();
+        const wave = Math.sin(i / 5.5) * 85 + (Math.cos(i / 2.3) * 35);
+        const r24 = Number((base24k + wave).toFixed(2));
+        if (i === 0) {
+          // Anchor latest tick right around ₹13,603.64 (24K) & ₹12,470.00 (22K)
+          const anchored24 = 13603.64;
+          const anchored22 = Number((anchored24 * (22 / 24)).toFixed(2));
+          rows.push({
+            id: 48 - i,
+            xau_usd: 4687.34,
+            usd_inr: 85.8042,
+            rate_24k_gram: anchored24,
+            rate_24k_with_gst: Number((anchored24 * 1.03).toFixed(2)),
+            rate_22k_gram: anchored22,
+            rate_22k_with_gst: Number((anchored22 * 1.03).toFixed(2)),
+            fetched_at: ts,
+          });
+        } else {
+          const r22 = Number((r24 * (22 / 24)).toFixed(2));
+          rows.push({
+            id: 48 - i,
+            xau_usd: Number(((r24 / 1.052) * 31.1034768 / 85.80).toFixed(2)),
+            usd_inr: 85.8042,
+            rate_24k_gram: r24,
+            rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
+            rate_22k_gram: r22,
+            rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
+            fetched_at: ts,
+          });
+        }
+      }
+
+      // Most recent first (matches Supabase ORDER BY fetched_at DESC)
+      const historyDesc = [...rows].reverse();
+
+      const tranches = [
+        {
+          id: "demo-1",
+          label: "Tranche 1 — Intraday Support Dip",
+          karat: "22K",
+          target_rate_gram: 12450.00,
+          allocation_inr: 15000.00,
+          status: "active",
+          triggered_at: null,
+        },
+        {
+          id: "demo-2",
+          label: "Tranche 2 — Lower 5-Day Band Floor",
+          karat: "22K",
+          target_rate_gram: 12385.00,
+          allocation_inr: 25000.00,
+          status: "active",
+          triggered_at: null,
+        },
+        {
+          id: "demo-3",
+          label: "Tranche 3 — 24K Bullion Coin Accumulation",
+          karat: "24K",
+          target_rate_gram: 13520.00,
+          allocation_inr: 30000.00,
+          status: "active",
+          triggered_at: null,
+        },
+        {
+          id: "demo-0",
+          label: "Tranche 0 — Initial Entry Bucket",
+          karat: "22K",
+          target_rate_gram: 12510.00,
+          allocation_inr: 10000.00,
+          status: "triggered",
+          triggered_at: new Date(now - 6 * 3600 * 1000).toISOString(),
+        },
+      ];
+
+      const alerts = [
+        {
+          id: 101,
+          karat: "22K",
+          triggered_rate: 12492.40,
+          target_rate: 12510.00,
+          message: 'GoldBuddy Dip Alert: 22K hit ₹12,492.40/g (Target: ₹12,510.00/g) for "Tranche 0 — Initial Entry Bucket" (₹10,000).',
+          created_at: new Date(now - 6 * 3600 * 1000).toISOString(),
+        },
+      ];
+
+      return { history: historyDesc, tranches, alerts };
+    }
+
+    // -------------------------------------------------------------------------
+    // 5-Day Projection Band Calculation
+    // -------------------------------------------------------------------------
+    function calculateFiveDayProjection(historyRows, karat = "22K") {
+      if (!historyRows || historyRows.length === 0) return null;
+
+      const field =
+        karat === "24K"
+          ? includeGst
+            ? "rate_24k_with_gst"
+            : "rate_24k_gram"
+          : includeGst
+          ? "rate_22k_with_gst"
+          : "rate_22k_gram";
+
+      const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
+      const recent = historyRows.filter((r) => new Date(r.fetched_at).getTime() >= fiveDaysAgo);
+      const sample = recent.length > 0 ? recent : historyRows;
+
+      const prices = sample.map((r) => Number(r[field]));
+      const latestPrice = Number(historyRows[0][field]);
+      const mean = prices.reduce((acc, v) => acc + v, 0) / prices.length;
+      const variance = prices.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / prices.length;
+      const stdDev = Math.sqrt(variance);
+
+      // ±1.5 standard deviations (minimum ±0.65% channel when sample count is small)
+      const spread = Math.max(stdDev * 1.5, mean * 0.0065);
+      const lowerBand = Number((mean - spread).toFixed(2));
+      const upperBand = Number((mean + spread).toFixed(2));
+      const pctFromMean = Number((((latestPrice - mean) / mean) * 100).toFixed(2));
+
+      return {
+        karat,
+        latestPrice,
+        mean5D: Number(mean.toFixed(2)),
+        lowerBand,
+        upperBand,
+        pctFromMean,
+        isInBuyZone: latestPrice <= lowerBand,
+        isNearUpper: latestPrice >= upperBand,
+        sampleCount: sample.length,
+      };
+    }
+
+    // -------------------------------------------------------------------------
+    // Supabase Data Layer + Graceful Polling Fallback (No Canvas WebSocket Error)
+    // -------------------------------------------------------------------------
+    function cleanSupabaseUrl(rawUrl) {
+      if (!rawUrl) return "";
+      let trimmed = rawUrl.trim().replace(/\/+$/, "");
+      // Strip accidental /rest/v1 or /functions/v1 suffixes if pasted
+      trimmed = trimmed.replace(/\/(rest|functions|auth|realtime)\/v1.*$/i, "");
+      return trimmed;
+    }
+
+    async function fetchDashboardData() {
+      if (isDemoMode || !supabaseClient) {
+        if (appState.history.length === 0) {
+          const demo = buildDemoDataset();
+          appState.history = demo.history;
+          appState.tranches = demo.tranches;
+          appState.alerts = demo.alerts;
+        }
+        recomputeAndRender();
+        return;
+      }
+
+      try {
+        const [ratesRes, tranchesRes, alertsRes] = await Promise.all([
+          supabaseClient
+            .from("gold_rates_history")
+            .select("*")
+            .order("fetched_at", { ascending: false })
+            .limit(350),
+          supabaseClient
+            .from("buy_tranches")
+            .select("*")
+            .order("target_rate_gram", { ascending: false }),
+          supabaseClient
+            .from("alert_logs")
+            .select("*")
+            .order("created_at", { ascending: false })
+            .limit(15),
+        ]);
+
+        if (ratesRes.error) throw ratesRes.error;
+        if (tranchesRes.error) throw tranchesRes.error;
+        if (alertsRes.error) throw alertsRes.error;
+
+        appState.history = ratesRes.data ?? [];
+        appState.tranches = tranchesRes.data ?? [];
+        appState.alerts = alertsRes.data ?? [];
+
+        recomputeAndRender();
+        setupBackgroundSync();
+      } catch (err) {
+        console.error("Supabase fetch error:", err);
+        showToast("Supabase Sync Issue", err.message || "Check URL, Anon Key, and table GRANT permissions.", "error");
+      }
+    }
+
+    function setupBackgroundSync() {
+      if (!supabaseClient) return;
+
+      // Clear any previous polling interval
+      if (pollingFallbackInterval) {
+        clearInterval(pollingFallbackInterval);
+        pollingFallbackInterval = null;
+      }
+
+      // Safely attempt Realtime WebSocket; gracefully fall back to 60s cached DB poll if sandbox blocks wss://
+      try {
+        supabaseClient.removeAllChannels();
+        supabaseClient
+          .channel("goldbuddy-live")
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "gold_rates_history" }, () => {
+            fetchDashboardData();
+          })
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "alert_logs" }, (payload) => {
+            if (payload.new?.message) {
+              showToast("Dip Alert Triggered!", payload.new.message, "alert");
+            }
+            fetchDashboardData();
+          })
+          .subscribe((status) => {
+            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+              startPollingFallback();
+            }
+          });
+      } catch (_wsErr) {
+        startPollingFallback();
+      }
+    }
+
+    function startPollingFallback() {
+      if (pollingFallbackInterval) return;
+      // Reads cached Supabase rows every 60s (zero external gold API quota used)
+      pollingFallbackInterval = setInterval(() => {
+        if (!isDemoMode && supabaseClient) {
+          fetchDashboardData();
+        }
+      }, 60000);
+    }
+
+    // -------------------------------------------------------------------------
+    // Manual Refresh (Live Edge Function or Demo Tick Simulation)
+    // -------------------------------------------------------------------------
+    async function handleManualRefresh() {
+      const btn = document.getElementById("refresh-btn");
+      const icon = document.getElementById("refresh-icon");
+      btn.disabled = true;
+      icon.classList.add("animate-spin");
+
+      try {
+        if (isDemoMode || !supabaseClient) {
+          // Simulate a fresh market tick in Demo Mode
+          const prev = appState.history[0];
+          const deltaPct = (Math.random() - 0.56) * 0.005; // Slight downward bias to test dip alerts
+          const new24 = Number((Number(prev.rate_24k_gram) * (1 + deltaPct)).toFixed(2));
+          const new22 = Number((new24 * (22 / 24)).toFixed(2));
+          const newRow = {
+            id: prev.id + 1,
+            xau_usd: Number((Number(prev.xau_usd) * (1 + deltaPct)).toFixed(2)),
+            usd_inr: prev.usd_inr,
+            rate_24k_gram: new24,
+            rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)),
+            rate_22k_gram: new22,
+            rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)),
+            fetched_at: new Date().toISOString(),
+          };
+
+          appState.history.unshift(newRow);
+
+          // Check demo tranches
+          for (const t of appState.tranches) {
+            if (t.status === "active") {
+              const spot = t.karat === "24K" ? new24 : new22;
+              if (spot <= Number(t.target_rate_gram)) {
+                t.status = "triggered";
+                t.triggered_at = newRow.fetched_at;
+                const msg = `GoldBuddy Dip Alert: ${t.karat} hit ${formatINR(spot)}/g (Target: ${formatINR(t.target_rate_gram)}/g) for "${t.label}".`;
+                appState.alerts.unshift({
+                  id: Date.now(),
+                  karat: t.karat,
+                  triggered_rate: spot,
+                  target_rate: t.target_rate_gram,
+                  message: msg,
+                  created_at: newRow.fetched_at,
+                });
+                showToast("Dip Alert Triggered!", msg, "alert");
+              }
+            }
+          }
+
+          recomputeAndRender();
+          showToast("Simulated Tick Logged", `22K: ${formatINR(new22)}/g | 24K: ${formatINR(new24)}/g`, "info");
+        } else {
+          // Invoke live Supabase Edge Function
+          const { data, error } = await supabaseClient.functions.invoke("fetch-gold-rate");
+          if (error) throw error;
+          await fetchDashboardData();
+          showToast(
+            "Live Spot Rate Updated",
+            data?.triggered_count > 0
+              ? `Polled fresh quote & triggered ${data.triggered_count} dip alert(s)!`
+              : "Fetched latest XAU/USD & USD/INR parity.",
+            data?.triggered_count > 0 ? "alert" : "info"
+          );
+        }
+      } catch (err) {
+        console.error("Refresh failed:", err);
+        showToast("Refresh Failed", err.message || "Could not invoke fetch-gold-rate Edge Function.", "error");
+      } finally {
+        btn.disabled = false;
+        icon.classList.remove("animate-spin");
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // UI Rendering
+    // -------------------------------------------------------------------------
+    function recomputeAndRender() {
+      appState.projection22K = calculateFiveDayProjection(appState.history, "22K");
+      appState.projection24K = calculateFiveDayProjection(appState.history, "24K");
+
+      renderConnectionBadge();
+      renderKpiCards();
+      renderChart();
+      renderTranches();
+      renderAlerts();
+    }
+
+    function renderConnectionBadge() {
+      const dot = document.getElementById("status-dot");
+      const text = document.getElementById("status-text");
+      const banner = document.getElementById("demo-banner");
+
+      if (isDemoMode) {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        text.textContent = "Demo Mode";
+        banner.classList.remove("hidden");
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+        text.textContent = "Live Supabase";
+        banner.classList.add("hidden");
+      }
+    }
+
+    function renderKpiCards() {
+      const latest = appState.history[0];
+      const p22 = appState.projection22K;
+      const p24 = appState.projection24K;
+
+      if (!latest || !p22 || !p24) {
+        document.getElementById("price-22k").textContent = "—";
+        document.getElementById("price-24k").textContent = "—";
+        document.getElementById("last-updated").textContent = "No rows yet";
+        return;
+      }
+
+      // 22K
+      const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
+      const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
+      document.getElementById("price-22k").textContent = formatINR(main22);
+      document.getElementById("subprice-22k").textContent = includeGst
+        ? `Excl. GST: ${formatINR(alt22)}`
+        : `Incl. 3% GST: ${formatINR(alt22)}`;
+
+      const delta22El = document.getElementById("delta-22k");
+      delta22El.textContent = `${p22.pctFromMean >= 0 ? "+" : ""}${p22.pctFromMean}% vs 5D Avg`;
+      delta22El.className = `font-mono font-medium ${p22.pctFromMean <= 0 ? "text-emerald-400" : "text-rose-400"}`;
+
+      const badge22 = document.getElementById("zone-badge-22k");
+      if (p22.isInBuyZone) {
+        badge22.textContent = "Buy Zone Dip";
+        badge22.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+      } else if (p22.isNearUpper) {
+        badge22.textContent = "Upper Band";
+        badge22.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
+      } else {
+        badge22.textContent = "Neutral Band";
+        badge22.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300";
+      }
+
+      // 24K
+      const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
+      const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
+      document.getElementById("price-24k").textContent = formatINR(main24);
+      document.getElementById("subprice-24k").textContent = includeGst
+        ? `Excl. GST: ${formatINR(alt24)}`
+        : `Incl. 3% GST: ${formatINR(alt24)}`;
+
+      const delta24El = document.getElementById("delta-24k");
+      delta24El.textContent = `${p24.pctFromMean >= 0 ? "+" : ""}${p24.pctFromMean}% vs 5D Avg`;
+      delta24El.className = `font-mono font-medium ${p24.pctFromMean <= 0 ? "text-emerald-400" : "text-rose-400"}`;
+
+      const badge24 = document.getElementById("zone-badge-24k");
+      if (p24.isInBuyZone) {
+        badge24.textContent = "Buy Zone Dip";
+        badge24.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
+      } else if (p24.isNearUpper) {
+        badge24.textContent = "Upper Band";
+        badge24.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
+      } else {
+        badge24.textContent = "Neutral Band";
+        badge24.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300";
+      }
+
+      // Global Parity Card
+      document.getElementById("xau-usd-val").textContent = `$${Number(latest.xau_usd).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+      document.getElementById("usd-inr-val").textContent = `₹${Number(latest.usd_inr).toFixed(4)}`;
+      document.getElementById("floor-22k-val").textContent = `${formatINR(p22.lowerBand)} / g`;
+      document.getElementById("last-updated").innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i> ${timeAgo(latest.fetched_at)}`;
+      lucide.createIcons({ nodes: [document.getElementById("last-updated")] });
+    }
+
+    function renderChart() {
+      const proj = activeChartKarat === "24K" ? appState.projection24K : appState.projection22K;
+      if (!proj || appState.history.length === 0) return;
+
+      document.getElementById("chart-sample-badge").textContent = `${proj.sampleCount} polls`;
+      document.getElementById("band-lower").textContent = formatINR(proj.lowerBand);
+      document.getElementById("band-mean").textContent = formatINR(proj.mean5D);
+      document.getElementById("band-upper").textContent = formatINR(proj.upperBand);
+
+      const field =
+        activeChartKarat === "24K"
+          ? includeGst
+            ? "rate_24k_with_gst"
+            : "rate_24k_gram"
+          : includeGst
+          ? "rate_22k_with_gst"
+          : "rate_22k_gram";
+
+      // Chronological order for chart
+      const chrono = [...appState.history].slice(0, 80).reverse();
+      const labels = chrono.map((r) => {
+        const d = new Date(r.fetched_at);
+        return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) +
+          " " +
+          d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
+      });
+
+      const prices = chrono.map((r) => Number(r[field]));
+      const upperSeries = chrono.map(() => proj.upperBand);
+      const meanSeries = chrono.map(() => proj.mean5D);
+      const lowerSeries = chrono.map(() => proj.lowerBand);
+
+      const ctx = document.getElementById("goldChart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, "rgba(245, 158, 11, 0.28)");
+      gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
+
+      chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: `${activeChartKarat} Spot (₹/g)`,
+              data: prices,
+              borderColor: "#FBBF24",
+              backgroundColor: gradient,
+              borderWidth: 2.5,
+              pointRadius: chrono.length > 35 ? 0 : 3,
+              pointHoverRadius: 5,
+              pointBackgroundColor: "#FBBF24",
+              fill: true,
+              tension: 0.25,
+            },
+            {
+              label: "Upper Resistance Band",
+              data: upperSeries,
+              borderColor: "rgba(244, 63, 94, 0.55)",
+              borderWidth: 1.5,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              fill: false,
+            },
+            {
+              label: "5-Day Mean",
+              data: meanSeries,
+              borderColor: "rgba(148, 163, 184, 0.5)",
+              borderWidth: 1.2,
+              borderDash: [2, 4],
+              pointRadius: 0,
+              fill: false,
+            },
+            {
+              label: "Lower Buy-Zone Floor",
+              data: lowerSeries,
+              borderColor: "rgba(16, 185, 129, 0.7)",
+              backgroundColor: "rgba(16, 185, 129, 0.06)",
+              borderWidth: 1.5,
+              borderDash: [5, 5],
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: "index",
+            intersect: false,
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "#94A3B8",
+                font: { size: 11, family: "Inter" },
+                boxWidth: 12,
+              },
+            },
+            tooltip: {
+              backgroundColor: "#0F172A",
+              titleColor: "#F8FAFC",
+              bodyColor: "#CBD5E1",
+              borderColor: "#334155",
+              borderWidth: 1,
+              padding: 10,
+              callbacks: {
+                label: (ctx) => `${ctx.dataset.label}: ${formatINR(ctx.parsed.y)}`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { color: "rgba(30, 41, 59, 0.45)" },
+              ticks: {
+                color: "#64748B",
+                font: { size: 10, family: "JetBrains Mono" },
+                maxTicksLimit: 7,
+              },
+            },
+            y: {
+              grid: { color: "rgba(30, 41, 59, 0.45)" },
+              ticks: {
+                color: "#94A3B8",
+                font: { size: 11, family: "JetBrains Mono" },
+                callback: (val) => "₹" + Number(val).toLocaleString("en-IN"),
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function renderTranches() {
+      const container = document.getElementById("tranches-list");
+      const latest = appState.history[0];
+
+      if (!appState.tranches || appState.tranches.length === 0) {
+        container.innerHTML = `
+          <div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">
+            No staggered tranches configured yet. Click <span class="text-amber-400 font-semibold">+ Add Tranche</span> to set your first dip target.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = appState.tranches
+        .map((t) => {
+          const baseSpot = latest
+            ? t.karat === "24K"
+              ? Number(latest.rate_24k_gram)
+              : Number(latest.rate_22k_gram)
+            : null;
+
+          const targetBase = Number(t.target_rate_gram);
+          const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
+          const displaySpot = baseSpot ? (includeGst ? baseSpot * 1.03 : baseSpot) : null;
+
+          let distanceText = "";
+          if (displaySpot) {
+            const diff = displaySpot - displayTarget;
+            const diffPct = ((diff / displaySpot) * 100).toFixed(2);
+            distanceText =
+              diff <= 0
+                ? `<span class="text-emerald-400 font-semibold">At / Below Target (${formatINR(Math.abs(diff))} below)</span>`
+                : `<span class="text-slate-400">${formatINR(diff)} (${diffPct}%) away</span>`;
+          }
+
+          const statusStyles = {
+            active: "bg-sky-500/15 text-sky-400 border-sky-500/30",
+            triggered: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+            executed: "bg-purple-500/15 text-purple-300 border-purple-500/30",
+            paused: "bg-slate-800 text-slate-400 border-slate-700",
+          };
+
+          const estGrams = (Number(t.allocation_inr) / displayTarget).toFixed(3);
+
+          return `
+            <div class="rounded-xl bg-slate-900/75 border border-slate-800/90 hover:border-slate-700 p-4 transition-colors">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25">${t.karat}</span>
+                    <span class="text-sm font-semibold text-white">${t.label}</span>
+                  </div>
+                  <div class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                    <span class="text-slate-300 font-mono">Target: <strong class="text-amber-300">${formatINR(displayTarget)}/g</strong></span>
+                    <span class="text-slate-400 font-mono">Budget: ${formatINR(t.allocation_inr, 0)} (~${estGrams}g)</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide border ${statusStyles[t.status] || statusStyles.active}">
+                    ${t.status}
+                  </span>
+                </div>
+              </div>
+
+              <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                <div>${distanceText}</div>
+                <div class="flex items-center gap-2">
+                  ${
+                    t.status === "triggered"
+                      ? `<button onclick="updateTrancheStatus('${t.id}', 'executed')" class="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-medium transition-colors">Mark Bought</button>`
+                      : ""
+                  }
+                  ${
+                    t.status === "active"
+                      ? `<button onclick="updateTrancheStatus('${t.id}', 'paused')" class="px-2 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">Pause</button>`
+                      : t.status === "paused" || t.status === "triggered"
+                      ? `<button onclick="updateTrancheStatus('${t.id}', 'active')" class="px-2 py-1 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800 transition-colors">Re-arm</button>`
+                      : ""
+                  }
+                  <button onclick="deleteTranche('${t.id}')" title="Delete Tranche" class="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition-colors">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+
+      lucide.createIcons({ nodes: [container] });
+    }
+
+    function renderAlerts() {
+      const container = document.getElementById("alerts-list");
+      const countBadge = document.getElementById("alert-count-badge");
+      countBadge.textContent = appState.alerts.length;
+
+      if (!appState.alerts || appState.alerts.length === 0) {
+        container.innerHTML = `
+          <div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">
+            No dip alerts triggered yet. When live spot drops below an active tranche target, alerts appear here automatically.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = appState.alerts
+        .map(
+          (a) => `
+          <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3.5">
+            <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
+              <span>${a.karat} DIP TRIGGERED</span>
+              <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed">${a.message}</p>
+          </div>
+        `
+        )
+        .join("");
+    }
+
+    // -------------------------------------------------------------------------
+    // Interactive Actions (GST Toggle, Karat Switch, Tranche CRUD, Settings)
+    // -------------------------------------------------------------------------
+    function toggleGst() {
+      includeGst = !includeGst;
+      document.getElementById("gst-toggle-label").textContent = includeGst ? "Incl. 3% GST" : "Excl. 3% GST";
+      recomputeAndRender();
+    }
+
+    function switchChartKarat(karat) {
+      activeChartKarat = karat;
+      const btn22 = document.getElementById("tab-22k");
+      const btn24 = document.getElementById("tab-24k");
+
+      if (karat === "22K") {
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 transition-colors";
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-colors";
+      } else {
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 transition-colors";
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-colors";
+      }
+      renderChart();
+    }
+
+    function openTrancheModal() {
+      prefillSuggestedTarget();
+      document.getElementById("tranche-modal").classList.remove("hidden");
+      document.getElementById("tranche-modal").classList.add("flex");
+    }
+
+    function closeTrancheModal() {
+      document.getElementById("tranche-modal").classList.add("hidden");
+      document.getElementById("tranche-modal").classList.remove("flex");
+    }
+
+    function prefillSuggestedTarget() {
+      const karat = document.getElementById("tranche-karat").value;
+      const latest = appState.history[0];
+      if (!latest) return;
+      const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
+      // Suggest a 1% dip below current spot
+      document.getElementById("tranche-target").value = (currentBase * 0.99).toFixed(2);
+    }
+
+    async function handleCreateTranche(e) {
+      e.preventDefault();
+      const label = document.getElementById("tranche-label").value.trim();
+      const karat = document.getElementById("tranche-karat").value;
+      const target_rate_gram = Number(document.getElementById("tranche-target").value);
+      const allocation_inr = Number(document.getElementById("tranche-allocation").value);
+
+      if (isDemoMode || !supabaseClient) {
+        appState.tranches.unshift({
+          id: "demo-" + Date.now(),
+          label,
+          karat,
+          target_rate_gram,
+          allocation_inr,
+          status: "active",
+          triggered_at: null,
+        });
+        closeTrancheModal();
+        document.getElementById("tranche-form").reset();
+        renderTranches();
+        showToast("Tranche Added", `"${label}" armed at ${formatINR(target_rate_gram)}/g.`, "info");
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").insert({
+          label,
+          karat,
+          target_rate_gram,
+          allocation_inr,
+          status: "active",
+        });
+        if (error) throw error;
+        closeTrancheModal();
+        document.getElementById("tranche-form").reset();
+        await fetchDashboardData();
+        showToast("Tranche Saved", `"${label}" persisted to Supabase.`, "info");
+      } catch (err) {
+        showToast("Could Not Save Tranche", err.message, "error");
+      }
+    }
+
+    async function updateTrancheStatus(id, newStatus) {
+      if (isDemoMode || !supabaseClient) {
+        const item = appState.tranches.find((t) => t.id === id);
+        if (item) item.status = newStatus;
+        renderTranches();
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient
+          .from("buy_tranches")
+          .update({ status: newStatus })
+          .eq("id", id);
+        if (error) throw error;
+        await fetchDashboardData();
+      } catch (err) {
+        showToast("Update Failed", err.message, "error");
+      }
+    }
+
+    async function deleteTranche(id) {
+      if (isDemoMode || !supabaseClient) {
+        appState.tranches = appState.tranches.filter((t) => t.id !== id);
+        renderTranches();
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").delete().eq("id", id);
+        if (error) throw error;
+        await fetchDashboardData();
+      } catch (err) {
+        showToast("Delete Failed", err.message, "error");
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // Supabase Connection Settings Modal
+    // -------------------------------------------------------------------------
+    function openSettingsModal() {
+      document.getElementById("cfg-supabase-url").value = localStorage.getItem(STORAGE_URL_KEY) || "";
+      document.getElementById("cfg-supabase-key").value = localStorage.getItem(STORAGE_ANON_KEY) || "";
+      document.getElementById("settings-modal").classList.remove("hidden");
+      document.getElementById("settings-modal").classList.add("flex");
+    }
+
+    function closeSettingsModal() {
+      document.getElementById("settings-modal").classList.add("hidden");
+      document.getElementById("settings-modal").classList.remove("flex");
+    }
+
+    async function saveSupabaseSettings() {
+      const cleanedUrl = cleanSupabaseUrl(document.getElementById("cfg-supabase-url").value);
+      const anonKey = document.getElementById("cfg-supabase-key").value.trim();
+
+      if (!cleanedUrl || !anonKey) {
+        showToast("Missing Credentials", "Enter both Supabase Project URL and Anon Public Key.", "error");
+        return;
+      }
+
+      localStorage.setItem(STORAGE_URL_KEY, cleanedUrl);
+      localStorage.setItem(STORAGE_ANON_KEY, anonKey);
+
+      supabaseClient = window.supabase.createClient(cleanedUrl, anonKey);
+      isDemoMode = false;
+      closeSettingsModal();
+      await fetchDashboardData();
+      showToast("Connected to Supabase", "Reading cached spot history and tranches.", "info");
+    }
+
+    function resetToDemoMode() {
+      localStorage.removeItem(STORAGE_URL_KEY);
+      localStorage.removeItem(STORAGE_ANON_KEY);
+      if (pollingFallbackInterval) {
+        clearInterval(pollingFallbackInterval);
+        pollingFallbackInterval = null;
+      }
+      supabaseClient = null;
+      isDemoMode = true;
+      appState.history = [];
+      closeSettingsModal();
+      fetchDashboardData();
+      showToast("Switched to Demo Mode", "Showing local simulation dataset.", "info");
+    }
+
+    // -------------------------------------------------------------------------
+    // Boot
+    // -------------------------------------------------------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+
+      const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY));
+      const savedKey = localStorage.getItem(STORAGE_ANON_KEY);
+
+      if (savedUrl && savedKey) {
+        supabaseClient = window.supabase.createClient(savedUrl, savedKey);
+        isDemoMode = false;
+      } else {
+        isDemoMode = true;
+      }
+
+      fetchDashboardData();
+    });
+  </script>
+</body>
+</html>

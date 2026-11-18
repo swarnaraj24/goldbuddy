@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GoldBuddy — Smart Gold Buying Helper</title>
+  <title>GoldBuddy — Live Indian Gold Rates, Smart Buying Planner & AI Market Insights</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -37,7 +37,10 @@
       font-family: 'Inter', system-ui, sans-serif;
     }
     .gold-glow {
-      box-shadow: 0 0 28px -8px rgba(245, 158, 11, 0.22);
+      box-shadow: 0 0 32px -10px rgba(245, 158, 11, 0.25);
+    }
+    .gold-card-bg {
+      background: radial-gradient(circle at 88% 55%, rgba(245, 158, 11, 0.12), transparent 55%), #131A26;
     }
   </style>
 </head>
@@ -45,16 +48,16 @@
 
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
 
-  <!-- Header -->
+  <!-- Top Header -->
   <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#0B0F17]/90 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold">
           <i data-lucide="coins" class="w-5 h-5"></i>
         </div>
         <div>
           <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
-          <p class="text-xs text-slate-400 hidden sm:block">Live Indian gold rates, budget-to-grams calculator & AI dip alerts</p>
+          <p class="text-xs text-slate-400 hidden sm:block">Live Indian gold rates, smart buying planner & AI market insights</p>
         </div>
       </div>
 
@@ -83,7 +86,7 @@
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-5">
 
     <!-- Scenario Preview Alert Banner -->
     <div id="scenario-banner" class="hidden rounded-xl border border-purple-500/35 bg-purple-500/10 px-4 py-2.5 flex items-center justify-between gap-3">
@@ -96,7 +99,7 @@
     <!-- Connection Banner -->
     <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <p class="text-xs sm:text-sm text-slate-300">
-        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian gold rates & AI summaries.
+        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian gold rates & AI market summaries.
       </p>
       <button type="button" onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 cursor-pointer">
         Connect Account &rarr;
@@ -113,162 +116,271 @@
     </div>
 
     <!-- Market Telemetry Strip -->
-    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+    <section class="rounded-xl bg-[#131A26] border border-slate-800/90 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2.5">
-        <span id="board-date-badge" class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-medium text-emerald-400">
+        <span id="board-date-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-medium text-emerald-400">
           Today
         </span>
+        <span class="text-slate-700">|</span>
         <span class="text-xs font-medium text-slate-300">India Retail Gold Rate</span>
       </div>
 
       <div class="flex items-center gap-4 text-xs text-slate-400 font-mono">
         <span>USD: <strong id="board-usd" class="text-slate-200">—</strong></span>
+        <span class="text-slate-700">|</span>
         <span>Global Gold: <strong id="board-xau" class="text-slate-200">—</strong></span>
+        <span class="text-slate-700">|</span>
         <span id="updated-time-badge" class="font-sans text-slate-400">Just now</span>
       </div>
     </section>
 
-    <!-- 1. 22K & 24K LIVE CARDS -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- 22K Card -->
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow">
-        <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400">22K Jewellery Gold /g</span>
-          <span class="text-[11px] text-slate-400">91.6% Hallmark</span>
-        </div>
-        <div class="flex items-baseline justify-between mt-1">
-          <span id="price-22k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="badge-22k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
-        </div>
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="subprice-22k" class="text-slate-400">—</span>
-          <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
-        </div>
-      </div>
+    <!-- ROW 1 (PRIORITY HERO): LEFT = 22K & 24K RATES + 5-DAY CHART | RIGHT = AI MARKET SUMMARY & 15-DAY OUTLOOK -->
+    <section class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
 
-      <!-- 24K Card -->
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
-        <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300">24K Pure Gold /g</span>
-          <span class="text-[11px] text-slate-400">99.9% Coin / Bar</span>
-        </div>
-        <div class="flex items-baseline justify-between mt-1">
-          <span id="price-24k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="badge-24k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
-        </div>
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="subprice-24k" class="text-slate-400">—</span>
-          <span class="text-slate-400">10g Pure: <strong id="ten-gram-24k" class="font-mono text-slate-200">—</strong></span>
-        </div>
-      </div>
-    </section>
+      <!-- Left 6 Columns: Live Price Cards + 5-Day Chart -->
+      <div class="xl:col-span-6 flex flex-col gap-5">
 
-    <!-- 2. HOW MUCH GOLD CAN I BUY? (AMOUNT -> GRAMS & GRAMS -> AMOUNT CALCULATOR) -->
-    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div>
-          <h2 class="text-base font-semibold text-white">How Much Gold Can My Money Buy?</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Enter your budget in ₹ to see exact grams you'll get—or switch to grams to check the showroom bill</p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 text-xs">
-            <button type="button" id="mode-budget-btn" onclick="switchCalcMode('budget')" class="px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer">
-              Budget (₹ &rarr; Grams)
-            </button>
-            <button type="button" id="mode-grams-btn" onclick="switchCalcMode('grams')" class="px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer">
-              Weight (Grams &rarr; ₹)
-            </button>
-          </div>
-          <button type="button" onclick="syncCalculatorToPlan()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 cursor-pointer">
-            Use Amount in 3-Part Plan
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <!-- Input 1: Either Budget in INR or Weight in Grams -->
-        <div id="calc-budget-wrapper">
-          <label for="calc-budget-inr" class="block text-xs text-slate-400 mb-1">Your Budget Amount (₹)</label>
-          <input type="number" id="calc-budget-inr" value="50000" step="500" min="500" oninput="recalculateGoldWorth()"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div id="calc-grams-wrapper" class="hidden">
-          <label for="calc-grams" class="block text-xs text-slate-400 mb-1">Gold Weight (grams)</label>
-          <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateGoldWorth()"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label for="calc-karat" class="block text-xs text-slate-400 mb-1">Gold Purity</label>
-          <select id="calc-karat" onchange="recalculateGoldWorth()"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-            <option value="22K">22K Jewellery</option>
-            <option value="24K">24K Pure Gold</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="calc-making" class="block text-xs text-slate-400 mb-1">Making Charges (%)</label>
-          <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateGoldWorth()"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Tax Applied</label>
-          <input type="text" value="3% GST Included" disabled
-            class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-slate-400" />
-        </div>
-      </div>
-
-      <!-- Result Strip -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 text-xs">
-        <div>
-          <div id="res-primary-label" class="text-amber-300 font-medium">Gold You Can Buy</div>
-          <div id="res-primary-val" class="text-base font-mono font-bold text-amber-400 mt-0.5">—</div>
-        </div>
-        <div>
-          <div class="text-slate-400">Net Gold Value</div>
-          <div id="res-gold-val" class="text-sm font-mono font-semibold text-white mt-0.5">—</div>
-        </div>
-        <div>
-          <div class="text-slate-400">Making Charges</div>
-          <div id="res-making-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
-        </div>
-        <div>
-          <div class="text-slate-400">3% GST</div>
-          <div id="res-gst-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. AI MARKET ANALYSIS + 15-DAY SHOPPING DATE ESTIMATE -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-      <!-- Left: AI-Powered Plain-English Explanation -->
-      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
-        <div>
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <h2 id="why-moving-title" class="text-base font-semibold text-white flex items-center gap-2">
-              Why Are Gold Prices Moving Right Now?
-            </h2>
-            <div class="flex items-center gap-2">
-              <span id="ai-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/25">AI Insight</span>
-              <span id="trend-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400">
-                Prices Dropping
-              </span>
+        <!-- 22K & 24K Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- 22K Jewellery Card -->
+          <div class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 gold-glow relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/20">22K Jewellery Gold / g</span>
+              <span class="text-[11px] text-slate-400">91.6% Hallmark</span>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span id="price-22k" class="text-3xl font-bold font-mono text-white tracking-tight">—</span>
+              <span id="badge-22k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <span id="subprice-22k" class="text-slate-400">—</span>
+              <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
             </div>
           </div>
 
-          <div id="verdict-headline" class="text-sm font-bold text-emerald-400 mb-1.5">—</div>
-          <p id="plain-english-story" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
+          <!-- 24K Pure Gold Card -->
+          <div class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300 border border-yellow-500/20">24K Pure Gold / g</span>
+              <span class="text-[11px] text-slate-400">99.9% Coin / Bar</span>
+            </div>
+            <div class="flex items-center justify-between mt-2">
+              <span id="price-24k" class="text-3xl font-bold font-mono text-white tracking-tight">—</span>
+              <span id="badge-24k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <span id="subprice-24k" class="text-slate-400">—</span>
+              <span class="text-slate-400">10g Pure: <strong id="ten-gram-24k" class="font-mono text-slate-200">—</strong></span>
+            </div>
+          </div>
+        </div>
 
-          <div id="drivers-list" class="space-y-2.5"></div>
+        <!-- 5-Day Gold Price Movement Chart -->
+        <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base font-semibold text-white">5-Day Gold Price Movement</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Compare today's rate against this week's average and bargain buy level</p>
+              </div>
+
+              <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800">
+                <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer">
+                  22K Gold
+                </button>
+                <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
+                  24K Gold
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5 mb-4">
+              <div class="rounded-xl bg-slate-900/80 border border-slate-800/80 px-3 py-2.5">
+                <div class="text-[11px] text-slate-400">Good Bargain Price</div>
+                <div id="band-lower" class="text-sm font-mono font-semibold text-emerald-400 mt-0.5">—</div>
+              </div>
+              <div class="rounded-xl bg-slate-900/80 border border-slate-800/80 px-3 py-2.5">
+                <div class="text-[11px] text-slate-400">5-Day Average Price</div>
+                <div id="band-mean" class="text-sm font-mono font-semibold text-amber-300 mt-0.5">—</div>
+              </div>
+              <div class="rounded-xl bg-slate-900/80 border border-slate-800/80 px-3 py-2.5">
+                <div class="text-[11px] text-slate-400">5-Day High Price</div>
+                <div id="band-upper" class="text-sm font-mono font-semibold text-rose-400 mt-0.5">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative h-56 w-full">
+            <canvas id="goldChart"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- Right: Shopping Date Price Estimate (1-Click Dropdown up to 15 Days) -->
+      <!-- Right 6 Columns: AI Market Summary + Key Drivers + AI Outlook (Next 15 Days) + AI Recommendation -->
+      <div class="xl:col-span-6 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between gap-4">
+        <div>
+          <!-- Card Header -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              </span>
+              <h2 class="text-base font-semibold text-white">AI Market Summary</h2>
+              <span id="ai-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/25">Live AI</span>
+            </div>
+            <span id="trend-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400">
+              Prices Dropping
+            </span>
+          </div>
+
+          <!-- Plain-English Verdict & Story -->
+          <div id="verdict-headline" class="text-sm sm:text-base font-bold text-emerald-400 mb-1.5">—</div>
+          <p id="plain-english-story" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
+
+          <!-- Sub-Grid: Key Drivers Today (Left) + AI Outlook Next 15 Days (Right) -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <!-- Key Drivers Today -->
+            <div class="md:col-span-7 space-y-2.5">
+              <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+                Key Drivers Today
+              </div>
+              <div id="drivers-list" class="space-y-2.5"></div>
+            </div>
+
+            <!-- AI Outlook (Next 15 Days) with Buyer-Friendly Color Polarity -->
+            <div class="md:col-span-5 rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 flex flex-col justify-between space-y-2.5">
+              <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+                AI Outlook (Next 15 Days)
+              </div>
+
+              <div class="space-y-2 text-[11px]">
+                <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-800/80">
+                  <span class="text-slate-400">Trend</span>
+                  <span id="outlook-trend-badge" class="px-2 py-0.5 rounded font-semibold bg-emerald-500/15 text-emerald-400">Stable to Mildly Lower</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-800/80">
+                  <span class="text-slate-400">Expected (22K)</span>
+                  <span id="outlook-expected-band" class="font-mono font-semibold text-amber-300">—</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-800/80">
+                  <span class="text-slate-400">Dip Opportunity</span>
+                  <span id="outlook-dip-band" class="font-mono font-semibold text-emerald-400">—</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 pb-1.5 border-b border-slate-800/80">
+                  <span class="text-slate-400">Bounce Risk</span>
+                  <span id="outlook-bounce-band" class="font-mono font-semibold text-rose-400">—</span>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-slate-400">Confidence</span>
+                  <span id="outlook-confidence" class="px-2 py-0.5 rounded font-mono font-semibold bg-amber-500/15 text-amber-300">Medium (~65%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Recommendation Bottom Callout -->
+        <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
+              <i data-lucide="target" class="w-3.5 h-3.5"></i>
+            </span>
+            <span class="text-xs font-bold text-amber-300">AI Recommendation</span>
+          </div>
+          <p id="ai-recommendation-text" class="text-xs text-slate-200 leading-relaxed">
+            Buy your first part now (≈ 30–35% of budget), and keep the rest ready for potential dips below today's average.
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ROW 2 (INTERACTIVE TOOLS): BUDGET -> GRAMS CALCULATOR + 15-DAY BUY DATE ESTIMATOR -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- Left 7 Columns: How Much Gold Can My Money Buy? -->
+      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 class="text-base font-semibold text-white">How Much Gold Can My Money Buy?</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Enter your budget in ₹ to see exact grams—or switch to grams to check the showroom bill</p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 text-xs">
+                <button type="button" id="mode-budget-btn" onclick="switchCalcMode('budget')" class="px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer">
+                  Budget (₹ &rarr; g)
+                </button>
+                <button type="button" id="mode-grams-btn" onclick="switchCalcMode('grams')" class="px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer">
+                  Weight (g &rarr; ₹)
+                </button>
+              </div>
+              <button type="button" onclick="syncCalculatorToPlan()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 cursor-pointer">
+                Use in 3-Part Plan
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div id="calc-budget-wrapper">
+              <label for="calc-budget-inr" class="block text-xs text-slate-400 mb-1">Your Budget (₹)</label>
+              <input type="number" id="calc-budget-inr" value="50000" step="500" min="500" oninput="recalculateGoldWorth()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+            </div>
+
+            <div id="calc-grams-wrapper" class="hidden">
+              <label for="calc-grams" class="block text-xs text-slate-400 mb-1">Gold Weight (g)</label>
+              <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateGoldWorth()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+            </div>
+
+            <div>
+              <label for="calc-karat" class="block text-xs text-slate-400 mb-1">Gold Purity</label>
+              <select id="calc-karat" onchange="recalculateGoldWorth()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+                <option value="22K">22K Jewellery</option>
+                <option value="24K">24K Pure Gold</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="calc-making" class="block text-xs text-slate-400 mb-1">Making Charges (%)</label>
+              <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateGoldWorth()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Tax Applied</label>
+              <input type="text" value="3% GST Included" disabled
+                class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-slate-400" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 text-xs">
+          <div>
+            <div id="res-primary-label" class="text-amber-300 font-medium">Gold You Can Buy</div>
+            <div id="res-primary-val" class="text-base font-mono font-bold text-amber-400 mt-0.5">—</div>
+          </div>
+          <div>
+            <div class="text-slate-400">Net Gold Value</div>
+            <div id="res-gold-val" class="text-sm font-mono font-semibold text-white mt-0.5">—</div>
+          </div>
+          <div>
+            <div class="text-slate-400">Making Charges</div>
+            <div id="res-making-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
+          </div>
+          <div>
+            <div class="text-slate-400">3% GST</div>
+            <div id="res-gst-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right 5 Columns: Price Estimate for Your Buy Date -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2 mb-2">
@@ -279,10 +391,10 @@
           </div>
 
           <p class="text-xs text-slate-400 mb-3.5">
-            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to see the estimated price range if today's trend continues:
+            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to see the estimated price range:
           </p>
 
-          <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="grid grid-cols-2 gap-3 mb-3.5">
             <div>
               <label for="forecast-days-select" class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
               <select id="forecast-days-select" onchange="renderDateForecast()"
@@ -299,14 +411,14 @@
             </div>
           </div>
 
-          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
+          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3 space-y-2">
             <div class="flex items-center justify-between">
               <span id="forecast-floor-label" class="text-xs text-slate-400">Best-Case Low (If Drop Continues):</span>
               <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
             </div>
             <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
               <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Expected Price (Current Trend):</span>
-              <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
+              <span id="forecast-base-price" class="text-sm font-mono font-bold text-amber-300">—</span>
             </div>
             <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
               <span id="forecast-ceil-label" class="text-xs text-slate-400">Worst-Case High (If Price Rises):</span>
@@ -315,17 +427,15 @@
           </div>
         </div>
 
-        <div class="mt-4 rounded-xl bg-rose-500/10 border border-rose-500/25 p-3">
-          <p class="text-[11px] text-rose-200/90 leading-relaxed">
-            <strong class="text-rose-300">Risk & Assumption Notice:</strong> Forecasts are capped at 15 days and are only a rough assumption—not a guaranteed rate. Split your budget into 3 parts below rather than buying 100% on one date.
-          </p>
-        </div>
+        <p class="mt-3 text-[11px] text-slate-400 leading-relaxed">
+          <strong class="text-amber-300">Note:</strong> 15-day estimates are rough assumptions—split your budget into 3 parts below instead of buying 100% on one day.
+        </p>
       </div>
 
     </section>
 
-    <!-- 4. SMART BUDGET SPLITTER & MY BUYING ALERTS -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- ROW 3 (ACTION & ALERTS): MY STAGGERED BUYING PLAN + PRICE DROP ALERTS -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
       <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
@@ -340,10 +450,10 @@
 
         <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div class="flex-1">
-            <label class="block text-[11px] text-slate-400 mb-1">How much total money do you plan to spend on gold?</label>
+            <label class="block text-[11px] text-slate-400 mb-1">My total gold budget (₹)</label>
             <div class="flex items-center gap-2">
               <span class="text-sm font-mono text-slate-400">₹</span>
-              <input type="number" id="auto-budget-inr" value="50000" step="1000" min="1000"
+              <input type="number" id="auto-budget-inr" value="150000" step="1000" min="1000"
                 class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
             </div>
           </div>
@@ -366,44 +476,6 @@
         </div>
 
         <div id="alerts-list" class="space-y-3 flex-1 max-h-[380px] overflow-y-auto pr-1"></div>
-      </div>
-    </section>
-
-    <!-- 5. SIMPLE 5-DAY PRICE CHART -->
-    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-        <div>
-          <h2 class="text-base font-semibold text-white">5-Day Gold Price Movement</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Compare today's rate against this week's average and bargain buy level</p>
-        </div>
-
-        <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 self-start">
-          <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer">
-            22K Gold
-          </button>
-          <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
-            24K Gold
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-3 gap-3 mb-5">
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">Good Bargain Price</div>
-          <div id="band-lower" class="text-sm sm:text-base font-mono font-semibold text-emerald-400 mt-0.5">—</div>
-        </div>
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">5-Day Average Price</div>
-          <div id="band-mean" class="text-sm sm:text-base font-mono font-semibold text-amber-300 mt-0.5">—</div>
-        </div>
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">5-Day High Price</div>
-          <div id="band-upper" class="text-sm sm:text-base font-mono font-semibold text-rose-400 mt-0.5">—</div>
-        </div>
-      </div>
-
-      <div class="relative h-64 sm:h-72 w-full">
-        <canvas id="goldChart"></canvas>
       </div>
     </section>
 
@@ -442,7 +514,7 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">Amount to Spend (₹)</label>
-          <input type="number" step="100" id="tranche-allocation" required value="20000"
+          <input type="number" step="100" id="tranche-allocation" required value="50000"
             class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
         </div>
 
@@ -535,7 +607,7 @@
     let isDemoMode = true;
     let includeGst = false;
     let activeChartKarat = "22K";
-    let calcMode = "budget"; // "budget" (INR -> Grams) | "grams" (Grams -> INR)
+    let calcMode = "budget";
     let scenarioOverride = "actual";
     let chartInstance = null;
 
@@ -667,13 +739,13 @@
         const ts = new Date(now - i * 2.5 * 60 * 60 * 1000).toISOString();
         const progress = (47 - i) / 47;
         const trendPrice = start24k + (end24k - start24k) * progress;
-        const wave = i === 0 ? 0 : Math.sin(i / 3.5) * 28;
+        const wave = i === 0 ? 0 : Math.sin(i / 3.5) * 24;
         const r24 = Number((trendPrice + wave).toFixed(2));
         const r22 = Number((r24 * (22 / 24)).toFixed(2));
         rows.push({
           id: 48 - i,
-          xau_usd: 3775.00,
-          usd_inr: 93.56,
+          xau_usd: 3773.95,
+          usd_inr: 93.49,
           rate_24k_gram: r24,
           rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
           rate_22k_gram: r22,
@@ -686,9 +758,9 @@
       return {
         history: [...rows].reverse(),
         tranches: [
-          { id: "demo-1", label: "Part 1 (30%) — Buy Today on Dip", karat: "22K", target_rate_gram: 12215.00, allocation_inr: 15000.00, status: "active" },
-          { id: "demo-2", label: "Part 2 (40%) — Buy if Price Drops More", karat: "22K", target_rate_gram: 12090.00, allocation_inr: 20000.00, status: "active" },
-          { id: "demo-3", label: "Part 3 (30%) — Buy on Bigger Dip", karat: "22K", target_rate_gram: 11950.00, allocation_inr: 15000.00, status: "active" },
+          { id: "demo-1", label: "Part 1 (30%) — Buy Today on Dip", karat: "22K", target_rate_gram: 12216.00, allocation_inr: 50000.00, status: "active" },
+          { id: "demo-2", label: "Part 2 (40%) — Buy if Price Drops More", karat: "22K", target_rate_gram: 12100.00, allocation_inr: 50000.00, status: "active" },
+          { id: "demo-3", label: "Part 3 (30%) — Buy on Bigger Dip", karat: "22K", target_rate_gram: 11980.00, allocation_inr: 50000.00, status: "active" },
         ],
         alerts: [],
       };
@@ -844,7 +916,7 @@
           const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
           if (error) throw error;
           await fetchDashboardData();
-          showToast("Gold Price Updated", "Fetched today's latest rate & market summary.", "info");
+          showToast("Gold Price Updated", "Fetched today's latest rate & AI market summary.", "info");
         }
       } catch (err) {
         console.error("Refresh failed:", err);
@@ -902,8 +974,8 @@
 
       if (!latest || !s22 || !s24) return;
 
-      document.getElementById("board-usd").textContent = `₹${Number(latest.usd_inr || 93.56).toFixed(2)}`;
-      document.getElementById("board-xau").textContent = `$${Number(latest.xau_usd || 3775).toLocaleString("en-US")}/oz`;
+      document.getElementById("board-usd").textContent = `₹${Number(latest.usd_inr || 93.49).toFixed(2)}`;
+      document.getElementById("board-xau").textContent = `$${Number(latest.xau_usd || 3774).toLocaleString("en-US")}/oz`;
       document.getElementById("updated-time-badge").textContent =
         scenarioOverride !== "actual" ? "Preview Mode" : timeAgo(latest.fetched_at);
 
@@ -914,7 +986,7 @@
       document.getElementById("price-22k").textContent = formatINR(main22, 0);
       document.getElementById("badge-22k").textContent = `${diff22 <= 0 ? "" : "+"}${diff22} ${diff22 <= 0 ? "▼" : "▲"}`;
       document.getElementById("badge-22k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff22 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
-      document.getElementById("subprice-22k").textContent = includeGst ? `Excl. GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
+      document.getElementById("subprice-22k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
       document.getElementById("pavan-22k").textContent = formatINR(main22 * 8, 0);
 
       // 24K Card
@@ -924,7 +996,7 @@
       document.getElementById("price-24k").textContent = formatINR(main24, 0);
       document.getElementById("badge-24k").textContent = `${diff24 <= 0 ? "" : "+"}${diff24} ${diff24 <= 0 ? "▼" : "▲"}`;
       document.getElementById("badge-24k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff24 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
-      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
+      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
       document.getElementById("ten-gram-24k").textContent = formatINR(main24 * 10, 0);
     }
 
@@ -958,8 +1030,6 @@
       const karat = document.getElementById("calc-karat").value;
       const makingPct = Math.max(0, Number(document.getElementById("calc-making").value) || 0);
       const ratePerGram = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
-
-      // Effective cost per gram including making charges and 3% GST
       const effectiveCostPerGram = ratePerGram * (1 + makingPct / 100) * 1.03;
 
       if (calcMode === "budget") {
@@ -1008,99 +1078,157 @@
     function renderMarketStory(activeRows) {
       const s22 = appState.stats22K;
       const latest = activeRows?.[0];
-      const titleEl = document.getElementById("why-moving-title");
       const pill = document.getElementById("trend-pill");
       const headlineEl = document.getElementById("verdict-headline");
       const story = document.getElementById("plain-english-story");
       const driversEl = document.getElementById("drivers-list");
       const aiBadge = document.getElementById("ai-badge");
+      const recText = document.getElementById("ai-recommendation-text");
+
+      const outlookTrend = document.getElementById("outlook-trend-badge");
+      const outlookExpected = document.getElementById("outlook-expected-band");
+      const outlookDip = document.getElementById("outlook-dip-band");
+      const outlookBounce = document.getElementById("outlook-bounce-band");
+
       if (!s22) return;
+
+      // Populate AI Outlook 15-Day Bands (Buyer-Friendly Colors: Green = Dip Opportunity, Red = Bounce Risk)
+      const base22 = s22.latestPrice;
+      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988));
+      const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
+      const dipLow = Math.round(s22.avgPrice * 0.975);
+      const dipHigh = Math.round(s22.avgPrice * 0.985);
+      const bounceLow = Math.round(s22.avgPrice * 1.012);
+      const bounceHigh = Math.round(s22.avgPrice * 1.024);
+
+      outlookExpected.textContent = `${formatINR(expLow, 0)} – ${formatINR(expHigh, 0)} / g`;
+      outlookDip.textContent = `${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)} / g`;
+      outlookBounce.textContent = `${formatINR(bounceLow, 0)} – ${formatINR(bounceHigh, 0)} / g`;
+
+      if (s22.isRising) {
+        outlookTrend.textContent = "Mildly Higher";
+        outlookTrend.className = "px-2 py-0.5 rounded font-semibold bg-rose-500/15 text-rose-400";
+      } else {
+        outlookTrend.textContent = "Stable to Mildly Lower";
+        outlookTrend.className = "px-2 py-0.5 rounded font-semibold bg-emerald-500/15 text-emerald-400";
+      }
+
+      const badgeColors = [
+        "bg-amber-500/15 text-amber-400",
+        "bg-sky-500/15 text-sky-400",
+        "bg-emerald-500/15 text-emerald-400",
+        "bg-purple-500/15 text-purple-300",
+      ];
 
       if (latest?.ai_analysis?.drivers && scenarioOverride === "actual") {
         aiBadge.classList.remove("hidden");
-        titleEl.textContent = "AI Market Summary: Why Gold Moved Today";
         pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : `Prices Rising (+${s22.pctVsAvg}%)`;
         pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${s22.pctVsAvg < 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
         headlineEl.textContent = latest.ai_analysis.headline;
-        headlineEl.className = `text-sm font-bold mb-1.5 ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
+        headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
         story.textContent = latest.ai_analysis.story;
 
-        const badgeColors = ["bg-amber-500/15 text-amber-400", "bg-sky-500/15 text-sky-400", "bg-emerald-500/15 text-emerald-400"];
-        driversEl.innerHTML = latest.ai_analysis.drivers
+        const drivers = [...latest.ai_analysis.drivers];
+        if (drivers.length < 4) {
+          drivers.push({
+            title: "Buy in parts (recommended)",
+            detail: "Start with 30–35% of your budget and add more if prices dip further.",
+          });
+        }
+
+        driversEl.innerHTML = drivers
           .map((d, idx) => `
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full ${badgeColors[idx % 3]} text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+              <span class="w-5 h-5 rounded-full ${badgeColors[idx % 4]} text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
               <div>
                 <div class="text-xs font-semibold text-white">${d.title}</div>
-                <p class="text-xs text-slate-400 mt-0.5">${d.detail}</p>
+                <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${d.detail}</p>
               </div>
             </div>
           `)
           .join("");
+
+        recText.textContent = s22.pctVsAvg <= 0
+          ? `Buy your first part now (≈ 30–35% of budget), and keep the rest ready for potential dips near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
+          : `Hold off on bulk buying today; set alerts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g to catch the next pullback.`;
         return;
       }
 
       aiBadge.classList.add("hidden");
       if (s22.isRising) {
-        titleEl.textContent = "Why Are Gold Prices Increasing Right Now?";
         pill.textContent = `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)`;
         pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400";
         headlineEl.textContent = "Prices Rising — Wait for a Dip Before Buying Heavy";
-        headlineEl.className = "text-sm font-bold text-rose-400 mb-1.5";
-        story.textContent = `22K gold has moved ${s22.pctVsAvg}% above its 5-day average (${formatINR(s22.avgPrice)}/g). Based on World Gold Council & Indian bullion market research, three forces drive prices higher during an upward rally:`;
+        headlineEl.className = "text-sm sm:text-base font-bold text-rose-400 mb-1.5";
+        story.textContent = `22K gold has moved ${s22.pctVsAvg}% above its 5-day average (${formatINR(s22.avgPrice)}/g). Rather than chasing a rally, split your purchase and let prices cool down:`;
         driversEl.innerHTML = `
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-            <span class="w-6 h-6 rounded-full bg-rose-500/15 text-rose-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-rose-500/15 text-rose-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
             <div>
-              <div class="text-xs font-semibold text-white">Central Banks & Gold ETFs Are Buying Heavily</div>
-              <p class="text-xs text-slate-400 mt-0.5">Global central banks and Indian Gold ETFs have been steadily adding physical gold to their reserves, absorbing supply and lifting prices back up after dips.</p>
+              <div class="text-xs font-semibold text-white">Central Banks & ETFs Buying</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Steady institutional gold purchases are absorbing supply and lifting prices.</p>
             </div>
           </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-            <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
             <div>
-              <div class="text-xs font-semibold text-white">Indian Wedding Season & Jeweller Restocking</div>
-              <p class="text-xs text-slate-400 mt-0.5">Strong post-Diwali wedding jewellery demand across India leads jewellers to restock bars and coins, narrowing local discounts and lifting counter prices.</p>
+              <div class="text-xs font-semibold text-white">Wedding Season Restocking</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Strong domestic jewellery demand keeps local retail discounts narrow.</p>
             </div>
           </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-            <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
             <div>
-              <div class="text-xs font-semibold text-white">Rupee Exchange Rate & Safe-Haven Demand</div>
-              <p class="text-xs text-slate-400 mt-0.5">When the Indian Rupee weakens against the US Dollar or global investors seek safety from geopolitical tension, imported gold becomes costlier in rupees.</p>
+              <div class="text-xs font-semibold text-white">Rupee & Safe-Haven Demand</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Global uncertainty and currency moves make imported bullion costlier.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Buy in parts (recommended)</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Avoid buying 100% during a spike; set alerts for the next pullback.</p>
             </div>
           </div>
         `;
+        recText.textContent = `Prices are elevated today—wait for a dip toward ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g before deploying your main budget.`;
       } else {
-        titleEl.textContent = "Why Are Gold Prices Going Down Right Now?";
         pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady";
         pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400";
-        headlineEl.textContent = "Good Time to Start — Buy Part 1 Now, Save Rest for Dips";
-        headlineEl.className = "text-sm font-bold text-emerald-400 mb-1.5";
-        story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% below its 5-day average (${formatINR(s22.avgPrice)}/g). Market research points to three clear reasons behind this price pullback:`;
+        headlineEl.textContent = "Prices Stay Steady — Buy Your First Part";
+        headlineEl.className = "text-sm sm:text-base font-bold text-emerald-400 mb-1.5";
+        story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% below its 5-day average (${formatINR(s22.avgPrice)}/g), making today a favourable window to start accumulating in parts:`;
         driversEl.innerHTML = `
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-            <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
             <div>
-              <div class="text-xs font-semibold text-white">US Banks Are Offering Higher Interest</div>
-              <p class="text-xs text-slate-400 mt-0.5">When bank interest rates stay high in the US, big investors prefer keeping money in interest-paying bonds rather than gold, pushing global gold rates down.</p>
+              <div class="text-xs font-semibold text-white">Global prices cooled slightly</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Firm US interest rates and a stronger Dollar eased global spot prices.</p>
             </div>
           </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-            <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
             <div>
-              <div class="text-xs font-semibold text-white">The US Dollar Has Gotten Stronger</div>
-              <p class="text-xs text-slate-400 mt-0.5">Gold is priced in US Dollars worldwide. Whenever the Dollar becomes stronger, international gold prices naturally cool down.</p>
+              <div class="text-xs font-semibold text-white">Indian Rupee holding steady</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Stable USD/INR exchange rates allow global dips to reach local buyers.</p>
             </div>
           </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-            <span class="w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
             <div>
-              <div class="text-xs font-semibold text-white">Steady Rupee & Adequate Domestic Supply</div>
-              <p class="text-xs text-slate-400 mt-0.5">Because the Indian Rupee is holding steady and domestic bullion supply is comfortable, the global drop passes directly to local prices.</p>
+              <div class="text-xs font-semibold text-white">Limited downside for now</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">With physical demand active, prices have strong support near ${formatINR(dipLow, 0)}/g.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-purple-500/15 text-purple-300 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Buy in parts (recommended)</div>
+              <p class="text-[11px] text-slate-400 mt-0.5">Start with a small purchase (≈ 1/3 of your budget) and add more if prices dip further.</p>
             </div>
           </div>
         `;
+        recText.textContent = `Buy your first part now (≈ 30–35% of budget), and keep the rest ready for potential dips near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
       }
     }
 
@@ -1198,7 +1326,11 @@
           ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
           : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
 
-      const chrono = [...activeRows].slice(0, 60).reverse();
+      // Sort strictly chronologically (oldest -> newest) so X-axis timestamps never jump backward
+      const chrono = [...activeRows]
+        .slice(0, 60)
+        .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
+
       const labels = chrono.map((r) => {
         const d = new Date(r.fetched_at);
         return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " +
@@ -1214,7 +1346,7 @@
       const ctx = canvas.getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
-      const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+      const gradient = ctx.createLinearGradient(0, 0, 0, 220);
       gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)");
       gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
 
@@ -1322,7 +1454,7 @@
           const estGrams = (Number(t.allocation_inr) / displayTarget).toFixed(2);
 
           return `
-            <div class="rounded-xl bg-slate-900/75 border border-slate-800/90 p-4">
+            <div class="rounded-xl bg-slate-900/75 border border-slate-800/90 p-3.5">
               <div class="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div class="flex items-center gap-2">
@@ -1331,7 +1463,7 @@
                   </div>
                   <div class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                     <span class="text-slate-300">Buy at: <strong class="font-mono text-amber-300">${formatINR(displayTarget)}/g</strong></span>
-                    <span class="text-slate-400">Budget: <strong class="font-mono text-slate-200">${formatINR(t.allocation_inr, 0)}</strong> (~${estGrams}g gold)</span>
+                    <span class="text-slate-400">Budget: <strong class="font-mono text-slate-200">${formatINR(t.allocation_inr, 0)}</strong> (≈ ${estGrams} g)</span>
                   </div>
                 </div>
                 <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${st.cls}">
@@ -1339,7 +1471,7 @@
                 </span>
               </div>
 
-              <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <div class="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
                 <div>${distanceText}</div>
                 <div class="flex items-center gap-2">
                   ${t.status === "triggered" ? `<button type="button" onclick="updateTrancheStatus('${t.id}', 'executed')" class="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-medium cursor-pointer">Mark Bought</button>` : ""}

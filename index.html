@@ -54,7 +54,7 @@
         </div>
         <div>
           <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
-          <p class="text-xs text-slate-400 hidden sm:block">Exact city rates, jewellery bill calculator & AI dip alerts</p>
+          <p class="text-xs text-slate-400 hidden sm:block">Live Indian gold rates, budget-to-grams calculator & AI dip alerts</p>
         </div>
       </div>
 
@@ -96,7 +96,7 @@
     <!-- Connection Banner -->
     <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <p class="text-xs sm:text-sm text-slate-300">
-        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian city retail rates & AI summaries.
+        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian gold rates & AI summaries.
       </p>
       <button type="button" onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 cursor-pointer">
         Connect Account &rarr;
@@ -112,22 +112,13 @@
       </button>
     </div>
 
-    <!-- Retail Board Strip -->
+    <!-- Market Telemetry Strip -->
     <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2.5">
-        <span id="board-date-badge" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-medium text-emerald-400">
+        <span id="board-date-badge" class="px-3 py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-medium text-emerald-400">
           Today
         </span>
-        <select id="city-select" onchange="handleCityChange()"
-          class="rounded-lg bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-          <option value="Bangalore">Bangalore</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Madurai">Madurai</option>
-          <option value="Mumbai">Mumbai</option>
-          <option value="Delhi">Delhi</option>
-          <option value="Hyderabad">Hyderabad</option>
-        </select>
-        <span class="text-xs text-slate-400">Retail Board</span>
+        <span class="text-xs font-medium text-slate-300">India Retail Gold Rate</span>
       </div>
 
       <div class="flex items-center gap-4 text-xs text-slate-400 font-mono">
@@ -137,109 +128,117 @@
       </div>
     </section>
 
-    <!-- 1. 24K, 22K & 18K LIVE CARDS -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
-        <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300">24K Gold /g</span>
-          <span class="text-[11px] text-slate-400">99.9% Pure</span>
-        </div>
-        <div class="flex items-baseline justify-between mt-1">
-          <span id="price-24k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="badge-24k" class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
-        </div>
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="subprice-24k" class="text-slate-400">—</span>
-          <span id="delta-24k" class="font-medium text-emerald-400">—</span>
-        </div>
-      </div>
-
+    <!-- 1. 22K & 24K LIVE CARDS -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- 22K Card -->
       <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow">
         <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400">22K Gold /g</span>
-          <span class="text-[11px] text-slate-400">91.6% Jewellery</span>
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400">22K Jewellery Gold /g</span>
+          <span class="text-[11px] text-slate-400">91.6% Hallmark</span>
         </div>
         <div class="flex items-baseline justify-between mt-1">
           <span id="price-22k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="badge-22k" class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+          <span id="badge-22k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
         </div>
         <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
           <span id="subprice-22k" class="text-slate-400">—</span>
-          <span id="delta-22k" class="font-medium text-emerald-400">—</span>
+          <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
         </div>
       </div>
 
+      <!-- 24K Card -->
       <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
         <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-sky-500/15 text-sky-300">18K Gold /g</span>
-          <span class="text-[11px] text-slate-400">75.0% Studded</span>
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300">24K Pure Gold /g</span>
+          <span class="text-[11px] text-slate-400">99.9% Coin / Bar</span>
         </div>
         <div class="flex items-baseline justify-between mt-1">
-          <span id="price-18k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="badge-18k" class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+          <span id="price-24k" class="text-3xl font-bold font-mono text-white">—</span>
+          <span id="badge-24k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
         </div>
         <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="subprice-18k" class="text-slate-400">—</span>
-          <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
+          <span id="subprice-24k" class="text-slate-400">—</span>
+          <span class="text-slate-400">10g Pure: <strong id="ten-gram-24k" class="font-mono text-slate-200">—</strong></span>
         </div>
       </div>
     </section>
 
-    <!-- 2. JEWELLERY BILL & BUDGET CALCULATOR -->
+    <!-- 2. HOW MUCH GOLD CAN I BUY? (AMOUNT -> GRAMS & GRAMS -> AMOUNT CALCULATOR) -->
     <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div>
-          <h2 class="text-base font-semibold text-white">Jewellery Bill & Budget Calculator</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Calculate final showroom bill with making charges & GST—or check how much gold your budget buys</p>
+          <h2 class="text-base font-semibold text-white">How Much Gold Can My Money Buy?</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Enter your budget in ₹ to see exact grams you'll get—or switch to grams to check the showroom bill</p>
         </div>
-        <button type="button" onclick="syncCalculatorToPlan()" class="self-start sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 cursor-pointer">
-          Use This Amount in 3-Part Plan
-        </button>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 text-xs">
+            <button type="button" id="mode-budget-btn" onclick="switchCalcMode('budget')" class="px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer">
+              Budget (₹ &rarr; Grams)
+            </button>
+            <button type="button" id="mode-grams-btn" onclick="switchCalcMode('grams')" class="px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer">
+              Weight (Grams &rarr; ₹)
+            </button>
+          </div>
+          <button type="button" onclick="syncCalculatorToPlan()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 cursor-pointer">
+            Use Amount in 3-Part Plan
+          </button>
+        </div>
       </div>
 
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
+        <!-- Input 1: Either Budget in INR or Weight in Grams -->
+        <div id="calc-budget-wrapper">
+          <label for="calc-budget-inr" class="block text-xs text-slate-400 mb-1">Your Budget Amount (₹)</label>
+          <input type="number" id="calc-budget-inr" value="50000" step="500" min="500" oninput="recalculateGoldWorth()"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div id="calc-grams-wrapper" class="hidden">
+          <label for="calc-grams" class="block text-xs text-slate-400 mb-1">Gold Weight (grams)</label>
+          <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateGoldWorth()"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+        </div>
+
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Purity</label>
-          <select id="calc-karat" onchange="recalculateBill()"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none">
+          <label for="calc-karat" class="block text-xs text-slate-400 mb-1">Gold Purity</label>
+          <select id="calc-karat" onchange="recalculateGoldWorth()"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
             <option value="22K">22K Jewellery</option>
-            <option value="24K">24K Coin / Bar</option>
-            <option value="18K">18K Studded</option>
+            <option value="24K">24K Pure Gold</option>
           </select>
         </div>
+
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Weight (grams)</label>
-          <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateBill()"
+          <label for="calc-making" class="block text-xs text-slate-400 mb-1">Making Charges (%)</label>
+          <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateGoldWorth()"
             class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
         </div>
+
         <div>
-          <label class="block text-xs text-slate-400 mb-1">Making Charges (%)</label>
-          <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateBill()"
-            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">GST</label>
-          <input type="text" value="3% (Standard)" disabled
+          <label class="block text-xs text-slate-400 mb-1">Tax Applied</label>
+          <input type="text" value="3% GST Included" disabled
             class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-slate-400" />
         </div>
       </div>
 
+      <!-- Result Strip -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 text-xs">
         <div>
-          <div class="text-slate-400">Gold Value</div>
-          <div id="bill-gold-val" class="text-sm font-mono font-semibold text-white mt-0.5">—</div>
+          <div id="res-primary-label" class="text-amber-300 font-medium">Gold You Can Buy</div>
+          <div id="res-primary-val" class="text-base font-mono font-bold text-amber-400 mt-0.5">—</div>
+        </div>
+        <div>
+          <div class="text-slate-400">Net Gold Value</div>
+          <div id="res-gold-val" class="text-sm font-mono font-semibold text-white mt-0.5">—</div>
         </div>
         <div>
           <div class="text-slate-400">Making Charges</div>
-          <div id="bill-making-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
+          <div id="res-making-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
         </div>
         <div>
           <div class="text-slate-400">3% GST</div>
-          <div id="bill-gst-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
-        </div>
-        <div>
-          <div class="text-amber-300 font-medium">Final Showroom Bill</div>
-          <div id="bill-total-val" class="text-base font-mono font-bold text-amber-400 mt-0.5">—</div>
+          <div id="res-gst-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
         </div>
       </div>
     </section>
@@ -527,18 +526,8 @@
   <script>
     const STORAGE_URL_KEY = "goldbuddy_supabase_url";
     const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
-    const STORAGE_CITY_KEY = "goldbuddy_selected_city";
     const TROY_OZ_TO_GRAMS = 31.1034768;
     const MAX_FORECAST_DAYS = 15;
-
-    const CITY_ADJUSTMENTS = {
-      Bangalore: 1.0000,
-      Chennai: 1.0018,
-      Madurai: 1.0018,
-      Hyderabad: 1.0000,
-      Mumbai: 0.9992,
-      Delhi: 1.0008,
-    };
 
     let supabaseClient = null;
     let pollingFallbackInterval = null;
@@ -546,8 +535,8 @@
     let isDemoMode = true;
     let includeGst = false;
     let activeChartKarat = "22K";
+    let calcMode = "budget"; // "budget" (INR -> Grams) | "grams" (Grams -> INR)
     let scenarioOverride = "actual";
-    let selectedCity = "Bangalore";
     let chartInstance = null;
 
     let appState = {
@@ -564,10 +553,6 @@
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
       });
-    }
-
-    function getCityFactor() {
-      return CITY_ADJUSTMENTS[selectedCity] || 1.0;
     }
 
     function timeAgo(isoString) {
@@ -621,12 +606,6 @@
       select.value = String(defaultDays);
     }
 
-    function handleCityChange() {
-      selectedCity = document.getElementById("city-select").value || "Bangalore";
-      localStorage.setItem(STORAGE_CITY_KEY, selectedCity);
-      recomputeAndRender();
-    }
-
     function setScenarioOverride(mode) {
       scenarioOverride = mode;
       const banner = document.getElementById("scenario-banner");
@@ -648,23 +627,9 @@
     function getActiveHistoryRows() {
       const baseRows = appState.history;
       if (!baseRows || baseRows.length === 0) return [];
+      if (scenarioOverride === "actual") return baseRows;
 
-      const cityFactor = getCityFactor();
-      const scaled = baseRows.map((row) => {
-        const r24 = Number((Number(row.rate_24k_gram) * cityFactor).toFixed(2));
-        const r22 = Number((Number(row.rate_22k_gram) * cityFactor).toFixed(2));
-        return {
-          ...row,
-          rate_24k_gram: r24,
-          rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
-          rate_22k_gram: r22,
-          rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
-        };
-      });
-
-      if (scenarioOverride === "actual") return scaled;
-
-      const anchor24 = Number(scaled[0].rate_24k_gram) || 13326.00;
+      const anchor24 = Number(baseRows[0].rate_24k_gram) || 13326.00;
       const now = Date.now();
       const simRows = [];
       const count = 24;
@@ -678,7 +643,7 @@
         const r24 = Number((anchor24 * factor).toFixed(2));
         const r22 = Number((r24 * (22 / 24)).toFixed(2));
         simRows.push({
-          ...scaled[0],
+          ...baseRows[0],
           id: 9000 + i,
           rate_24k_gram: r24,
           rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
@@ -695,7 +660,7 @@
     function buildDemoDataset() {
       const now = Date.now();
       const rows = [];
-      const start24k = 13603;
+      const start24k = 13604;
       const end24k = 13326;
 
       for (let i = 47; i >= 0; i--) {
@@ -897,7 +862,7 @@
 
       renderConnectionBadge();
       renderTopCards(activeRows);
-      recalculateBill();
+      recalculateGoldWorth();
       renderMarketStory(activeRows);
       renderDateForecast();
       renderChart(activeRows);
@@ -942,63 +907,101 @@
       document.getElementById("updated-time-badge").textContent =
         scenarioOverride !== "actual" ? "Preview Mode" : timeAgo(latest.fetched_at);
 
-      const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
-      const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
-      const diff24 = Number((main24 - s24.avgPrice).toFixed(0));
-      document.getElementById("price-24k").textContent = formatINR(main24, 0);
-      document.getElementById("badge-24k").textContent = `${diff24 <= 0 ? "" : "+"}${diff24} ${diff24 <= 0 ? "▼" : "▲"}`;
-      document.getElementById("badge-24k").className = `px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${diff24 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
-      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
-      document.getElementById("delta-24k").textContent = `${Math.abs(s24.pctVsAvg)}% ${s24.pctVsAvg <= 0 ? "below" : "above"} 5d avg`;
-
+      // 22K Card
       const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
       const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
       const diff22 = Number((main22 - s22.avgPrice).toFixed(0));
       document.getElementById("price-22k").textContent = formatINR(main22, 0);
       document.getElementById("badge-22k").textContent = `${diff22 <= 0 ? "" : "+"}${diff22} ${diff22 <= 0 ? "▼" : "▲"}`;
-      document.getElementById("badge-22k").className = `px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${diff22 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("badge-22k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff22 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
       document.getElementById("subprice-22k").textContent = includeGst ? `Excl. GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
-      document.getElementById("delta-22k").textContent = `${Math.abs(s22.pctVsAvg)}% ${s22.pctVsAvg <= 0 ? "below" : "above"} 5d avg`;
-
-      const main18 = Number((main24 * (18 / 24)).toFixed(0));
-      const alt18 = Number((alt24 * (18 / 24)).toFixed(0));
-      const diff18 = Math.round(diff24 * (18 / 24));
-      document.getElementById("price-18k").textContent = formatINR(main18, 0);
-      document.getElementById("badge-18k").textContent = `${diff18 <= 0 ? "" : "+"}${diff18} ${diff18 <= 0 ? "▼" : "▲"}`;
-      document.getElementById("badge-18k").className = `px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${diff18 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
-      document.getElementById("subprice-18k").textContent = includeGst ? `Excl. GST: ${formatINR(alt18, 0)}` : `Incl. 3% GST: ${formatINR(alt18, 0)}`;
       document.getElementById("pavan-22k").textContent = formatINR(main22 * 8, 0);
+
+      // 24K Card
+      const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
+      const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
+      const diff24 = Number((main24 - s24.avgPrice).toFixed(0));
+      document.getElementById("price-24k").textContent = formatINR(main24, 0);
+      document.getElementById("badge-24k").textContent = `${diff24 <= 0 ? "" : "+"}${diff24} ${diff24 <= 0 ? "▼" : "▲"}`;
+      document.getElementById("badge-24k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff24 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
+      document.getElementById("ten-gram-24k").textContent = formatINR(main24 * 10, 0);
     }
 
-    function recalculateBill() {
+    function switchCalcMode(mode) {
+      calcMode = mode;
+      const btnBudget = document.getElementById("mode-budget-btn");
+      const btnGrams = document.getElementById("mode-grams-btn");
+      const budgetWrap = document.getElementById("calc-budget-wrapper");
+      const gramsWrap = document.getElementById("calc-grams-wrapper");
+
+      if (mode === "budget") {
+        btnBudget.className = "px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        btnGrams.className = "px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer";
+        budgetWrap.classList.remove("hidden");
+        gramsWrap.classList.add("hidden");
+      } else {
+        btnGrams.className = "px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        btnBudget.className = "px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer";
+        gramsWrap.classList.remove("hidden");
+        budgetWrap.classList.add("hidden");
+      }
+
+      recalculateGoldWorth();
+    }
+
+    function recalculateGoldWorth() {
       const activeRows = getActiveHistoryRows();
       const latest = activeRows?.[0];
       if (!latest) return;
 
       const karat = document.getElementById("calc-karat").value;
-      const grams = Math.max(0.1, Number(document.getElementById("calc-grams").value) || 0);
       const makingPct = Math.max(0, Number(document.getElementById("calc-making").value) || 0);
+      const ratePerGram = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
 
-      const base24 = Number(latest.rate_24k_gram);
-      const ratePerGram = karat === "24K" ? base24 : karat === "22K" ? Number(latest.rate_22k_gram) : base24 * (18 / 24);
+      // Effective cost per gram including making charges and 3% GST
+      const effectiveCostPerGram = ratePerGram * (1 + makingPct / 100) * 1.03;
 
-      const goldVal = ratePerGram * grams;
-      const makingVal = goldVal * (makingPct / 100);
-      const gstVal = (goldVal + makingVal) * 0.03;
-      const totalBill = goldVal + makingVal + gstVal;
+      if (calcMode === "budget") {
+        const budgetInr = Math.max(0, Number(document.getElementById("calc-budget-inr").value) || 0);
+        const buyableGrams = effectiveCostPerGram > 0 ? budgetInr / effectiveCostPerGram : 0;
+        const goldVal = buyableGrams * ratePerGram;
+        const makingVal = goldVal * (makingPct / 100);
+        const gstVal = (goldVal + makingVal) * 0.03;
 
-      document.getElementById("bill-gold-val").textContent = formatINR(goldVal, 0);
-      document.getElementById("bill-making-val").textContent = formatINR(makingVal, 0);
-      document.getElementById("bill-gst-val").textContent = formatINR(gstVal, 0);
-      document.getElementById("bill-total-val").textContent = formatINR(totalBill, 0);
+        document.getElementById("res-primary-label").textContent = `Gold You Can Buy (${karat})`;
+        document.getElementById("res-primary-val").textContent = `${buyableGrams.toFixed(3)} g`;
+        document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
+        document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
+        document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
+      } else {
+        const grams = Math.max(0.1, Number(document.getElementById("calc-grams").value) || 0);
+        const goldVal = ratePerGram * grams;
+        const makingVal = goldVal * (makingPct / 100);
+        const gstVal = (goldVal + makingVal) * 0.03;
+        const totalBill = goldVal + makingVal + gstVal;
+
+        document.getElementById("res-primary-label").textContent = "Final Showroom Bill";
+        document.getElementById("res-primary-val").textContent = formatINR(totalBill, 0);
+        document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
+        document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
+        document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
+      }
     }
 
     function syncCalculatorToPlan() {
-      const text = document.getElementById("bill-total-val").textContent.replace(/[₹,]/g, "");
-      const amt = Math.round(Number(text));
+      let amt = 0;
+      if (calcMode === "budget") {
+        amt = Math.round(Number(document.getElementById("calc-budget-inr").value) || 0);
+      } else {
+        const text = document.getElementById("res-primary-val").textContent.replace(/[₹,]/g, "");
+        amt = Math.round(Number(text) || 0);
+      }
       if (amt >= 1000) {
         document.getElementById("auto-budget-inr").value = amt;
         showToast("Budget Updated", `Set your 3-part plan budget to ${formatINR(amt, 0)}.`, "info");
+      } else {
+        showToast("Enter Higher Amount", "Please enter at least ₹1,000.", "error");
       }
     }
 
@@ -1554,12 +1557,6 @@
       try {
         if (window.lucide) window.lucide.createIcons();
       } catch (_e) {}
-
-      const savedCity = localStorage.getItem(STORAGE_CITY_KEY);
-      if (savedCity && CITY_ADJUSTMENTS[savedCity]) {
-        selectedCity = savedCity;
-        document.getElementById("city-select").value = savedCity;
-      }
 
       populateForecastDateDropdown();
 

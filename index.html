@@ -152,13 +152,14 @@
       </div>
     </section>
 
-    <!-- 2. WHY IS GOLD DROPPING? + SHOPPING DATE ESTIMATE -->
+    <!-- 2. WHY IS GOLD MOVING? + 15-DAY SHOPPING DATE ESTIMATE -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
+      <!-- Left: Dynamic Plain-English Market Explanation (Adapts to Falling OR Rising Prices) -->
       <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2 mb-3">
-            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+            <h2 id="why-moving-title" class="text-base font-semibold text-white flex items-center gap-2">
               <i data-lucide="help-circle" class="w-4 h-4 text-amber-400"></i>
               Why Are Gold Prices Going Down Right Now?
             </h2>
@@ -171,35 +172,13 @@
             Everyone is talking about gold falling because big global investors are temporarily moving money out of gold. For regular buyers, a falling market is good news—it lets you buy more grams for the same budget.
           </p>
 
-          <div class="space-y-2.5">
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
-              <div>
-                <div class="text-xs font-semibold text-white">US Banks Are Offering Higher Interest</div>
-                <p class="text-xs text-slate-400 mt-0.5">When bank interest rates stay high in the US, big investors prefer keeping money in banks rather than gold, which pushes global gold rates down.</p>
-              </div>
-            </div>
-
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-              <div>
-                <div class="text-xs font-semibold text-white">The US Dollar Has Gotten Stronger</div>
-                <p class="text-xs text-slate-400 mt-0.5">Gold is priced in US Dollars worldwide. Whenever the Dollar becomes stronger, international gold prices naturally cool down.</p>
-              </div>
-            </div>
-
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
-              <span class="w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
-              <div>
-                <div class="text-xs font-semibold text-white">Indian Rupee Is Holding Steady</div>
-                <p class="text-xs text-slate-400 mt-0.5">Because the Indian Rupee hasn't weakened sharply, the global price drop is directly passing on to Indian jewellery rates.</p>
-              </div>
-            </div>
+          <div id="drivers-list" class="space-y-2.5">
+            <!-- Populated dynamically for either Falling or Rising market -->
           </div>
         </div>
       </div>
 
-      <!-- Shopping Date Price Estimate (Capped to 30 days & realistic support floor) -->
+      <!-- Right: Shopping Date Price Estimate (Strict 15-Day Maximum + Both Rising & Falling Trends) -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2 mb-2">
@@ -208,17 +187,17 @@
               Price Estimate for Your Buy Date
             </h2>
             <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
-              Assumption Only
+              Max 15 Days &bull; Assumption
             </span>
           </div>
 
-          <p class="text-xs text-slate-400 mb-3">
-            Short-term estimate (up to 30 days ahead, <span id="forecast-days-text" class="text-slate-200 font-medium">in 5 days</span>) bounded by real market support floors:
+          <p id="forecast-intro-text" class="text-xs text-slate-400 mb-3">
+            Short-term estimate (up to <strong class="text-slate-200">15 days</strong> ahead, <span id="forecast-days-text" class="text-slate-200 font-medium">in 5 days</span>) if the current trend continues:
           </p>
 
           <div class="grid grid-cols-2 gap-3 mb-3.5">
             <div>
-              <label class="block text-xs text-slate-400 mb-1">Your Shopping Date (Max 30d)</label>
+              <label class="block text-xs text-slate-400 mb-1">Your Shopping Date (Max 15d)</label>
               <input type="date" id="target-buy-date" onchange="renderDateForecast()"
                 class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
             </div>
@@ -234,15 +213,15 @@
 
           <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Strong Support Floor (Realistic Low):</span>
+              <span id="forecast-floor-label" class="text-xs text-slate-400">Best-Case Low (If Drop Continues):</span>
               <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
             </div>
             <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span class="text-xs font-medium text-slate-300">Expected Price on That Date:</span>
+              <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Expected Price (Current Trend):</span>
               <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
             </div>
             <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span class="text-xs text-slate-400">Worst-Case Price (If Market Bounces):</span>
+              <span id="forecast-ceil-label" class="text-xs text-slate-400">Worst-Case High (If Price Rises):</span>
               <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
             </div>
           </div>
@@ -251,7 +230,7 @@
         <div class="mt-4 rounded-xl bg-rose-500/10 border border-rose-500/25 p-3 flex items-start gap-2.5">
           <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
           <p class="text-[11px] text-rose-200/90 leading-relaxed">
-            <strong class="text-rose-300">Risk & Assumption Notice:</strong> Gold has strong real-world floor support and does not fall endlessly. Prices can also bounce back up suddenly on global news—split your budget into 3 parts below instead of betting everything on one date.
+            <strong class="text-rose-300">Risk & Assumption Notice:</strong> Forecasts are capped at 15 days and are only a rough assumption—not a guaranteed rate. Gold prices can rise or fall suddenly on global news, so split your budget into 3 parts below rather than buying 100% on one date.
           </p>
         </div>
       </div>
@@ -451,6 +430,7 @@
     const STORAGE_URL_KEY = "goldbuddy_supabase_url";
     const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
     const TROY_OZ_TO_GRAMS = 31.1034768;
+    const MAX_FORECAST_DAYS = 15;
 
     let supabaseClient = null;
     let pollingFallbackInterval = null;
@@ -574,7 +554,8 @@
         highPrice,
         pctVsAvg,
         trendPct,
-        isGoodBargain: latestPrice <= bargainPrice,
+        isRising: trendPct > 0.25 || pctVsAvg > 0.25,
+        isFalling: trendPct < -0.25 || pctVsAvg < -0.15,
       };
     }
 
@@ -778,31 +759,78 @@
         headline.className = "text-base font-bold text-emerald-400";
         subtext.textContent = "Prices are lower than this week's average. Buy 30% of your budget today and save the remaining 70% in case prices drop more.";
       } else {
-        headline.textContent = "Wait for a Dip — Don't Rush Today";
-        headline.className = "text-base font-bold text-amber-300";
+        headline.textContent = "Prices Rising — Wait for a Dip";
+        headline.className = "text-base font-bold text-rose-400";
         subtext.textContent = "Today's price is higher than this week's average. Set your 3 price alerts below and let GoldBuddy tell you when it cools down.";
       }
     }
 
     function renderMarketStory() {
       const s22 = appState.stats22K;
+      const titleEl = document.getElementById("why-moving-title");
       const pill = document.getElementById("trend-pill");
       const story = document.getElementById("plain-english-story");
+      const driversEl = document.getElementById("drivers-list");
       if (!s22) return;
 
-      if (s22.trendPct < -0.2 || s22.pctVsAvg < 0) {
-        pill.textContent = "Prices Dropping";
-        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400";
-        story.textContent = `22K gold has dropped ${Math.abs(s22.pctVsAvg)}% below its 5-day average (${formatINR(s22.avgPrice)}/g). When big global funds move money out of gold, retail buyers get a chance to buy more grams for the same rupee budget.`;
-      } else if (s22.pctVsAvg > 0.3) {
-        pill.textContent = "Prices Rising";
+      if (s22.isRising) {
+        titleEl.innerHTML = `<i data-lucide="trending-up" class="w-4 h-4 text-rose-400"></i> Why Are Gold Prices Going Up Right Now?`;
+        pill.textContent = `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)`;
         pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400";
-        story.textContent = `22K gold is currently ${s22.pctVsAvg}% above its 5-day average. Instead of buying everything at a high price today, split your money into 3 alerts below and wait for the next price dip.`;
+        story.textContent = `22K gold has climbed ${s22.pctVsAvg}% above its 5-day average (${formatINR(s22.avgPrice)}/g). When prices jump quickly, buying everything at once is risky—wait for a small pullback before spending.`;
+        driversEl.innerHTML = `
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-rose-500/15 text-rose-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Investors Are Seeking Safe-Haven Protection</div>
+              <p class="text-xs text-slate-400 mt-0.5">Whenever global stock markets or geopolitical news look uncertain, big investors buy gold for safety, pushing prices higher.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Expectations of Lower US Bank Rates</div>
+              <p class="text-xs text-slate-400 mt-0.5">When investors expect bank interest rates to soften, gold becomes more attractive compared to cash savings.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Strong Indian Wedding & Festival Demand</div>
+              <p class="text-xs text-slate-400 mt-0.5">Higher seasonal jewellery buying in India combined with Rupee movements adds extra upward support to local rates.</p>
+            </div>
+          </div>
+        `;
       } else {
-        pill.textContent = "Prices Steady";
-        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300";
-        story.textContent = "Gold prices are moving in a calm, steady range right now. Splitting your budget into 3 parts ensures you get a fair average price whether rates dip or rise next week.";
+        titleEl.innerHTML = `<i data-lucide="trending-down" class="w-4 h-4 text-emerald-400"></i> Why Are Gold Prices Going Down Right Now?`;
+        pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady";
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400";
+        story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% below its 5-day average (${formatINR(s22.avgPrice)}/g). When big global investors move money out of gold, everyday buyers get a chance to buy more grams for the same budget.`;
+        driversEl.innerHTML = `
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <div>
+              <div class="text-xs font-semibold text-white">US Banks Are Offering Higher Interest</div>
+              <p class="text-xs text-slate-400 mt-0.5">When bank interest rates stay high in the US, big investors prefer keeping money in banks rather than gold, pushing global gold rates down.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <div>
+              <div class="text-xs font-semibold text-white">The US Dollar Has Gotten Stronger</div>
+              <p class="text-xs text-slate-400 mt-0.5">Gold is priced in US Dollars worldwide. Whenever the Dollar becomes stronger, international gold prices naturally cool down.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Indian Rupee Is Holding Steady</div>
+              <p class="text-xs text-slate-400 mt-0.5">Because the Indian Rupee hasn't weakened sharply, the global price drop is directly passing on to Indian jewellery rates.</p>
+            </div>
+          </div>
+        `;
       }
+      lucide.createIcons({ nodes: [titleEl] });
     }
 
     function renderDateForecast() {
@@ -810,35 +838,69 @@
       const karat = document.getElementById("forecast-karat").value;
       const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
 
-      // Enforce min (tomorrow) and max (+30 days) so multi-year impossible numbers can never happen
       const today = new Date();
-      const minDate = new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-      const maxDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-      dateInput.min = minDate;
-      dateInput.max = maxDate;
+      const minDateObj = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      const maxDateObj = new Date(today.getTime() + MAX_FORECAST_DAYS * 24 * 60 * 60 * 1000);
+      const minStr = minDateObj.toISOString().split("T")[0];
+      const maxStr = maxDateObj.toISOString().split("T")[0];
 
-      if (!dateInput.value || dateInput.value < minDate || dateInput.value > maxDate) {
+      dateInput.min = minStr;
+      dateInput.max = maxStr;
+
+      if (!dateInput.value) {
+        // Default to 23rd of current month if within 15 days, otherwise +5 days
         const target = new Date(today.getFullYear(), today.getMonth(), 23);
         if (target <= today) target.setDate(today.getDate() + 5);
-        const clamped = target.toISOString().split("T")[0];
-        dateInput.value = clamped <= maxDate ? clamped : maxDate;
+        const defaultStr = target.toISOString().split("T")[0];
+        dateInput.value = defaultStr <= maxStr ? defaultStr : maxStr;
+      } else if (dateInput.value > maxStr) {
+        // Strictly block dates beyond 15 days even if typed manually via keyboard
+        dateInput.value = maxStr;
+        showToast("15-Day Maximum Limit", "Short-term estimates are limited to 15 days ahead so numbers stay realistic.", "info");
+      } else if (dateInput.value < minStr) {
+        dateInput.value = minStr;
       }
 
       if (!stats) return;
 
       const selectedDate = new Date(dateInput.value + "T12:00:00");
-      const daysAhead = Math.min(30, Math.max(1, Math.round((selectedDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000))));
+      const daysAhead = Math.min(MAX_FORECAST_DAYS, Math.max(1, Math.round((selectedDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000))));
       document.getElementById("forecast-days-text").textContent = `in ${daysAhead} day${daysAhead > 1 ? "s" : ""}`;
 
-      // Dampened short-term drift + hard structural support floor (never drops more than 4.5% below 5D average)
-      const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0044;
-      const clampedDailyRate = Math.max(-0.005, Math.min(0.0045, rawDailyRate));
-      const structuralFloor = stats.avgPrice * 0.955; // Real-world physical/central-bank support floor (-4.5%)
+      // Bidirectional short-term drift: follows actual recent trend (negative when falling, positive when rising)
+      const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0035;
+      const clampedDailyRate = Math.max(-0.0045, Math.min(0.0045, rawDailyRate));
+
+      // Realistic 15-day guardrails: max -3.5% dip floor, max +3.5% rally ceiling
+      const supportFloor = stats.avgPrice * 0.965;
+      const rallyCeiling = stats.avgPrice * 1.035;
 
       const rawProjected = stats.latestPrice * (1 + clampedDailyRate * Math.sqrt(daysAhead));
-      const expectedPrice = Math.max(structuralFloor * 1.008, rawProjected);
-      const lowestPrice = Math.max(structuralFloor, Math.min(stats.latestPrice, expectedPrice) * (1 - 0.0035 * Math.sqrt(daysAhead)));
-      const highestPrice = Math.max(stats.latestPrice, expectedPrice) * (1 + 0.0055 * Math.sqrt(daysAhead));
+      const expectedPrice = Math.min(rallyCeiling, Math.max(supportFloor, rawProjected));
+
+      const lowestPrice = Math.max(
+        supportFloor * 0.992,
+        Math.min(stats.latestPrice, expectedPrice) * (1 - 0.003 * Math.sqrt(daysAhead))
+      );
+      const highestPrice = Math.min(
+        rallyCeiling * 1.008,
+        Math.max(stats.latestPrice, expectedPrice) * (1 + 0.004 * Math.sqrt(daysAhead))
+      );
+
+      // Update labels to reflect whether the current trend is rising or falling
+      const baseLabel = document.getElementById("forecast-base-label");
+      const floorLabel = document.getElementById("forecast-floor-label");
+      const ceilLabel = document.getElementById("forecast-ceil-label");
+
+      if (expectedPrice > stats.latestPrice * 1.001) {
+        floorLabel.textContent = "Best-Case Low (If Prices Cool Off):";
+        baseLabel.textContent = "Expected Price (If Rise Continues):";
+        ceilLabel.textContent = "Worst-Case High (If Rally Speeds Up):";
+      } else {
+        floorLabel.textContent = "Best-Case Low (If Drop Continues):";
+        baseLabel.textContent = "Expected Price (If Drop Continues):";
+        ceilLabel.textContent = "Worst-Case High (If Market Bounces):";
+      }
 
       document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice)} / g`;
       document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice)} / g`;

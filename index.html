@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GoldBuddy — Smart Dip Explainer, Date Forecaster & Staggered Buying</title>
+  <title>GoldBuddy — Smart Gold Buying Helper</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -18,14 +18,6 @@
           colors: {
             obsidian: '#0B0F17',
             card: '#131A26',
-            cardHover: '#192232',
-            borderSubtle: '#1E293B',
-            gold: {
-              300: '#FDE68A',
-              400: '#FBBF24',
-              500: '#F59E0B',
-              600: '#D97706',
-            }
           },
           fontFamily: {
             sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
@@ -38,64 +30,51 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
     body {
       background-color: #0B0F17;
       color: #F1F5F9;
       font-family: 'Inter', system-ui, sans-serif;
     }
-
     .gold-glow {
-      box-shadow: 0 0 28px -8px rgba(245, 158, 11, 0.25);
+      box-shadow: 0 0 28px -8px rgba(245, 158, 11, 0.22);
     }
-
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0B0F17; }
-    ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
   </style>
 </head>
 <body class="min-h-screen antialiased selection:bg-amber-500/30 selection:text-amber-200">
 
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
 
-  <!-- Top Navigation Header -->
+  <!-- Top Header -->
   <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#0B0F17]/90 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
           <i data-lucide="coins" class="w-5 h-5 text-slate-950 stroke-[2.2]"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
-            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              Guided Accumulation Engine
-            </span>
-          </div>
-          <p class="text-xs text-slate-400 hidden sm:block">Plain-English Dip Intelligence, Target-Date Forecast & Staggered Tranches</p>
+          <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
+          <p class="text-xs text-slate-400 hidden sm:block">Know when to buy gold & split your budget safely</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5 sm:gap-3">
-        <button id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300">
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <button id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300">
           <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span id="status-text">Demo Mode</span>
+          <span id="status-text">Sample Mode</span>
         </button>
 
-        <button id="gst-toggle-btn" onclick="toggleGst()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300 transition-colors">
-          <i data-lucide="percent" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span id="gst-toggle-label">Excl. 3% GST</span>
+        <button id="gst-toggle-btn" onclick="toggleGst()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300">
+          <span id="gst-toggle-label">Without 3% GST</span>
         </button>
 
-        <button id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-sm shadow-amber-500/20 disabled:opacity-60">
+        <button id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all disabled:opacity-60">
           <span id="refresh-spinner" class="inline-flex items-center justify-center">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
           </span>
-          <span id="refresh-btn-text" class="hidden sm:inline">Refresh Rate Now</span>
+          <span id="refresh-btn-text" class="hidden sm:inline">Update Price</span>
         </button>
 
-        <button onclick="openSettingsModal()" title="Configure Supabase & Calibration" class="p-2 rounded-lg border border-slate-800 bg-slate-900/70 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+        <button onclick="openSettingsModal()" title="Settings" class="p-2 rounded-lg border border-slate-800 bg-slate-900/70 hover:bg-slate-800 text-slate-400 hover:text-white">
           <i data-lucide="settings" class="w-4 h-4"></i>
         </button>
       </div>
@@ -103,321 +82,233 @@
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-    <!-- Demo Banner -->
+    <!-- Connection Banner -->
     <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div class="flex items-start sm:items-center gap-3">
-        <div class="p-1.5 rounded-lg bg-amber-500/15 text-amber-400 shrink-0 mt-0.5 sm:mt-0">
-          <i data-lucide="sparkles" class="w-4 h-4"></i>
-        </div>
-        <p class="text-xs sm:text-sm text-slate-300">
-          <span class="font-semibold text-amber-300">Simulation Preview Active:</span> Showing live-calibrated Tamil Nadu parity & downward drift model. Connect your Supabase project to sync live cron polls.
-        </p>
-      </div>
-      <button onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 transition-colors">
-        Connect Supabase &rarr;
+      <p class="text-xs sm:text-sm text-slate-300">
+        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to track live daily gold rates and save your buying alerts.
+      </p>
+      <button onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30">
+        Connect Account &rarr;
       </button>
     </div>
 
-    <!-- Empty Table Prompt Banner -->
     <div id="empty-db-banner" class="hidden rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div class="flex items-start sm:items-center gap-3">
-        <div class="p-1.5 rounded-lg bg-sky-500/20 text-sky-400 shrink-0">
-          <i data-lucide="database" class="w-4 h-4"></i>
-        </div>
-        <p class="text-xs sm:text-sm text-slate-200">
-          <span class="font-semibold text-sky-300">Connected to Supabase — No rate rows logged yet:</span> Click <strong class="text-white">Refresh Rate Now</strong> to trigger <code class="text-amber-300">fetch-gold-rate</code> and log your first live spot snapshot.
-        </p>
-      </div>
-      <button onclick="handleManualRefresh()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
-        Fetch First Quote &rarr;
+      <p class="text-xs sm:text-sm text-slate-200">
+        <span class="font-semibold text-sky-300">Account Connected!</span> Click <strong class="text-white">Update Price</strong> to fetch today's live gold rate.
+      </p>
+      <button onclick="handleManualRefresh()" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950">
+        Get Today's Price &rarr;
       </button>
     </div>
 
-    <!-- Top KPI Cards Grid -->
+    <!-- ===================================================================== -->
+    <!-- 1. TODAY'S GOLD PRICE & SIMPLE VERDICT                                -->
+    <!-- ===================================================================== -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- 22K Card -->
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow relative overflow-hidden">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/25">22K &bull; 916</span>
-            <span class="text-xs text-slate-400">Standard Jewellery</span>
-          </div>
-          <span id="zone-badge-22k" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300">
-            Neutral Band
-          </span>
+      <!-- 22K Price Card -->
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow">
+        <div class="flex items-center justify-between mb-2">
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400">22K Jewellery Gold</span>
+          <span id="updated-time-badge" class="text-[11px] text-slate-400">Just now</span>
         </div>
-
-        <div class="flex items-baseline gap-2">
-          <span id="price-22k" class="text-3xl font-bold font-mono tracking-tight text-white">—</span>
+        <div class="flex items-baseline gap-2 mt-1">
+          <span id="price-22k" class="text-3xl font-bold font-mono text-white">—</span>
           <span class="text-xs text-slate-400">/ gram</span>
         </div>
-
         <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
           <span id="subprice-22k" class="text-slate-400">—</span>
-          <span id="delta-22k" class="font-mono font-medium text-emerald-400">—</span>
+          <span id="delta-22k" class="font-medium text-emerald-400">—</span>
         </div>
       </div>
 
-      <!-- 24K Card -->
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 relative overflow-hidden">
-        <div class="flex items-center justify-between mb-3">
-          <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300 border border-yellow-500/25">24K &bull; 999</span>
-            <span class="text-xs text-slate-400">24 Karat Bullion</span>
-          </div>
-          <span id="zone-badge-24k" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300">
-            Neutral Band
-          </span>
+      <!-- 24K Price Card -->
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300">24K Pure Gold</span>
+          <span class="text-[11px] text-slate-400">99.9% Purity</span>
         </div>
-
-        <div class="flex items-baseline gap-2">
-          <span id="price-24k" class="text-3xl font-bold font-mono tracking-tight text-white">—</span>
+        <div class="flex items-baseline gap-2 mt-1">
+          <span id="price-24k" class="text-3xl font-bold font-mono text-white">—</span>
           <span class="text-xs text-slate-400">/ gram</span>
         </div>
-
         <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
           <span id="subprice-24k" class="text-slate-400">—</span>
-          <span id="delta-24k" class="font-mono font-medium text-emerald-400">—</span>
+          <span id="delta-24k" class="font-medium text-emerald-400">—</span>
         </div>
       </div>
 
-      <!-- Global Spot & Sync Telemetry Card -->
+      <!-- Plain-English Verdict Card -->
       <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Global Parity & Sync</span>
-            <span id="last-updated" class="text-xs text-slate-400 flex items-center gap-1">
-              <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
-              —
-            </span>
+          <div class="text-xs font-semibold text-slate-400 mb-1.5">Should I Buy Today?</div>
+          <div id="verdict-headline" class="text-base font-bold text-emerald-400">
+            Yes — Buy Part 1 Now, Wait for More Dips
           </div>
-
-          <div class="grid grid-cols-2 gap-3 mt-2">
-            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-              <div class="text-[11px] text-slate-400">XAU / USD Spot</div>
-              <div id="xau-usd-val" class="text-sm font-mono font-semibold text-slate-100 mt-0.5">—</div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-              <div class="text-[11px] text-slate-400">USD / INR FX</div>
-              <div id="usd-inr-val" class="text-sm font-mono font-semibold text-slate-100 mt-0.5">—</div>
-            </div>
-          </div>
+          <p id="verdict-subtext" class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+            Prices have dropped compared to earlier this week. Buy a small portion today and keep the rest ready in case prices fall further.
+          </p>
         </div>
-
         <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span class="text-slate-400">5D Buy-Zone Floor (22K):</span>
-          <span id="floor-22k-val" class="font-mono font-semibold text-emerald-400">—</span>
+          <span class="text-slate-400">Good Bargain Price (22K):</span>
+          <span id="good-buy-22k" class="font-mono font-semibold text-emerald-400">—</span>
         </div>
       </div>
     </section>
 
     <!-- ===================================================================== -->
-    <!-- NEW VISION SECTION: Plain-English Market Explainer & Date Forecaster  -->
+    <!-- 2. WHY IS GOLD DROPPING? + TARGET DATE PRICE ESTIMATOR                -->
     <!-- ===================================================================== -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- Left 7 Cols: Why Gold Is Moving (Plain-English Explainer) -->
+      <!-- Left: Simple Reasons Why Gold Is Moving -->
       <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div class="flex items-center gap-2">
-              <div class="p-1.5 rounded-lg bg-amber-500/15 text-amber-400">
-                <i data-lucide="compass" class="w-4 h-4"></i>
-              </div>
-              <h2 class="text-base font-semibold text-white">Why Is Gold Moving Like This?</h2>
-            </div>
-            <span id="market-regime-badge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              Cooling Trend &bull; Accumulation Window
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <i data-lucide="help-circle" class="w-4 h-4 text-amber-400"></i>
+              Why Are Gold Prices Going Down Right Now?
+            </h2>
+            <span id="trend-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400">
+              Price Dropping
             </span>
           </div>
 
-          <p id="market-summary-text" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
-            Gold is currently pulling back from recent highs. When international bullion dips while the rupee holds steady, staggered buyers get an opportunity to accumulate in smaller slices before local retail counters rebound.
+          <p id="plain-english-story" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4">
+            Everyone is talking about gold falling because big global investors are temporarily moving money out of gold. For regular buyers, a falling market is good news—it lets you buy more grams for the same budget.
           </p>
 
-          <!-- 3 Driver Cards -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3">
-              <div class="text-[11px] font-semibold text-amber-300 flex items-center gap-1.5">
-                <i data-lucide="landmark" class="w-3.5 h-3.5"></i>
-                US Fed Rate Yields
+          <div class="space-y-2.5">
+            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <div>
+                <div class="text-xs font-semibold text-white">US Banks Are Offering Higher Interest</div>
+                <p class="text-xs text-slate-400 mt-0.5">When bank interest rates stay high in the US, big investors prefer keeping money in banks rather than gold, which pushes global gold rates down.</p>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Sticky US inflation keeps rate-hike expectations alive. Higher bond yields pull short-term money away from non-yielding gold.
-              </p>
             </div>
 
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3">
-              <div class="text-[11px] font-semibold text-sky-300 flex items-center gap-1.5">
-                <i data-lucide="dollar-sign" class="w-3.5 h-3.5"></i>
-                US Dollar Strength
+            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <div>
+                <div class="text-xs font-semibold text-white">The US Dollar Has Gotten Stronger</div>
+                <p class="text-xs text-slate-400 mt-0.5">Gold is priced in US Dollars worldwide. Whenever the Dollar becomes stronger, international gold prices naturally cool down.</p>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                A firmer US Dollar Index (DXY) makes dollar-denominated XAU/USD costlier globally, pressuring international spot quotes lower.
-              </p>
             </div>
 
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3">
-              <div class="text-[11px] font-semibold text-emerald-300 flex items-center gap-1.5">
-                <i data-lucide="indian-rupee" class="w-3.5 h-3.5"></i>
-                Rupee & Local Supply
+            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <div>
+                <div class="text-xs font-semibold text-white">Indian Rupee Is Holding Steady</div>
+                <p class="text-xs text-slate-400 mt-0.5">Because the Indian Rupee hasn't weakened sharply, the global price drop is directly passing on to Indian jewellery rates.</p>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                Steady INR exchange parity and domestic scrap gold supply keep local Indian premiums compressed during global dips.
-              </p>
             </div>
           </div>
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span class="text-slate-400">GoldBuddy Strategy Advice:</span>
-          <span id="strategy-verdict" class="font-semibold text-emerald-400">Deploy 30% now; hold 70% for deeper dip tranches</span>
         </div>
       </div>
 
-      <!-- Right 5 Cols: Target Date Price Forecaster & Auto-Planner -->
+      <!-- Right: Target Date Price Estimator (e.g., 23rd of this month) -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <div class="p-1.5 rounded-lg bg-sky-500/15 text-sky-400">
-                <i data-lucide="calendar-clock" class="w-4 h-4"></i>
-              </div>
-              <h2 class="text-base font-semibold text-white">Target-Date Price Forecaster</h2>
-            </div>
-            <span id="forecast-days-badge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-              +5 Days
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+              <i data-lucide="calendar" class="w-4 h-4 text-sky-400"></i>
+              Price Estimate for Your Buy Date
+            </h2>
+            <span id="forecast-days-badge" class="text-xs font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+              In 5 days
             </span>
           </div>
 
-          <p class="text-xs text-slate-400 mb-3">
-            If the current trend continues at the same pace, here is the projected price on your chosen buy date:
+          <p class="text-xs text-slate-400 mb-4">
+            Planning to buy on a specific date (like the 23rd)? If prices keep dropping at the current speed, here is what you can expect:
           </p>
 
-          <!-- Date & Purity Controls -->
-          <div class="grid grid-cols-2 gap-2.5 mb-3">
+          <div class="grid grid-cols-2 gap-3 mb-4">
             <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Planned Buy Date</label>
+              <label class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
               <input type="date" id="target-buy-date" onchange="renderDateForecast()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
             </div>
             <div>
-              <label class="block text-[11px] text-slate-400 mb-1">Purity</label>
+              <label class="block text-xs text-slate-400 mb-1">Gold Type</label>
               <select id="forecast-karat" onchange="renderDateForecast()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none">
-                <option value="22K">22K Jewellery (916)</option>
-                <option value="24K">24K Bullion (999)</option>
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none">
+                <option value="22K">22K Jewellery</option>
+                <option value="24K">24K Pure Gold</option>
               </select>
             </div>
           </div>
 
-          <!-- Forecast Output Box -->
-          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2">
+          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Projected Trend Rate:</span>
-              <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
+              <span class="text-xs text-slate-400">Expected Price on That Date:</span>
+              <span id="forecast-base-price" class="text-lg font-mono font-bold text-amber-300">—</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Deep Support Floor (Best Case):</span>
+              <span class="text-xs text-slate-400">Lowest Possible Price (If Drop Continues):</span>
               <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Rebound Ceiling (If Fed Softens):</span>
-              <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
+              <span class="text-xs text-slate-400">Estimated Savings vs Today (per 10g):</span>
+              <span id="forecast-savings-10g" class="text-xs font-mono font-semibold text-emerald-400">—</span>
             </div>
           </div>
         </div>
 
-        <!-- One-Click Staggered Budget Generator -->
-        <div class="mt-4 pt-3 border-t border-slate-800/80">
-          <div class="flex items-center gap-2">
-            <input type="number" id="auto-budget-inr" value="50000" step="1000" min="1000" placeholder="Total Budget ₹"
-              class="w-32 rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1.5 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-            <button type="button" onclick="generateSmartTranches()"
-              class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 transition-colors">
-              <i data-lucide="wand-2" class="w-3.5 h-3.5"></i>
-              Auto-Split into 3 Tranches
-            </button>
-          </div>
-        </div>
+        <p class="text-[11px] text-slate-400 mt-4 leading-relaxed">
+          <strong class="text-slate-300">Tip:</strong> Gold prices never fall in a straight line forever. Instead of waiting to spend 100% on one date, split your budget into 3 parts below so you catch dips safely.
+        </p>
       </div>
 
     </section>
 
-    <!-- 5-Day Projection Band Chart Section -->
-    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-        <div>
-          <div class="flex items-center gap-2.5">
-            <h2 class="text-base font-semibold text-white">5-Day Price History & Projection Band</h2>
-            <span id="chart-sample-badge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-              0 polls
-            </span>
-          </div>
-          <p class="text-xs text-slate-400 mt-0.5">
-            Rolling 5-day mean &plusmn;1.5&sigma; volatility channel highlighting staggered dip-buying zones
-          </p>
-        </div>
-
-        <div class="flex items-center gap-2 self-start sm:self-center">
-          <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800">
-            <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 transition-colors">
-              22K Gold
-            </button>
-            <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-colors">
-              24K Gold
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-3 gap-3 mb-5">
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">Lower Dip Band (Buy Zone)</div>
-          <div id="band-lower" class="text-sm sm:text-base font-mono font-semibold text-emerald-400 mt-0.5">—</div>
-        </div>
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">5-Day Rolling Mean</div>
-          <div id="band-mean" class="text-sm sm:text-base font-mono font-semibold text-amber-300 mt-0.5">—</div>
-        </div>
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">Upper Resistance Band</div>
-          <div id="band-upper" class="text-sm sm:text-base font-mono font-semibold text-rose-400 mt-0.5">—</div>
-        </div>
-      </div>
-
-      <div class="relative h-72 sm:h-80 w-full">
-        <canvas id="goldChart"></canvas>
-      </div>
-    </section>
-
-    <!-- Bottom Grid: Staggered Buy Tranches & Triggered Dip Alerts -->
+    <!-- ===================================================================== -->
+    <!-- 3. SMART BUDGET SPLITTER & MY BUYING ALERTS                           -->
+    <!-- ===================================================================== -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left: Split My Budget into 3 Safe Parts -->
       <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
-        <div class="flex items-center justify-between gap-3 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
           <div>
-            <h2 class="text-base font-semibold text-white">Staggered Buy Tranches</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Target allocation buckets checked automatically on every rate poll</p>
+            <h2 class="text-base font-semibold text-white">My Staggered Buying Plan</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Split your total budget into 3 parts—GoldBuddy alerts you as each price drops</p>
           </div>
-          <button onclick="openTrancheModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition-colors">
+          <button onclick="openTrancheModal()" class="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
             <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            Add Manual Tranche
+            Custom Target
+          </button>
+        </div>
+
+        <!-- Easy One-Click Budget Splitter -->
+        <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div class="flex-1">
+            <label class="block text-[11px] text-slate-400 mb-1">How much total money do you plan to spend on gold?</label>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-mono text-slate-400">₹</span>
+              <input type="number" id="auto-budget-inr" value="50000" step="1000" min="1000"
+                class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
+            </div>
+          </div>
+          <button type="button" onclick="generateSmartTranches()"
+            class="sm:self-end px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors shrink-0">
+            Split Into 3 Smart Parts
           </button>
         </div>
 
         <div id="tranches-list" class="space-y-3 flex-1"></div>
       </div>
 
+      <!-- Right: Price Drop Alerts Triggered -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
               <i data-lucide="bell-ring" class="w-4 h-4 text-amber-400"></i>
-              Dip Alert Feed
+              Price Drop Alerts
             </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Triggered when spot crosses below tranche target</p>
+            <p class="text-xs text-slate-400 mt-0.5">You get alerted here whenever gold reaches your target price</p>
           </div>
           <span id="alert-count-badge" class="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">0</span>
         </div>
@@ -425,13 +316,54 @@
         <div id="alerts-list" class="space-y-3 flex-1 max-h-[380px] overflow-y-auto pr-1"></div>
       </div>
     </section>
+
+    <!-- ===================================================================== -->
+    <!-- 4. SIMPLE 5-DAY PRICE CHART                                           -->
+    <!-- ===================================================================== -->
+    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-base font-semibold text-white">5-Day Gold Price Movement</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Compare today's rate against this week's average and bargain buy level</p>
+        </div>
+
+        <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 self-start">
+          <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950">
+            22K Gold
+          </button>
+          <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white">
+            24K Gold
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">Good Bargain Price</div>
+          <div id="band-lower" class="text-sm sm:text-base font-mono font-semibold text-emerald-400 mt-0.5">—</div>
+        </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">5-Day Average Price</div>
+          <div id="band-mean" class="text-sm sm:text-base font-mono font-semibold text-amber-300 mt-0.5">—</div>
+        </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">5-Day High Price</div>
+          <div id="band-upper" class="text-sm sm:text-base font-mono font-semibold text-rose-400 mt-0.5">—</div>
+        </div>
+      </div>
+
+      <div class="relative h-64 sm:h-72 w-full">
+        <canvas id="goldChart"></canvas>
+      </div>
+    </section>
+
   </main>
 
-  <!-- MODAL 1: Add Staggered Buy Tranche -->
+  <!-- MODAL 1: Add Custom Target -->
   <div id="tranche-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="w-full max-w-md rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold text-white">New Staggered Buy Tranche</h3>
+        <h3 class="text-base font-bold text-white">Add Custom Price Alert</h3>
         <button onclick="closeTrancheModal()" class="text-slate-400 hover:text-white">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
@@ -439,57 +371,48 @@
 
       <form id="tranche-form" onsubmit="handleCreateTranche(event)" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Tranche Label</label>
-          <input type="text" id="tranche-label" required placeholder="e.g., Tranche 3 - Deep Correction (-2.5%)"
+          <label class="block text-xs font-medium text-slate-300 mb-1">Note / Name</label>
+          <input type="text" id="tranche-label" required placeholder="e.g., Wedding Ring Purchase"
             class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Purity</label>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Gold Type</label>
             <select id="tranche-karat" onchange="prefillSuggestedTarget()"
               class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none">
-              <option value="22K">22K (916)</option>
-              <option value="24K">24K (999)</option>
+              <option value="22K">22K Jewellery</option>
+              <option value="24K">24K Pure Gold</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Target Rate (₹/g, Excl. GST)</label>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Alert Me at Price (₹/g)</label>
             <input type="number" step="0.01" id="tranche-target" required
               class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Planned Allocation (₹ INR)</label>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Amount to Spend (₹)</label>
           <input type="number" step="100" id="tranche-allocation" required value="20000"
             class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
         </div>
 
         <div class="pt-2 flex items-center justify-end gap-2.5">
-          <button type="button" onclick="closeTrancheModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
-            Cancel
-          </button>
-          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
-            Save Tranche
-          </button>
+          <button type="button" onclick="closeTrancheModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950">Save Alert</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL 2: Supabase Backend & Retail Parity Calibration -->
+  <!-- MODAL 2: Account & Local Price Settings -->
   <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="w-full max-w-lg rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="p-2 rounded-lg bg-amber-500/15 text-amber-400">
-            <i data-lucide="database" class="w-4 h-4"></i>
-          </div>
-          <div>
-            <h3 class="text-base font-bold text-white">Supabase & Parity Settings</h3>
-            <p class="text-xs text-slate-400">Credentials stay in local browser storage</p>
-          </div>
+        <div>
+          <h3 class="text-base font-bold text-white">Connect Your GoldBuddy Account</h3>
+          <p class="text-xs text-slate-400">Saved privately on this device</p>
         </div>
         <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -504,43 +427,33 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Anon Public Key</label>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Public Key (anon)</label>
           <input type="password" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
             class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
         </div>
       </div>
 
-      <div id="calibrator-box" class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-            <i data-lucide="sliders" class="w-3.5 h-3.5"></i>
-            One-Time Retail Parity Calibrator
-          </span>
-          <span id="current-multiplier-badge" class="text-[11px] font-mono text-slate-400">Multiplier: —</span>
-        </div>
+      <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
+        <div class="text-xs font-semibold text-amber-300">Match Local Jewellery Shop Rate (One-Time)</div>
         <p class="text-xs text-slate-400">
-          Enter today's local 24K counter rate (₹/g, excl. GST) to lock in India's duty & premium multiplier in <code class="text-slate-300">gold_config</code>:
+          Enter today's 24K rate from your local shop or Groww (without GST) so GoldBuddy matches local taxes automatically:
         </p>
         <div class="flex items-center gap-2">
           <input type="number" step="0.01" id="calibrate-24k-input" placeholder="e.g., 13603"
             class="flex-1 rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-          <button type="button" onclick="calibrateMultiplierFromLocal24k()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 transition-colors">
-            Calibrate & Refresh
+          <button type="button" onclick="calibrateMultiplierFromLocal24k()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30">
+            Match Rate
           </button>
         </div>
       </div>
 
       <div class="pt-1 flex flex-wrap items-center justify-between gap-2">
         <button type="button" onclick="resetToDemoMode()" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white border border-slate-700 hover:bg-slate-800">
-          Use Demo Mode
+          Use Sample Mode
         </button>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">
-            Cancel
-          </button>
-          <button type="button" onclick="saveSupabaseSettings()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
-            Save & Connect
-          </button>
+          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800">Cancel</button>
+          <button type="button" onclick="saveSupabaseSettings()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950">Save & Connect</button>
         </div>
       </div>
     </div>
@@ -563,8 +476,8 @@
       history: [],
       tranches: [],
       alerts: [],
-      projection22K: null,
-      projection24K: null,
+      stats22K: null,
+      stats24K: null,
     };
 
     function formatINR(value, decimals = 2) {
@@ -577,7 +490,7 @@
 
     function timeAgo(isoString) {
       const diffSec = Math.max(1, Math.floor((Date.now() - new Date(isoString).getTime()) / 1000));
-      if (diffSec < 60) return `${diffSec}s ago`;
+      if (diffSec < 60) return "Just now";
       const diffMin = Math.floor(diffSec / 60);
       if (diffMin < 60) return `${diffMin}m ago`;
       const diffHr = Math.floor(diffMin / 60);
@@ -589,27 +502,16 @@
       const container = document.getElementById("toast-container");
       const el = document.createElement("div");
       const borderClass =
-        type === "alert"
-          ? "border-emerald-500/50 bg-slate-900/95"
-          : type === "error"
-          ? "border-rose-500/50 bg-slate-900/95"
-          : "border-amber-500/40 bg-slate-900/95";
-
-      const iconColor =
-        type === "alert" ? "text-emerald-400" : type === "error" ? "text-rose-400" : "text-amber-400";
+        type === "alert" ? "border-emerald-500/50 bg-slate-900/95" :
+        type === "error" ? "border-rose-500/50 bg-slate-900/95" :
+        "border-amber-500/40 bg-slate-900/95";
 
       el.className = `pointer-events-auto rounded-xl border ${borderClass} p-3.5 shadow-xl backdrop-blur-md transition-all`;
       el.innerHTML = `
-        <div class="flex items-start gap-3">
-          <i data-lucide="${type === "alert" ? "bell-ring" : type === "error" ? "alert-circle" : "info"}" class="w-4 h-4 ${iconColor} shrink-0 mt-0.5"></i>
-          <div class="flex-1 min-w-0">
-            <div class="text-xs font-semibold text-white">${title}</div>
-            <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${body}</div>
-          </div>
-        </div>
+        <div class="text-xs font-semibold text-white">${title}</div>
+        <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${body}</div>
       `;
       container.appendChild(el);
-      lucide.createIcons({ nodes: [el] });
       setTimeout(() => {
         el.style.opacity = "0";
         setTimeout(() => el.remove(), 300);
@@ -619,7 +521,6 @@
     function buildDemoDataset() {
       const now = Date.now();
       const rows = [];
-      // Simulate realistic gentle downward drift over 5 days ending around ₹13,361 (24K) / ₹12,248 (22K)
       const start24k = 13680;
       const end24k = 13361.10;
 
@@ -632,8 +533,8 @@
         const r22 = Number((r24 * (22 / 24)).toFixed(2));
         rows.push({
           id: 48 - i,
-          xau_usd: Number(((r24 / 1.1693) * TROY_OZ_TO_GRAMS / 93.65).toFixed(2)),
-          usd_inr: 93.6500,
+          xau_usd: 3795.05,
+          usd_inr: 93.65,
           rate_24k_gram: r24,
           rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
           rate_22k_gram: r22,
@@ -645,15 +546,15 @@
       return {
         history: [...rows].reverse(),
         tranches: [
-          { id: "demo-1", label: "Tranche 1 — Current Dip Slice (30%)", karat: "22K", target_rate_gram: 12250.00, allocation_inr: 15000.00, status: "active" },
-          { id: "demo-2", label: "Tranche 2 — Lower 5-Day Band (40%)", karat: "22K", target_rate_gram: 12120.00, allocation_inr: 20000.00, status: "active" },
-          { id: "demo-3", label: "Tranche 3 — 23 Nov Support Floor (30%)", karat: "22K", target_rate_gram: 11980.00, allocation_inr: 15000.00, status: "active" },
+          { id: "demo-1", label: "Part 1 (30%) — Buy Today on Dip", karat: "22K", target_rate_gram: 12250.00, allocation_inr: 15000.00, status: "active" },
+          { id: "demo-2", label: "Part 2 (40%) — Buy if Price Drops More", karat: "22K", target_rate_gram: 12120.00, allocation_inr: 20000.00, status: "active" },
+          { id: "demo-3", label: "Part 3 (30%) — Buy on Bigger Dip", karat: "22K", target_rate_gram: 11980.00, allocation_inr: 15000.00, status: "active" },
         ],
         alerts: [],
       };
     }
 
-    function calculateFiveDayProjection(historyRows, karat = "22K") {
+    function calculatePriceStats(historyRows, karat = "22K") {
       if (!historyRows || historyRows.length === 0) return null;
 
       const field =
@@ -668,27 +569,25 @@
       const prices = sample.map((r) => Number(r[field]));
       const latestPrice = Number(historyRows[0][field]);
       const oldestPrice = Number(sample[sample.length - 1][field]);
-      const mean = prices.reduce((acc, v) => acc + v, 0) / prices.length;
-      const variance = prices.reduce((acc, v) => acc + Math.pow(v - mean, 2), 0) / prices.length;
-      const stdDev = Math.sqrt(variance);
+      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
 
-      const spread = Math.max(stdDev * 1.5, mean * 0.0065);
-      const lowerBand = Number((mean - spread).toFixed(2));
-      const upperBand = Number((mean + spread).toFixed(2));
-      const pctFromMean = Number((((latestPrice - mean) / mean) * 100).toFixed(2));
+      // Good bargain price = slightly below the 5-day average or recent low
+      const bargainPrice = Number(Math.min(minPrice, avgPrice * 0.992).toFixed(2));
+      const highPrice = Number(Math.max(maxPrice, avgPrice * 1.008).toFixed(2));
+      const pctVsAvg = Number((((latestPrice - avgPrice) / avgPrice) * 100).toFixed(2));
       const trendPct = oldestPrice > 0 ? Number((((latestPrice - oldestPrice) / oldestPrice) * 100).toFixed(2)) : 0;
 
       return {
         karat,
         latestPrice,
-        mean5D: Number(mean.toFixed(2)),
-        lowerBand,
-        upperBand,
-        pctFromMean,
+        avgPrice: Number(avgPrice.toFixed(2)),
+        bargainPrice,
+        highPrice,
+        pctVsAvg,
         trendPct,
-        isInBuyZone: latestPrice <= lowerBand,
-        isNearUpper: latestPrice >= upperBand,
-        sampleCount: sample.length,
+        isGoodBargain: latestPrice <= bargainPrice,
       };
     }
 
@@ -732,7 +631,7 @@
         }
       } catch (err) {
         console.error("Supabase fetch error:", err);
-        showToast("Supabase Sync Issue", err.message || "Check URL, Anon Key, and table permissions.", "error");
+        showToast("Connection Issue", err.message || "Please check your Supabase settings.", "error");
       }
     }
 
@@ -743,7 +642,7 @@
           .channel("goldbuddy-live")
           .on("postgres_changes", { event: "INSERT", schema: "public", table: "gold_rates_history" }, () => fetchDashboardData())
           .on("postgres_changes", { event: "INSERT", schema: "public", table: "alert_logs" }, (payload) => {
-            if (payload.new?.message) showToast("Dip Alert Triggered!", payload.new.message, "alert");
+            if (payload.new?.message) showToast("Price Drop Alert!", payload.new.message, "alert");
             fetchDashboardData();
           })
           .subscribe((status) => {
@@ -768,10 +667,10 @@
       btn.disabled = isLoading;
       if (isLoading) {
         spinner.classList.add("animate-spin");
-        if (label) label.textContent = "Fetching...";
+        if (label) label.textContent = "Updating...";
       } else {
         spinner.classList.remove("animate-spin");
-        if (label) label.textContent = "Refresh Rate Now";
+        if (label) label.textContent = "Update Price";
       }
     }
 
@@ -790,7 +689,7 @@
           const new22 = Number((new24 * (22 / 24)).toFixed(2));
           appState.history.unshift({
             id: prev.id + 1,
-            xau_usd: Number((Number(prev.xau_usd) * (1 + deltaPct)).toFixed(2)),
+            xau_usd: prev.xau_usd,
             usd_inr: prev.usd_inr,
             rate_24k_gram: new24,
             rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)),
@@ -799,22 +698,16 @@
             fetched_at: new Date().toISOString(),
           });
           recomputeAndRender();
-          showToast("Simulated Tick Logged", `22K: ${formatINR(new22)}/g | 24K: ${formatINR(new24)}/g`, "info");
+          showToast("Sample Price Updated", `22K: ${formatINR(new22)}/g | 24K: ${formatINR(new24)}/g`, "info");
         } else {
-          const { data, error } = await supabaseClient.functions.invoke("fetch-gold-rate");
+          const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
           if (error) throw error;
           await fetchDashboardData();
-          showToast(
-            "Live Spot Rate Updated",
-            data?.triggered_count > 0
-              ? `Polled fresh quote & triggered ${data.triggered_count} dip alert(s)!`
-              : "Fetched latest XAU/USD & USD/INR parity.",
-            data?.triggered_count > 0 ? "alert" : "info"
-          );
+          showToast("Gold Price Updated", "Fetched today's latest rate.", "info");
         }
       } catch (err) {
         console.error("Refresh failed:", err);
-        showToast("Refresh Failed", err.message || "Could not invoke fetch-gold-rate Edge Function.", "error");
+        showToast("Update Failed", err.message || "Could not fetch latest price.", "error");
       } finally {
         clearTimeout(safetyTimer);
         setRefreshLoading(false);
@@ -822,12 +715,12 @@
     }
 
     function recomputeAndRender() {
-      appState.projection22K = calculateFiveDayProjection(appState.history, "22K");
-      appState.projection24K = calculateFiveDayProjection(appState.history, "24K");
+      appState.stats22K = calculatePriceStats(appState.history, "22K");
+      appState.stats24K = calculatePriceStats(appState.history, "24K");
 
       renderConnectionBadge();
-      renderKpiCards();
-      renderMarketIntelligence();
+      renderTopCards();
+      renderMarketStory();
       renderDateForecast();
       renderChart();
       renderTranches();
@@ -842,199 +735,168 @@
 
       if (isDemoMode) {
         dot.className = "w-2 h-2 rounded-full bg-amber-400";
-        text.textContent = "Demo Mode";
+        text.textContent = "Sample Mode";
         demoBanner.classList.remove("hidden");
         emptyBanner.classList.add("hidden");
       } else {
         dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-        text.textContent = "Live Supabase";
+        text.textContent = "Live Rates";
         demoBanner.classList.add("hidden");
-        if (appState.history.length === 0) {
-          emptyBanner.classList.remove("hidden");
-        } else {
-          emptyBanner.classList.add("hidden");
-        }
+        emptyBanner.classList.toggle("hidden", appState.history.length > 0);
       }
     }
 
-    function renderKpiCards() {
+    function renderTopCards() {
       const latest = appState.history[0];
-      const p22 = appState.projection22K;
-      const p24 = appState.projection24K;
+      const s22 = appState.stats22K;
+      const s24 = appState.stats24K;
 
-      if (!latest || !p22 || !p24) {
+      if (!latest || !s22 || !s24) {
         document.getElementById("price-22k").textContent = "—";
-        document.getElementById("subprice-22k").textContent = "Waiting for first poll";
+        document.getElementById("subprice-22k").textContent = "Click Update Price above";
         document.getElementById("delta-22k").textContent = "—";
         document.getElementById("price-24k").textContent = "—";
-        document.getElementById("subprice-24k").textContent = "Waiting for first poll";
+        document.getElementById("subprice-24k").textContent = "Click Update Price above";
         document.getElementById("delta-24k").textContent = "—";
-        document.getElementById("xau-usd-val").textContent = "—";
-        document.getElementById("usd-inr-val").textContent = "—";
-        document.getElementById("floor-22k-val").textContent = "—";
-        document.getElementById("last-updated").textContent = "No rows yet";
+        document.getElementById("good-buy-22k").textContent = "—";
         return;
       }
 
+      document.getElementById("updated-time-badge").textContent = timeAgo(latest.fetched_at);
+
+      // 22K
       const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
       const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
       document.getElementById("price-22k").textContent = formatINR(main22);
-      document.getElementById("subprice-22k").textContent = includeGst ? `Excl. GST: ${formatINR(alt22)}` : `Incl. 3% GST: ${formatINR(alt22)}`;
+      document.getElementById("subprice-22k").textContent = includeGst ? `Without GST: ${formatINR(alt22)}` : `With 3% GST: ${formatINR(alt22)}`;
 
       const delta22El = document.getElementById("delta-22k");
-      delta22El.textContent = `${p22.pctFromMean >= 0 ? "+" : ""}${p22.pctFromMean}% vs 5D Avg`;
-      delta22El.className = `font-mono font-medium ${p22.pctFromMean <= 0 ? "text-emerald-400" : "text-rose-400"}`;
+      delta22El.textContent = s22.pctVsAvg <= 0 ? `${Math.abs(s22.pctVsAvg)}% cheaper than 5-day avg` : `${s22.pctVsAvg}% higher than 5-day avg`;
+      delta22El.className = `font-medium ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
 
-      const badge22 = document.getElementById("zone-badge-22k");
-      if (p22.isInBuyZone) {
-        badge22.textContent = "Buy Zone Dip";
-        badge22.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
-      } else if (p22.isNearUpper) {
-        badge22.textContent = "Upper Band";
-        badge22.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
-      } else {
-        badge22.textContent = "Neutral Band";
-        badge22.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300";
-      }
-
+      // 24K
       const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
       const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
       document.getElementById("price-24k").textContent = formatINR(main24);
-      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. GST: ${formatINR(alt24)}` : `Incl. 3% GST: ${formatINR(alt24)}`;
+      document.getElementById("subprice-24k").textContent = includeGst ? `Without GST: ${formatINR(alt24)}` : `With 3% GST: ${formatINR(alt24)}`;
 
       const delta24El = document.getElementById("delta-24k");
-      delta24El.textContent = `${p24.pctFromMean >= 0 ? "+" : ""}${p24.pctFromMean}% vs 5D Avg`;
-      delta24El.className = `font-mono font-medium ${p24.pctFromMean <= 0 ? "text-emerald-400" : "text-rose-400"}`;
+      delta24El.textContent = s24.pctVsAvg <= 0 ? `${Math.abs(s24.pctVsAvg)}% cheaper than 5-day avg` : `${s24.pctVsAvg}% higher than 5-day avg`;
+      delta24El.className = `font-medium ${s24.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
 
-      const badge24 = document.getElementById("zone-badge-24k");
-      if (p24.isInBuyZone) {
-        badge24.textContent = "Buy Zone Dip";
-        badge24.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
-      } else if (p24.isNearUpper) {
-        badge24.textContent = "Upper Band";
-        badge24.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
+      // Verdict Card
+      document.getElementById("good-buy-22k").textContent = `${formatINR(s22.bargainPrice)} / g`;
+      const headline = document.getElementById("verdict-headline");
+      const subtext = document.getElementById("verdict-subtext");
+
+      if (s22.pctVsAvg <= 0) {
+        headline.textContent = "Good Time to Start — Buy Part 1 Now";
+        headline.className = "text-base font-bold text-emerald-400";
+        subtext.textContent = "Prices are lower than this week's average. Buy 30% of your budget today and save the remaining 70% in case prices drop more.";
       } else {
-        badge24.textContent = "Neutral Band";
-        badge24.className = "px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-300";
+        headline.textContent = "Wait for a Dip — Don't Rush Today";
+        headline.className = "text-base font-bold text-amber-300";
+        subtext.textContent = "Today's price is higher than this week's average. Set your 3 price alerts below and let GoldBuddy tell you when it cools down.";
       }
-
-      document.getElementById("xau-usd-val").textContent = `$${Number(latest.xau_usd).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
-      document.getElementById("usd-inr-val").textContent = `₹${Number(latest.usd_inr).toFixed(4)}`;
-      document.getElementById("floor-22k-val").textContent = `${formatINR(p22.lowerBand)} / g`;
-      document.getElementById("last-updated").innerHTML = `<i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i> ${timeAgo(latest.fetched_at)}`;
-      lucide.createIcons({ nodes: [document.getElementById("last-updated")] });
     }
 
-    function renderMarketIntelligence() {
-      const p22 = appState.projection22K;
-      const badge = document.getElementById("market-regime-badge");
-      const summary = document.getElementById("market-summary-text");
-      const verdict = document.getElementById("strategy-verdict");
+    function renderMarketStory() {
+      const s22 = appState.stats22K;
+      const pill = document.getElementById("trend-pill");
+      const story = document.getElementById("plain-english-story");
+      if (!s22) return;
 
-      if (!p22) return;
-
-      if (p22.trendPct <= -0.3 || p22.pctFromMean < 0) {
-        badge.textContent = `Cooling Trend (${p22.pctFromMean}%) • Dip Window`;
-        badge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
-        summary.textContent = `Gold is trading ${Math.abs(p22.pctFromMean)}% below its 5-day average (${formatINR(p22.mean5D)}/g). Rising US Treasury yield expectations and a firm US Dollar Index are pushing international bullion down, creating a favourable staggered entry window.`;
-        verdict.textContent = "Good time for Tranche 1 (30%); keep 70% armed for deeper dips";
-        verdict.className = "font-semibold text-emerald-400";
-      } else if (p22.pctFromMean > 0.5) {
-        badge.textContent = `Upward Rally (+${p22.pctFromMean}%) • Avoid Lump Sum`;
-        badge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
-        summary.textContent = `Gold is currently trading +${p22.pctFromMean}% above its 5-day average. Buying a lump sum during an intraday spike reduces your grams per rupee—let your automated dip tranches wait for the next pullback.`;
-        verdict.textContent = "Hold fire on lump sums; let dip alerts catch the next pullback";
-        verdict.className = "font-semibold text-amber-300";
+      if (s22.trendPct < -0.2 || s22.pctVsAvg < 0) {
+        pill.textContent = "Prices Dropping";
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400";
+        story.textContent = `22K gold has dropped ${Math.abs(s22.pctVsAvg)}% below its 5-day average (${formatINR(s22.avgPrice)}/g). When big global funds move money out of gold, retail buyers get a chance to buy more grams for the same rupee budget.`;
+      } else if (s22.pctVsAvg > 0.3) {
+        pill.textContent = "Prices Rising";
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400";
+        story.textContent = `22K gold is currently ${s22.pctVsAvg}% above its 5-day average. Instead of buying everything at a high price today, split your money into 3 alerts below and wait for the next price dip.`;
       } else {
-        badge.textContent = "Consolidating • Range Bound";
-        badge.className = "px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700";
-        summary.textContent = "Gold is trading near its 5-day rolling equilibrium. Splitting your budget across 3 staggered tranches protects you whether the next macro data release pushes prices lower or triggers a rebound.";
-        verdict.textContent = "Set 3 staggered tranches below current spot";
-        verdict.className = "font-semibold text-sky-300";
+        pill.textContent = "Prices Steady";
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-300";
+        story.textContent = "Gold prices are moving in a calm, steady range right now. Splitting your budget into 3 parts ensures you get a fair average price whether rates dip or rise next week.";
       }
     }
 
     function renderDateForecast() {
       const dateInput = document.getElementById("target-buy-date");
       const karat = document.getElementById("forecast-karat").value;
-      const proj = karat === "24K" ? appState.projection24K : appState.projection22K;
+      const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
 
       if (!dateInput.value) {
-        // Default to 23rd of current month (or +5 days if past the 23rd)
         const now = new Date();
         const target = new Date(now.getFullYear(), now.getMonth(), 23);
         if (target <= now) target.setDate(now.getDate() + 5);
         dateInput.value = target.toISOString().split("T")[0];
       }
 
-      if (!proj) return;
+      if (!stats) return;
 
       const selectedDate = new Date(dateInput.value + "T12:00:00");
       const daysAhead = Math.max(1, Math.round((selectedDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
-      document.getElementById("forecast-days-badge").textContent = `+${daysAhead} Day${daysAhead > 1 ? "s" : ""}`;
+      document.getElementById("forecast-days-badge").textContent = `In ${daysAhead} day${daysAhead > 1 ? "s" : ""}`;
 
-      // Calculate daily drift rate (clamped between -0.55% and +0.45% per day so multi-day projections stay realistic)
-      const rawDailyDrift = proj.trendPct !== 0 ? (proj.trendPct / 100) / 5 : -0.0044;
-      const clampedDailyDrift = Math.max(-0.0055, Math.min(0.0045, rawDailyDrift));
+      // Estimate continuation of current trend (clamped to realistic daily movement)
+      const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0044;
+      const dailyRate = Math.max(-0.0055, Math.min(0.0045, rawDailyRate));
 
-      const projectedBase = proj.latestPrice * Math.pow(1 + clampedDailyDrift, daysAhead);
-      const deepFloor = projectedBase * (1 - 0.0045 * Math.sqrt(daysAhead));
-      const reboundCeil = proj.latestPrice * (1 + 0.006 * Math.sqrt(daysAhead));
+      const expectedPrice = stats.latestPrice * Math.pow(1 + dailyRate, daysAhead);
+      const lowestPrice = expectedPrice * (1 - 0.004 * Math.sqrt(daysAhead));
+      const savings10g = Math.max(0, (stats.latestPrice - expectedPrice) * 10);
 
-      document.getElementById("forecast-base-price").textContent = `${formatINR(projectedBase)} / g`;
-      document.getElementById("forecast-floor-price").textContent = `${formatINR(deepFloor)} / g`;
-      document.getElementById("forecast-ceil-price").textContent = `${formatINR(reboundCeil)} / g`;
+      document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice)} / g`;
+      document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice)} / g`;
+      document.getElementById("forecast-savings-10g").textContent = savings10g > 0 ? `${formatINR(savings10g, 0)} saved` : "Prices trending up";
     }
 
     async function generateSmartTranches() {
       const totalBudget = Number(document.getElementById("auto-budget-inr").value);
       const karat = document.getElementById("forecast-karat").value;
       const latest = appState.history[0];
-      const proj = karat === "24K" ? appState.projection24K : appState.projection22K;
 
       if (!totalBudget || totalBudget < 1000) {
-        showToast("Invalid Budget", "Enter a total gold budget of at least ₹1,000.", "error");
+        showToast("Enter Budget", "Please enter at least ₹1,000.", "error");
         return;
       }
-      if (!latest || !proj) {
-        showToast("No Spot Data", "Fetch at least one live rate first before generating tranches.", "error");
+      if (!latest) {
+        showToast("No Price Yet", "Click Update Price first so we have today's rate.", "error");
         return;
       }
 
-      // Always store base rate (excl. GST) in buy_tranches to match Edge Function check
       const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
-      const t1Rate = Number((currentBase * 0.998).toFixed(2));   // -0.2% immediate dip
-      const t2Rate = Number((currentBase * 0.988).toFixed(2));   // -1.2% 5D lower band
-      const t3Rate = Number((currentBase * 0.976).toFixed(2));   // -2.4% deep support floor
+      const p1Rate = Number((currentBase * 0.998).toFixed(2));
+      const p2Rate = Number((currentBase * 0.988).toFixed(2));
+      const p3Rate = Number((currentBase * 0.976).toFixed(2));
 
-      const newTranches = [
-        { label: `Smart Slice 1 (30%) — Immediate Dip`, karat, target_rate_gram: t1Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
-        { label: `Smart Slice 2 (40%) — 5D Lower Band`, karat, target_rate_gram: t2Rate, allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
-        { label: `Smart Slice 3 (30%) — Deep Support Floor`, karat, target_rate_gram: t3Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+      const plan = [
+        { label: `Part 1 (30%) — Buy Today on Dip`, karat, target_rate_gram: p1Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+        { label: `Part 2 (40%) — Buy on Small Drop`, karat, target_rate_gram: p2Rate, allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
+        { label: `Part 3 (30%) — Buy on Bigger Drop`, karat, target_rate_gram: p3Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
       ];
 
       if (isDemoMode || !supabaseClient) {
-        newTranches.forEach((t, idx) => appState.tranches.unshift({ id: `smart-${Date.now()}-${idx}`, ...t }));
+        plan.forEach((t, idx) => appState.tranches.unshift({ id: `part-${Date.now()}-${idx}`, ...t }));
         renderTranches();
-        showToast("3 Smart Tranches Created", `Split ${formatINR(totalBudget, 0)} across ${karat} dip levels.`, "info");
+        showToast("3-Part Plan Ready!", `Split ${formatINR(totalBudget, 0)} into 3 safe buying steps.`, "info");
         return;
       }
 
       try {
-        const { error } = await supabaseClient.from("buy_tranches").insert(newTranches);
+        const { error } = await supabaseClient.from("buy_tranches").insert(plan);
         if (error) throw error;
         await fetchDashboardData();
-        showToast("3 Smart Tranches Armed", `Saved ${formatINR(totalBudget, 0)} staggered plan to Supabase.`, "info");
+        showToast("3-Part Plan Saved!", `We will alert you as ${karat} gold drops to each target.`, "info");
       } catch (err) {
-        showToast("Could Not Save Tranches", err.message, "error");
+        showToast("Could Not Save Plan", err.message, "error");
       }
     }
 
     function renderChart() {
-      const proj = activeChartKarat === "24K" ? appState.projection24K : appState.projection22K;
-
-      if (!proj || appState.history.length === 0) {
-        document.getElementById("chart-sample-badge").textContent = "0 polls";
+      const stats = activeChartKarat === "24K" ? appState.stats24K : appState.stats22K;
+      if (!stats || appState.history.length === 0) {
         document.getElementById("band-lower").textContent = "—";
         document.getElementById("band-mean").textContent = "—";
         document.getElementById("band-upper").textContent = "—";
@@ -1045,33 +907,31 @@
         return;
       }
 
-      document.getElementById("chart-sample-badge").textContent = `${proj.sampleCount} polls`;
-      document.getElementById("band-lower").textContent = formatINR(proj.lowerBand);
-      document.getElementById("band-mean").textContent = formatINR(proj.mean5D);
-      document.getElementById("band-upper").textContent = formatINR(proj.upperBand);
+      document.getElementById("band-lower").textContent = formatINR(stats.bargainPrice);
+      document.getElementById("band-mean").textContent = formatINR(stats.avgPrice);
+      document.getElementById("band-upper").textContent = formatINR(stats.highPrice);
 
       const field =
         activeChartKarat === "24K"
           ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
           : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
 
-      const chrono = [...appState.history].slice(0, 80).reverse();
+      const chrono = [...appState.history].slice(0, 60).reverse();
       const labels = chrono.map((r) => {
         const d = new Date(r.fetched_at);
         return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " +
-               d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
+               d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
       });
 
       const prices = chrono.map((r) => Number(r[field]));
-      const upperSeries = chrono.map(() => proj.upperBand);
-      const meanSeries = chrono.map(() => proj.mean5D);
-      const lowerSeries = chrono.map(() => proj.lowerBand);
+      const avgSeries = chrono.map(() => stats.avgPrice);
+      const bargainSeries = chrono.map(() => stats.bargainPrice);
 
       const ctx = document.getElementById("goldChart").getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
-      const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-      gradient.addColorStop(0, "rgba(245, 158, 11, 0.28)");
+      const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+      gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)");
       gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
 
       chartInstance = new Chart(ctx, {
@@ -1080,41 +940,31 @@
           labels,
           datasets: [
             {
-              label: `${activeChartKarat} Spot (₹/g)`,
+              label: `${activeChartKarat} Gold Price (₹/g)`,
               data: prices,
               borderColor: "#FBBF24",
               backgroundColor: gradient,
               borderWidth: 2.5,
-              pointRadius: chrono.length > 35 ? 1 : 4,
-              pointHoverRadius: 6,
+              pointRadius: chrono.length > 30 ? 1 : 4,
               pointBackgroundColor: "#FBBF24",
               fill: true,
               tension: 0.25,
             },
             {
-              label: "Upper Resistance Band",
-              data: upperSeries,
-              borderColor: "rgba(244, 63, 94, 0.55)",
+              label: "5-Day Average",
+              data: avgSeries,
+              borderColor: "rgba(148, 163, 184, 0.55)",
               borderWidth: 1.5,
-              borderDash: [5, 5],
+              borderDash: [4, 4],
               pointRadius: 0,
               fill: false,
             },
             {
-              label: "5-Day Mean",
-              data: meanSeries,
-              borderColor: "rgba(148, 163, 184, 0.5)",
-              borderWidth: 1.2,
-              borderDash: [2, 4],
-              pointRadius: 0,
-              fill: false,
-            },
-            {
-              label: "Lower Buy-Zone Floor",
-              data: lowerSeries,
-              borderColor: "rgba(16, 185, 129, 0.7)",
+              label: "Good Bargain Price",
+              data: bargainSeries,
+              borderColor: "rgba(16, 185, 129, 0.75)",
               borderWidth: 1.5,
-              borderDash: [5, 5],
+              borderDash: [4, 4],
               pointRadius: 0,
               fill: false,
             },
@@ -1132,17 +982,16 @@
               bodyColor: "#CBD5E1",
               borderColor: "#334155",
               borderWidth: 1,
-              padding: 10,
               callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatINR(ctx.parsed.y)}` },
             },
           },
           scales: {
             x: {
-              grid: { color: "rgba(30, 41, 59, 0.45)" },
-              ticks: { color: "#64748B", font: { size: 10, family: "JetBrains Mono" }, maxTicksLimit: 7 },
+              grid: { color: "rgba(30, 41, 59, 0.4)" },
+              ticks: { color: "#64748B", font: { size: 10 }, maxTicksLimit: 6 },
             },
             y: {
-              grid: { color: "rgba(30, 41, 59, 0.45)" },
+              grid: { color: "rgba(30, 41, 59, 0.4)" },
               ticks: {
                 color: "#94A3B8",
                 font: { size: 11, family: "JetBrains Mono" },
@@ -1159,7 +1008,7 @@
       const latest = appState.history[0];
 
       if (!appState.tranches || appState.tranches.length === 0) {
-        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">No staggered tranches configured yet. Use <span class="text-emerald-400 font-semibold">Auto-Split into 3 Tranches</span> above or click <span class="text-amber-400 font-semibold">+ Add Manual Tranche</span>.</div>`;
+        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">Enter your total gold budget above and click <strong class="text-amber-400">Split Into 3 Smart Parts</strong> to create your plan.</div>`;
         return;
       }
 
@@ -1170,39 +1019,38 @@
           const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
           const displaySpot = baseSpot ? (includeGst ? baseSpot * 1.03 : baseSpot) : null;
 
-          let distanceText = `<span class="text-slate-500">Awaiting first spot quote</span>`;
+          let distanceText = `<span class="text-slate-500">Waiting for today's price</span>`;
           if (displaySpot) {
             const diff = displaySpot - displayTarget;
-            const diffPct = ((diff / displaySpot) * 100).toFixed(2);
             distanceText = diff <= 0
-              ? `<span class="text-emerald-400 font-semibold">At / Below Target (${formatINR(Math.abs(diff))} below)</span>`
-              : `<span class="text-slate-400">${formatINR(diff)} (${diffPct}%) away</span>`;
+              ? `<span class="text-emerald-400 font-semibold">Target Reached! Good time to buy this part</span>`
+              : `<span class="text-slate-400">Needs to drop ${formatINR(diff)}/g more to trigger</span>`;
           }
 
-          const statusStyles = {
-            active: "bg-sky-500/15 text-sky-400 border-sky-500/30",
-            triggered: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-            executed: "bg-purple-500/15 text-purple-300 border-purple-500/30",
-            paused: "bg-slate-800 text-slate-400 border-slate-700",
+          const statusLabels = {
+            active: { text: "Watching Price", cls: "bg-sky-500/15 text-sky-400 border-sky-500/30" },
+            triggered: { text: "Ready to Buy!", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
+            executed: { text: "Bought", cls: "bg-purple-500/15 text-purple-300 border-purple-500/30" },
+            paused: { text: "Paused", cls: "bg-slate-800 text-slate-400 border-slate-700" },
           };
-
-          const estGrams = (Number(t.allocation_inr) / displayTarget).toFixed(3);
+          const st = statusLabels[t.status] || statusLabels.active;
+          const estGrams = (Number(t.allocation_inr) / displayTarget).toFixed(2);
 
           return `
-            <div class="rounded-xl bg-slate-900/75 border border-slate-800/90 hover:border-slate-700 p-4 transition-colors">
+            <div class="rounded-xl bg-slate-900/75 border border-slate-800/90 p-4">
               <div class="flex flex-wrap items-start justify-between gap-2">
                 <div>
                   <div class="flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25">${t.karat}</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400">${t.karat}</span>
                     <span class="text-sm font-semibold text-white">${t.label}</span>
                   </div>
                   <div class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                    <span class="text-slate-300 font-mono">Target: <strong class="text-amber-300">${formatINR(displayTarget)}/g</strong></span>
-                    <span class="text-slate-400 font-mono">Budget: ${formatINR(t.allocation_inr, 0)} (~${estGrams}g)</span>
+                    <span class="text-slate-300">Buy at: <strong class="font-mono text-amber-300">${formatINR(displayTarget)}/g</strong></span>
+                    <span class="text-slate-400">Budget: <strong class="font-mono text-slate-200">${formatINR(t.allocation_inr, 0)}</strong> (~${estGrams}g gold)</span>
                   </div>
                 </div>
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wide border ${statusStyles[t.status] || statusStyles.active}">
-                  ${t.status}
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${st.cls}">
+                  ${st.text}
                 </span>
               </div>
 
@@ -1210,8 +1058,8 @@
                 <div>${distanceText}</div>
                 <div class="flex items-center gap-2">
                   ${t.status === "triggered" ? `<button onclick="updateTrancheStatus('${t.id}', 'executed')" class="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-medium">Mark Bought</button>` : ""}
-                  ${t.status === "active" ? `<button onclick="updateTrancheStatus('${t.id}', 'paused')" class="px-2 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800">Pause</button>` : (t.status === "paused" || t.status === "triggered") ? `<button onclick="updateTrancheStatus('${t.id}', 'active')" class="px-2 py-1 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800">Re-arm</button>` : ""}
-                  <button onclick="deleteTranche('${t.id}')" title="Delete Tranche" class="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800">
+                  ${t.status === "active" ? `<button onclick="updateTrancheStatus('${t.id}', 'paused')" class="px-2 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800">Pause</button>` : (t.status === "paused" || t.status === "triggered") ? `<button onclick="updateTrancheStatus('${t.id}', 'active')" class="px-2 py-1 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800">Watch Again</button>` : ""}
+                  <button onclick="deleteTranche('${t.id}')" title="Remove" class="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   </button>
                 </div>
@@ -1229,7 +1077,7 @@
       document.getElementById("alert-count-badge").textContent = appState.alerts.length;
 
       if (!appState.alerts || appState.alerts.length === 0) {
-        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">No dip alerts triggered yet.</div>`;
+        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">No price alerts triggered yet. When gold drops to your target prices, alerts appear here automatically.</div>`;
         return;
       }
 
@@ -1237,7 +1085,7 @@
         .map((a) => `
           <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3.5">
             <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
-              <span>${a.karat} DIP TRIGGERED</span>
+              <span>${a.karat} PRICE DROP REACHED</span>
               <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
             </div>
             <p class="text-xs text-slate-200 leading-relaxed">${a.message}</p>
@@ -1248,7 +1096,7 @@
 
     function toggleGst() {
       includeGst = !includeGst;
-      document.getElementById("gst-toggle-label").textContent = includeGst ? "Incl. 3% GST" : "Excl. 3% GST";
+      document.getElementById("gst-toggle-label").textContent = includeGst ? "With 3% GST" : "Without 3% GST";
       recomputeAndRender();
     }
 
@@ -1256,13 +1104,12 @@
       activeChartKarat = karat;
       const btn22 = document.getElementById("tab-22k");
       const btn24 = document.getElementById("tab-24k");
-
       if (karat === "22K") {
-        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 transition-colors";
-        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-colors";
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950";
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white";
       } else {
-        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 transition-colors";
-        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white transition-colors";
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950";
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white";
       }
       renderChart();
     }
@@ -1307,9 +1154,9 @@
         closeTrancheModal();
         document.getElementById("tranche-form").reset();
         await fetchDashboardData();
-        showToast("Tranche Saved", `"${label}" persisted to Supabase.`, "info");
+        showToast("Alert Saved", `We will alert you when ${karat} gold hits ${formatINR(target_rate_gram)}/g.`, "info");
       } catch (err) {
-        showToast("Could Not Save Tranche", err.message, "error");
+        showToast("Could Not Save", err.message, "error");
       }
     }
 
@@ -1344,18 +1191,11 @@
       }
     }
 
-    async function openSettingsModal() {
+    function openSettingsModal() {
       document.getElementById("cfg-supabase-url").value = localStorage.getItem(STORAGE_URL_KEY) || "";
       document.getElementById("cfg-supabase-key").value = localStorage.getItem(STORAGE_ANON_KEY) || "";
       document.getElementById("settings-modal").classList.remove("hidden");
       document.getElementById("settings-modal").classList.add("flex");
-
-      if (!isDemoMode && supabaseClient) {
-        const { data } = await supabaseClient.from("gold_config").select("local_premium_multiplier").eq("id", 1).single();
-        if (data?.local_premium_multiplier) {
-          document.getElementById("current-multiplier-badge").textContent = `Multiplier: ${data.local_premium_multiplier}x`;
-        }
-      }
     }
 
     function closeSettingsModal() {
@@ -1366,16 +1206,16 @@
     async function calibrateMultiplierFromLocal24k() {
       const target24k = Number(document.getElementById("calibrate-24k-input").value);
       if (!target24k || target24k < 1000) {
-        showToast("Invalid Rate", "Enter today's local 24K ₹/gram rate (e.g., 13603).", "error");
+        showToast("Invalid Rate", "Enter today's local 24K rate (e.g., 13603).", "error");
         return;
       }
       if (isDemoMode || !supabaseClient) {
-        showToast("Connect Supabase First", "Save your Supabase credentials before calibrating.", "error");
+        showToast("Connect Account First", "Save your Supabase connection first.", "error");
         return;
       }
       const latest = appState.history[0];
       if (!latest || !latest.xau_usd || !latest.usd_inr) {
-        showToast("No Spot Quote Yet", "Click Refresh Rate Now once first so XAU/USD & USD/INR are available.", "error");
+        showToast("Update Price First", "Click Update Price once before matching.", "error");
         return;
       }
 
@@ -1387,14 +1227,12 @@
           .from("gold_config")
           .update({ local_premium_multiplier: newMultiplier, updated_at: new Date().toISOString() })
           .eq("id", 1);
-
         if (error) throw error;
-        document.getElementById("current-multiplier-badge").textContent = `Multiplier: ${newMultiplier}x`;
         closeSettingsModal();
-        showToast("Parity Calibrated", `Saved multiplier ${newMultiplier}x. Polling fresh quote...`, "info");
+        showToast("Local Rate Matched", "Refreshing price now...", "info");
         await handleManualRefresh();
       } catch (err) {
-        showToast("Calibration Failed", err.message + " (Ensure UPDATE is granted on gold_config)", "error");
+        showToast("Could Not Match Rate", err.message, "error");
       }
     }
 
@@ -1402,7 +1240,7 @@
       const cleanedUrl = cleanSupabaseUrl(document.getElementById("cfg-supabase-url").value);
       const anonKey = document.getElementById("cfg-supabase-key").value.trim();
       if (!cleanedUrl || !anonKey) {
-        showToast("Missing Credentials", "Enter both Supabase Project URL and Anon Public Key.", "error");
+        showToast("Missing Details", "Enter both Project URL and Public Key.", "error");
         return;
       }
       localStorage.setItem(STORAGE_URL_KEY, cleanedUrl);
@@ -1412,7 +1250,7 @@
       syncInitialized = false;
       closeSettingsModal();
       await fetchDashboardData();
-      showToast("Connected to Supabase", "Reading cached spot history and tranches.", "info");
+      showToast("Connected!", "Your live gold tracker is ready.", "info");
     }
 
     function resetToDemoMode() {

@@ -278,7 +278,7 @@
           </div>
 
           <!-- Classic Stacked Gold Coins SVG -->
-          <div class="shrink-0 w-20 h-16 sm:w-24 sm:h-20 flex items-center justify-center pointer-events-none select-none">
+          <div id="icon-22k" class="shrink-0 w-20 h-16 sm:w-24 sm:h-20 flex items-center justify-center pointer-events-none select-none">
             <svg viewBox="0 0 120 96" class="w-full h-full drop-shadow-[0_8px_16px_rgba(245,158,11,0.38)]">
               <defs>
                 <radialGradient id="coinFaceGrad" cx="38%" cy="32%" r="68%">
@@ -331,32 +331,39 @@
             </div>
           </div>
 
-          <!-- Beveled 24K 999.9 Pure Gold Bar SVG Illustration -->
-          <div class="shrink-0 w-20 h-16 sm:w-24 sm:h-20 flex items-center justify-center pointer-events-none select-none">
-            <svg viewBox="0 0 120 96" class="w-full h-full drop-shadow-[0_8px_16px_rgba(245,158,11,0.35)]">
+          <!-- Rounded Cast 24K Fine Gold Bar (Biscuit) SVG -->
+          <div id="icon-24k" class="shrink-0 w-20 h-16 sm:w-24 sm:h-20 flex items-center justify-center pointer-events-none select-none">
+            <svg viewBox="0 0 120 96" class="w-full h-full drop-shadow-[0_8px_16px_rgba(245,158,11,0.42)]">
               <defs>
-                <linearGradient id="barTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                <linearGradient id="biscuitBody" x1="15%" y1="0%" x2="85%" y2="100%">
                   <stop offset="0%" stop-color="#FEF9C3" />
-                  <stop offset="45%" stop-color="#FACC15" />
-                  <stop offset="100%" stop-color="#D97706" />
+                  <stop offset="28%" stop-color="#FACC15" />
+                  <stop offset="72%" stop-color="#D97706" />
+                  <stop offset="100%" stop-color="#92400E" />
                 </linearGradient>
-                <linearGradient id="barSide" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#92400E" />
-                  <stop offset="50%" stop-color="#B45309" />
-                  <stop offset="100%" stop-color="#78350F" />
-                </linearGradient>
-                <linearGradient id="barFront" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#D97706" />
-                  <stop offset="100%" stop-color="#F59E0B" />
+                <linearGradient id="biscuitTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FEF08A" />
+                  <stop offset="45%" stop-color="#FBBF24" />
+                  <stop offset="100%" stop-color="#B45309" />
                 </linearGradient>
               </defs>
-              <polygon points="16,74 88,82 108,64 36,56" fill="rgba(245,158,11,0.18)" />
-              <polygon points="84,22 104,44 104,62 84,78" fill="url(#barSide)" />
-              <polygon points="18,62 84,78 104,62 36,48" fill="url(#barFront)" />
-              <polygon points="34,18 84,22 104,44 18,62" fill="url(#barTop)" stroke="#FEF08A" stroke-width="1" />
-              <polygon points="39,24 79,27 94,43 28,57" fill="none" stroke="#B45309" stroke-width="1.2" opacity="0.7" />
-              <text x="61" y="38" text-anchor="middle" font-size="8.5" font-family="monospace" font-weight="bold" fill="#78350F" transform="rotate(-11 61 38)">24K</text>
-              <text x="63" y="48" text-anchor="middle" font-size="7" font-family="monospace" font-weight="bold" fill="#92400E" transform="rotate(-11 63 48)">999.9</text>
+              <!-- Soft shadow -->
+              <ellipse cx="60" cy="82" rx="30" ry="6" fill="rgba(245,158,11,0.22)" />
+              <!-- Outer rounded 3D cast thickness -->
+              <rect x="33" y="13" width="54" height="68" rx="15" fill="#92400E" />
+              <!-- Pillowed rounded gold bar body -->
+              <rect x="31" y="10" width="54" height="68" rx="15" fill="url(#biscuitBody)" stroke="#FEF08A" stroke-width="1.3" />
+              <!-- Soft inner pillowed face -->
+              <rect x="36" y="15" width="44" height="58" rx="11" fill="url(#biscuitTop)" stroke="#B45309" stroke-width="0.9" opacity="0.9" />
+              <!-- Subtle emblem crest at top -->
+              <circle cx="58" cy="28" r="7.5" fill="none" stroke="#78350F" stroke-width="1.4" opacity="0.75" />
+              <path d="M54,28 Q58,22 62,28 Q58,31 54,28 Z" fill="#78350F" opacity="0.75" />
+              <!-- Stamped Fine Gold Text -->
+              <text x="58" y="44" text-anchor="middle" font-size="8.5" font-family="monospace" font-weight="bold" fill="#78350F">24K</text>
+              <text x="58" y="54" text-anchor="middle" font-size="6.5" font-family="monospace" font-weight="bold" fill="#78350F">FINE GOLD</text>
+              <text x="58" y="64" text-anchor="middle" font-size="7" font-family="monospace" font-weight="bold" fill="#92400E">999.9</text>
+              <!-- Soft curved specular highlight -->
+              <path d="M38,22 Q44,14 58,14" fill="none" stroke="#FFFBEB" stroke-width="2" stroke-linecap="round" opacity="0.75" />
             </svg>
           </div>
         </div>
@@ -1303,233 +1310,383 @@
       canvas.height = H * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Real target coordinates for 22K & 24K cards
-      const el22 = document.getElementById("price-22k");
-      const el24 = document.getElementById("price-24k");
-      const r22 = el22 ? el22.getBoundingClientRect() : { left: W * 0.3, top: H * 0.3 };
-      const r24 = el24 ? el24.getBoundingClientRect() : { left: W * 0.7, top: H * 0.3 };
-      const targets = [
-        { x: r22.left + 44, y: r22.top + 18 },
-        { x: r24.left + 44, y: r24.top + 18 },
-      ];
+      const el22 = document.getElementById("icon-22k") || document.getElementById("price-22k");
+      const el24 = document.getElementById("icon-24k") || document.getElementById("price-24k");
+      const r22 = el22 ? el22.getBoundingClientRect() : { left: W * 0.35, top: H * 0.28, width: 80, height: 64 };
+      const r24 = el24 ? el24.getBoundingClientRect() : { left: W * 0.75, top: H * 0.28, width: 80, height: 64 };
+      const targetCoin = { x: r22.left + r22.width / 2, y: r22.top + r22.height / 2 };
+      const targetBar = { x: r24.left + r24.width / 2, y: r24.top + r24.height / 2 };
 
-      let phase = 1; // 1: find vein, 2: cut & extract, 3: process/refine, 4: stream to cards
+      let phase = 1;
       let running = true;
+      let fetchDone = false;
       const startTs = performance.now();
-      let phase2Start = 0;
       let phase3Start = 0;
       let phase4Start = 0;
 
-      // Branching gold vein paths centered organically on screen
       const cx = W * 0.5;
-      const cy = H * 0.5;
-      const veinBranches = [
-        [{ x: cx - 220, y: cy + 55 }, { x: cx - 140, y: cy + 18 }, { x: cx - 55, y: cy + 32 }, { x: cx + 25, y: cy - 12 }, { x: cx + 115, y: cy - 42 }, { x: cx + 215, y: cy - 22 }],
-        [{ x: cx - 55, y: cy + 32 }, { x: cx - 15, y: cy + 78 }, { x: cx + 55, y: cy + 96 }],
-        [{ x: cx + 25, y: cy - 12 }, { x: cx + 52, y: cy - 72 }, { x: cx + 108, y: cy - 102 }],
-        [{ x: cx - 140, y: cy + 18 }, { x: cx - 175, y: cy - 38 }, { x: cx - 120, y: cy - 74 }],
-      ];
+      const baseMtnY = H * 0.68;
+      const scale = Math.max(0.65, Math.min(1.25, W / 640));
 
-      // Raw gold nuggets & refining sparks
-      const nuggets = Array.from({ length: W < 640 ? 45 : 75 }, (_, i) => {
-        const branch = veinBranches[0];
-        const pt = branch[i % branch.length];
-        return {
-          originX: pt.x + (Math.random() - 0.5) * 40,
-          originY: pt.y + (Math.random() - 0.5) * 30,
-          x: pt.x,
-          y: pt.y,
-          vx: (Math.random() - 0.5) * 1.4,
-          vy: -0.6 - Math.random() * 1.3,
-          orbitAngle: (Math.PI * 2 * i) / 75,
-          orbitRadius: 40 + Math.random() * 90,
-          size: 2 + Math.random() * 3,
-          target: targets[i % 2],
-        };
-      });
-
-      function drawPartialPath(pts, progress, width, color, glow) {
-        if (progress <= 0) return;
-        ctx.save();
-        ctx.strokeStyle = color;
-        ctx.lineWidth = width;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.shadowBlur = glow;
-        ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
-        ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        const totalSegs = pts.length - 1;
-        const exactSeg = progress * totalSegs;
-        for (let i = 0; i < totalSegs; i++) {
-          if (i + 1 <= exactSeg) {
-            ctx.lineTo(pts[i + 1].x, pts[i + 1].y);
-          } else if (i < exactSeg) {
-            const frac = exactSeg - i;
-            ctx.lineTo(
-              pts[i].x + (pts[i + 1].x - pts[i].x) * frac,
-              pts[i].y + (pts[i + 1].y - pts[i].y) * frac
-            );
-          }
+      const sparks = [];
+      function spawnSparks(sx, sy, count) {
+        for (let i = 0; i < count; i++) {
+          sparks.push({
+            x: sx,
+            y: sy,
+            vx: (Math.random() - 0.5) * 4.6,
+            vy: -2.0 - Math.random() * 3.4,
+            alpha: 1,
+            size: 1.8 + Math.random() * 2.6,
+          });
         }
+      }
+
+      // Larger, more detailed miner with golden safety helmet, headlamp beam & pickaxe
+      function drawMiner(mx, my, dir, swingPhase) {
+        ctx.save();
+        ctx.translate(mx, my);
+        ctx.scale(dir * scale * 1.45, scale * 1.45);
+
+        // Headlamp light cone onto the rock
+        const coneGrad = ctx.createRadialGradient(4, -25, 1, 22, -22, 36);
+        coneGrad.addColorStop(0, "rgba(254, 240, 138, 0.45)");
+        coneGrad.addColorStop(1, "rgba(254, 240, 138, 0)");
+        ctx.fillStyle = coneGrad;
+        ctx.beginPath();
+        ctx.moveTo(4, -25);
+        ctx.lineTo(42, -36);
+        ctx.lineTo(42, -10);
+        ctx.closePath();
+        ctx.fill();
+
+        // Legs
+        ctx.strokeStyle = "#334155";
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(-4, 0); ctx.lineTo(-8, 17);
+        ctx.moveTo(4, 0); ctx.lineTo(9, 17);
         ctx.stroke();
+
+        // Torso (vest)
+        ctx.fillStyle = "#1E293B";
+        ctx.strokeStyle = "#64748B";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(-7, -19, 14, 20, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Head & Golden Safety Helmet
+        ctx.fillStyle = "#475569";
+        ctx.beginPath();
+        ctx.arc(0, -24, 5.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#FBBF24";
+        ctx.beginPath();
+        ctx.arc(0, -25.5, 6.2, Math.PI, 0);
+        ctx.fill();
+
+        // Headlamp
+        ctx.fillStyle = "#FFFBEB";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#FEF08A";
+        ctx.beginPath();
+        ctx.arc(5, -26, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Swinging Pickaxe
+        const armAngle = -0.85 + Math.sin(swingPhase) * 0.95;
+        ctx.save();
+        ctx.translate(3, -14);
+        ctx.rotate(armAngle);
+        ctx.strokeStyle = "#CBD5E1";
+        ctx.lineWidth = 2.8;
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(20, -7);
+        ctx.stroke();
+        ctx.strokeStyle = "#FDE047";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(20, -7, 10, -0.95, 0.95);
+        ctx.stroke();
+        ctx.restore();
+
         ctx.restore();
       }
 
-      function renderStory(now) {
+      function drawMintedCoin(x, y, s) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(s, s);
+        const grad = ctx.createRadialGradient(-6, -6, 2, 0, 0, 25);
+        grad.addColorStop(0, "#FEF9C3");
+        grad.addColorStop(0.55, "#FBBF24");
+        grad.addColorStop(1, "#B45309");
+        ctx.shadowBlur = 24;
+        ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#FEF08A";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#78350F";
+        ctx.font = "bold 10px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("22K", 0, 1);
+        ctx.restore();
+      }
+
+      // Rounded Cast Gold Biscuit / Bar (no sharp edges)
+      function drawMintedBar(x, y, s) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(s, s);
+        ctx.shadowBlur = 24;
+        ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
+
+        // Outer 3D cast thickness
+        ctx.fillStyle = "#92400E";
+        ctx.beginPath();
+        ctx.roundRect(-21, -27, 44, 56, 12);
+        ctx.fill();
+
+        // Main rounded gold biscuit body
+        const bodyGrad = ctx.createLinearGradient(-22, -28, 22, 28);
+        bodyGrad.addColorStop(0, "#FEF9C3");
+        bodyGrad.addColorStop(0.3, "#FACC15");
+        bodyGrad.addColorStop(0.75, "#D97706");
+        bodyGrad.addColorStop(1, "#92400E");
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.roundRect(-22, -29, 44, 56, 12);
+        ctx.fill();
+        ctx.strokeStyle = "#FEF08A";
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+
+        // Inner pillowed face
+        ctx.fillStyle = "rgba(251, 191, 36, 0.45)";
+        ctx.beginPath();
+        ctx.roundRect(-17, -24, 34, 46, 9);
+        ctx.fill();
+
+        // Stamped 24K / FINE GOLD / 999.9
+        ctx.fillStyle = "#78350F";
+        ctx.textAlign = "center";
+        ctx.font = "bold 9px monospace";
+        ctx.fillText("24K", 0, -7);
+        ctx.font = "bold 6px monospace";
+        ctx.fillText("FINE GOLD", 0, 3);
+        ctx.fillText("999.9", 0, 12);
+
+        ctx.restore();
+      }
+
+      let lastSparkBeat = 0;
+
+      function renderScene(now) {
         if (!running) return;
         const t = (now - startTs) / 1000;
         ctx.clearRect(0, 0, W, H);
 
-        // Soft ambient strata waves in background
-        for (let r = 0; r < 5; r++) {
-          const baseY = H * (0.34 + r * 0.08);
-          ctx.beginPath();
-          for (let x = 0; x <= W; x += 28) {
-            const nx = x / W;
-            const y = baseY + Math.sin(nx * 3.2 + t * 0.5 + r) * 20;
-            if (x === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+        const mtnAlpha = phase === 4 ? Math.max(0, 1 - (now - phase4Start) / 650) : 1;
+        ctx.save();
+        ctx.globalAlpha = mtnAlpha;
+
+        // Warm golden horizon glow behind mountains
+        const horizonGlow = ctx.createRadialGradient(cx, baseMtnY - 80 * scale, 10, cx, baseMtnY - 40 * scale, 340 * scale);
+        horizonGlow.addColorStop(0, "rgba(245, 158, 11, 0.28)");
+        horizonGlow.addColorStop(1, "rgba(15, 23, 42, 0)");
+        ctx.fillStyle = horizonGlow;
+        ctx.fillRect(0, 0, W, H);
+
+        // Far Mountain Ridge (lighter slate-indigo so clearly visible)
+        const farGrad = ctx.createLinearGradient(0, baseMtnY - 170 * scale, 0, H);
+        farGrad.addColorStop(0, "#475569");
+        farGrad.addColorStop(0.55, "#1E293B");
+        farGrad.addColorStop(1, "#0B0F17");
+        ctx.fillStyle = farGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        ctx.lineTo(0, baseMtnY - 20);
+        ctx.lineTo(cx - 320 * scale, baseMtnY - 95 * scale);
+        ctx.lineTo(cx - 170 * scale, baseMtnY - 30 * scale);
+        ctx.lineTo(cx - 20 * scale, baseMtnY - 155 * scale);
+        ctx.lineTo(cx + 150 * scale, baseMtnY - 50 * scale);
+        ctx.lineTo(cx + 310 * scale, baseMtnY - 115 * scale);
+        ctx.lineTo(W, baseMtnY - 25);
+        ctx.lineTo(W, H);
+        ctx.closePath();
+        ctx.fill();
+
+        // Hero Central Mountain Peak (brighter moonlit facet + sunlit right edge)
+        const heroGrad = ctx.createLinearGradient(cx - 180 * scale, baseMtnY - 150 * scale, cx + 180 * scale, baseMtnY + 40);
+        heroGrad.addColorStop(0, "#64748B");
+        heroGrad.addColorStop(0.5, "#334155");
+        heroGrad.addColorStop(1, "#1E293B");
+        ctx.fillStyle = heroGrad;
+        ctx.beginPath();
+        ctx.moveTo(cx - 240 * scale, H);
+        ctx.lineTo(cx - 140 * scale, baseMtnY - 40 * scale);
+        ctx.lineTo(cx, baseMtnY - 155 * scale);
+        ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale);
+        ctx.lineTo(cx + 250 * scale, H);
+        ctx.closePath();
+        ctx.fill();
+
+        // Crisp Moonlit Ridge Highlight on Hero Peak
+        ctx.strokeStyle = "rgba(226, 232, 240, 0.45)";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(cx - 140 * scale, baseMtnY - 40 * scale);
+        ctx.lineTo(cx, baseMtnY - 155 * scale);
+        ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale);
+        ctx.stroke();
+
+        // Large, Bold, Glowing Gold Veins across the Hero Peak
+        const veinGlow = 0.65 + 0.35 * Math.sin(t * 3.5);
+        ctx.strokeStyle = `rgba(253, 224, 71, ${veinGlow})`;
+        ctx.lineWidth = 4.2;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "rgba(251, 191, 36, 0.95)";
+        ctx.beginPath();
+        ctx.moveTo(cx, baseMtnY - 150 * scale);
+        ctx.lineTo(cx - 26 * scale, baseMtnY - 92 * scale);
+        ctx.lineTo(cx + 18 * scale, baseMtnY - 42 * scale);
+        ctx.lineTo(cx - 32 * scale, baseMtnY + 18 * scale);
+        ctx.stroke();
+
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx - 26 * scale, baseMtnY - 92 * scale);
+        ctx.lineTo(cx - 86 * scale, baseMtnY - 46 * scale);
+        ctx.lineTo(cx - 115 * scale, baseMtnY - 12 * scale);
+        ctx.moveTo(cx + 18 * scale, baseMtnY - 42 * scale);
+        ctx.lineTo(cx + 84 * scale, baseMtnY - 8 * scale);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Phase 2+: Larger Miners Working on Mountain Ledges
+        if (phase >= 2) {
+          const swingA = t * 4.8;
+          const swingB = t * 4.8 + 2.0;
+          drawMiner(cx - 64 * scale, baseMtnY - 46 * scale, 1, swingA);
+          drawMiner(cx + 58 * scale, baseMtnY - 36 * scale, -1, swingB);
+
+          if (Math.sin(swingA) > 0.9 && now - lastSparkBeat > 320) {
+            lastSparkBeat = now;
+            spawnSparks(cx - 22 * scale, baseMtnY - 62 * scale, 11);
+            spawnSparks(cx + 18 * scale, baseMtnY - 48 * scale, 9);
           }
-          ctx.strokeStyle = "rgba(148, 163, 184, 0.12)";
-          ctx.lineWidth = 1;
-          ctx.stroke();
+
+          for (let i = sparks.length - 1; i >= 0; i--) {
+            const sp = sparks[i];
+            sp.x += sp.vx;
+            sp.y += sp.vy;
+            sp.vy += 0.08;
+            sp.alpha -= 0.025;
+            if (sp.alpha <= 0) { sparks.splice(i, 1); continue; }
+            ctx.fillStyle = `rgba(254, 240, 138, ${sp.alpha})`;
+            ctx.beginPath();
+            ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
         }
+        ctx.restore();
 
-        // Phase 1 & 2: Reveal & illuminate branching gold veins
-        if (phase <= 2) {
-          const veinReveal = Math.min(1, t / 1.2);
-          const fadeOut = phase === 2 ? Math.max(0.25, 1 - (now - phase2Start) / 1700) : 1;
-          ctx.globalAlpha = fadeOut;
-          veinBranches.forEach((pts, idx) => {
-            const branchProg = Math.max(0, Math.min(1, (veinReveal - idx * 0.12) * 1.3));
-            drawPartialPath(pts, branchProg, idx === 0 ? 3.2 : 2.0, "#FBBF24", 16);
-          });
-          ctx.globalAlpha = 1;
-        }
+        // Phase 3: Making / Molding Coin (left) & Rounded Cast Bar (right)
+        const moldLeftX = cx - 82 * scale;
+        const moldRightX = cx + 82 * scale;
+        const moldY = baseMtnY + 62 * scale;
 
-        // Phase 1: Sweeping discovery scan beam
-        if (phase === 1) {
-          const scanX = ((t * 0.75) % 1.2) * W - W * 0.1;
-          const beam = ctx.createLinearGradient(scanX - 60, 0, scanX + 60, 0);
-          beam.addColorStop(0, "rgba(253, 224, 71, 0)");
-          beam.addColorStop(0.5, "rgba(253, 224, 71, 0.22)");
-          beam.addColorStop(1, "rgba(253, 224, 71, 0)");
-          ctx.fillStyle = beam;
-          ctx.fillRect(scanX - 60, 0, 120, H);
-        }
+        if (phase === 3) {
+          const p3 = Math.min(1, (now - phase3Start) / 2000);
+          const pulse = 0.97 + 0.03 * Math.sin(t * 5);
 
-        // Phase 2: Cutting laser arc & extracting raw gold nuggets
-        if (phase === 2) {
-          const p2 = Math.min(1, (now - phase2Start) / 1400);
-          const mainPts = veinBranches[0];
-          const idx = Math.min(mainPts.length - 2, Math.floor(p2 * (mainPts.length - 1)));
-          const segFrac = p2 * (mainPts.length - 1) - idx;
-          const cutX = mainPts[idx].x + (mainPts[idx + 1].x - mainPts[idx].x) * segFrac;
-          const cutY = mainPts[idx].y + (mainPts[idx + 1].y - mainPts[idx].y) * segFrac;
-
-          // Bright cutting spark at vein point
           ctx.save();
-          ctx.fillStyle = "#FFFBEB";
-          ctx.shadowBlur = 24;
-          ctx.shadowColor = "#FDE047";
+          ctx.strokeStyle = "rgba(251, 191, 36, 0.8)";
+          ctx.lineWidth = 2.6;
+          ctx.setLineDash([6, 6]);
+          ctx.lineDashOffset = -t * 50;
           ctx.beginPath();
-          ctx.arc(cutX, cutY, 5 + Math.sin(t * 24) * 2, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.moveTo(cx - 18 * scale, baseMtnY - 12 * scale);
+          ctx.quadraticCurveTo(moldLeftX, baseMtnY + 18 * scale, moldLeftX, moldY - 24);
+          ctx.moveTo(cx + 18 * scale, baseMtnY - 12 * scale);
+          ctx.quadraticCurveTo(moldRightX, baseMtnY + 18 * scale, moldRightX, moldY - 24);
+          ctx.stroke();
           ctx.restore();
 
-          // Extracted nuggets floating out of the cut
-          nuggets.forEach((n) => {
-            n.x += n.vx;
-            n.y += n.vy;
-            ctx.fillStyle = "#FBBF24";
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "rgba(245, 158, 11, 0.85)";
-            ctx.beginPath();
-            ctx.arc(n.x, n.y, n.size, 0, Math.PI * 2);
-            ctx.fill();
-          });
-          ctx.shadowBlur = 0;
+          drawMintedCoin(moldLeftX, moldY, (0.35 + p3 * 0.65) * pulse);
+          drawMintedBar(moldRightX, moldY, (0.35 + p3 * 0.65) * pulse);
         }
 
-        // Phase 3: Processing & refining nuggets in a molten golden vortex
-        if (phase === 3) {
-          const p3 = Math.min(1, (now - phase3Start) / 1200);
-          nuggets.forEach((n) => {
-            n.orbitAngle += 0.085;
-            const r = n.orbitRadius * (1 - p3 * 0.72);
-            const tx = cx + Math.cos(n.orbitAngle) * r;
-            const ty = cy + Math.sin(n.orbitAngle) * (r * 0.48);
-            n.x += (tx - n.x) * 0.16;
-            n.y += (ty - n.y) * 0.16;
-
-            ctx.fillStyle = p3 > 0.65 ? "#FEF9C3" : "#F59E0B";
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = "rgba(253, 224, 71, 0.9)";
-            ctx.beginPath();
-            ctx.arc(n.x, n.y, n.size * (1 - p3 * 0.25), 0, Math.PI * 2);
-            ctx.fill();
-          });
-
-          // Glowing refined gold core forming at center
-          const coreR = 14 + p3 * 12;
-          const coreGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, coreR * 1.8);
-          coreGrad.addColorStop(0, "rgba(255, 251, 235, 0.95)");
-          coreGrad.addColorStop(0.5, "rgba(251, 191, 36, 0.75)");
-          coreGrad.addColorStop(1, "rgba(245, 158, 11, 0)");
-          ctx.fillStyle = coreGrad;
-          ctx.beginPath();
-          ctx.arc(cx, cy, coreR * 1.8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.shadowBlur = 0;
-        }
-
-        // Phase 4: Stream refined gold directly into 22K & 24K price cards
+        // Phase 4: Populating directly into 22K Coin & 24K Rounded Bar on the cards
         if (phase === 4) {
-          const p4 = Math.min(1, (now - phase4Start) / 900);
-          nuggets.forEach((n) => {
-            n.x += (n.target.x - n.x) * (0.1 + p4 * 0.14);
-            n.y += (n.target.y - n.y) * (0.1 + p4 * 0.14);
-            ctx.fillStyle = `rgba(254, 240, 138, ${Math.max(0, 1 - p4 * 0.65)})`;
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
-            ctx.beginPath();
-            ctx.arc(n.x, n.y, n.size, 0, Math.PI * 2);
-            ctx.fill();
-          });
-          ctx.shadowBlur = 0;
+          const p4 = Math.min(1, (now - phase4Start) / 1350);
+          const ease = 1 - Math.pow(1 - p4, 3);
+          const curCoinX = moldLeftX + (targetCoin.x - moldLeftX) * ease;
+          const curCoinY = moldY + (targetCoin.y - moldY) * ease;
+          const curBarX = moldRightX + (targetBar.x - moldRightX) * ease;
+          const curBarY = moldY + (targetBar.y - moldY) * ease;
+
+          drawMintedCoin(curCoinX, curCoinY, 1 + Math.sin(ease * Math.PI) * 0.25);
+          drawMintedBar(curBarX, curBarY, 1 + Math.sin(ease * Math.PI) * 0.25);
         }
 
-        requestAnimationFrame(renderStory);
+        requestAnimationFrame(renderScene);
       }
 
-      requestAnimationFrame(renderStory);
+      requestAnimationFrame(renderScene);
 
-      // Stage 1: Finding the Gold Vein
-      statusText.textContent = "Scanning terrain for gold veins...";
-      subText.textContent = "Locating Market Signals";
-      await sleep(1400);
+      const timeoutGuard = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Market server took too long to respond.")), 15000)
+      );
+      const safeFetch = Promise.race([fetchPromise, timeoutGuard]).then((res) => {
+        fetchDone = true;
+        return res;
+      });
 
-      // Stage 2: Cutting & Extracting Gold
+      // Step 1: Mountains & Bold Gold Veins
+      statusText.textContent = "Discovering gold veins in the mountains...";
+      subText.textContent = "Scanning Global Bullion Markets";
+      await sleep(1500);
+
+      // Step 2: Miners Working
       phase = 2;
-      phase2Start = performance.now();
-      statusText.textContent = "Cutting & extracting raw gold...";
-      subText.textContent = "Fetching Bullion & Currency Rates";
-      const [fetchResult] = await Promise.all([fetchPromise, sleep(1500)]);
+      statusText.textContent = "Miners extracting gold from the vein...";
+      subText.textContent = "Gathering Live Market Data";
+      await sleep(1700);
 
-      // Stage 3: Processing & Refining
+      // Step 3: Making / Molding Coin & Rounded Bar (waits here if slow)
       phase = 3;
       phase3Start = performance.now();
-      statusText.textContent = "Refining into 22K & 24K purity...";
-      subText.textContent = "Calibrating Indian Retail Spreads";
-      await sleep(1250);
+      statusText.textContent = "Molding 22K Coin & 24K Fine Gold Bar...";
+      subText.textContent = "Refining Indian Retail Rates";
 
-      // Stage 4: Streaming into the Price Cards
+      const slowTimer = setTimeout(() => {
+        if (!fetchDone && running) {
+          statusText.textContent = "Still refining your 22K Coin & 24K Bar...";
+          subText.textContent = "Waiting for Live Market Feed";
+        }
+      }, 3000);
+
+      const [fetchResult] = await Promise.all([safeFetch, sleep(2200)]);
+      clearTimeout(slowTimer);
+
+      // Step 4: Populate Cards
       phase = 4;
       phase4Start = performance.now();
-      statusText.textContent = "Gold rates ready";
-      subText.textContent = "Updating Live Board";
-      await sleep(800);
+      statusText.textContent = "Populating your live gold board...";
+      subText.textContent = "22K Coin & 24K Bar Ready";
+      await sleep(1400);
 
       overlay.classList.add("opacity-0");
       await sleep(450);

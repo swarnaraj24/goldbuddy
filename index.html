@@ -189,10 +189,10 @@
       </div>
 
       <div class="flex items-center gap-2 sm:gap-2.5">
-        <button type="button" id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300 cursor-pointer">
+        <div id="status-badge-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 text-slate-300">
           <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span id="status-text">Sample Mode</span>
-        </button>
+          <span id="status-text">Live Rates</span>
+        </div>
 
         <button type="button" id="gst-toggle-btn" onclick="toggleGst()" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300 cursor-pointer">
           <span id="gst-toggle-label">Without 3% GST</span>
@@ -210,9 +210,7 @@
           <span id="auth-header-label">Sign In</span>
         </button>
 
-        <button type="button" onclick="openSettingsModal()" title="Settings" class="p-2 rounded-lg border border-slate-800 bg-slate-900/70 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer">
-          <i data-lucide="settings" class="w-4 h-4"></i>
-        </button>
+
       </div>
     </div>
   </header>
@@ -233,9 +231,7 @@
       <p class="text-xs sm:text-sm text-slate-300">
         <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian gold rates & AI market summaries.
       </p>
-      <button type="button" onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 cursor-pointer">
-        Connect Account &rarr;
-      </button>
+      
     </div>
 
     <div id="empty-db-banner" class="hidden rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1317,6 +1313,7 @@
           .on("postgres_changes", { event: "INSERT", schema: "public", table: "alert_logs" }, (payload) => {
             if (payload.new?.message) showToast("Price Drop Alert!", payload.new.message, "alert");
             fetchDashboardData();
+      setInterval(updateRefreshCooldownUI, 30000);
           })
           .subscribe((status) => {
             if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") startPollingFallback();
@@ -1333,6 +1330,38 @@
       }, 60000);
     }
 
+    const FETCH_COOLDOWN_MS = 30 * 60 * 1000;
+
+    function getRemainingCooldownMins() {
+      if (isDemoMode || !supabaseClient) return 0;
+      const latestRow = appState.history?.[0];
+      const lastDbTs = latestRow?.fetched_at ? new Date(latestRow.fetched_at).getTime() : 0;
+      const lastLocalTs = Number(localStorage.getItem("goldbuddy_last_fetch_ts") || 0);
+      const newestTs = Math.max(lastDbTs, lastLocalTs);
+      if (!newestTs) return 0;
+      const elapsed = Date.now() - newestTs;
+      if (elapsed >= FETCH_COOLDOWN_MS) return 0;
+      return Math.max(1, Math.ceil((FETCH_COOLDOWN_MS - elapsed) / 60000));
+    }
+
+    function updateRefreshCooldownUI() {
+      const btn = document.getElementById("refresh-btn");
+      const label = document.getElementById("refresh-btn-text");
+      if (!btn || !label) return;
+      const minsLeft = getRemainingCooldownMins();
+      if (minsLeft > 0) {
+        btn.disabled = true;
+        btn.classList.add("opacity-60", "cursor-not-allowed");
+        btn.title = `Rate updated recently. Next fetch available in ${minsLeft} min.`;
+        label.textContent = `Wait ${minsLeft}m`;
+      } else {
+        btn.disabled = false;
+        btn.classList.remove("opacity-60", "cursor-not-allowed");
+        btn.title = "Fetch latest live gold price";
+        label.textContent = "Update Price";
+      }
+    }
+
     function setRefreshLoading(isLoading) {
       const btn = document.getElementById("refresh-btn");
       const spinner = document.getElementById("refresh-spinner");
@@ -1344,7 +1373,7 @@
         if (label) label.textContent = "Retrieving Gold Intelligence...";
       } else {
         if (spinner) spinner.classList.remove("animate-spin");
-        if (label) label.textContent = "Update Price";
+        updateRefreshCooldownUI();
       }
     }
 
@@ -1790,6 +1819,14 @@
         return;
       }
 
+      // Enforce 30-minute cooldown before starting expedition animation
+      const minsLeft = getRemainingCooldownMins();
+      if (minsLeft > 0) {
+        updateRefreshCooldownUI();
+        showToast("Cooldown Active", `Gold rate was updated recently. Next live fetch in ${minsLeft} min.`, "info");
+        return;
+      }
+
       setRefreshLoading(true);
       const safetyTimer = setTimeout(() => setRefreshLoading(false), 15000);
 
@@ -1899,6 +1936,7 @@
       renderChart(activeRows);
       renderTranches(activeRows);
       renderAlerts();
+      updateRefreshCooldownUI();
       try {
         if (window.lucide) window.lucide.createIcons();
       } catch (_e) {}

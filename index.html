@@ -830,118 +830,17 @@
 
   </main>
 
-  <!-- MODAL 3: Gold Expedition Pure SVG/CSS Animated Popup -->
-  <div id="expedition-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-5 transition-opacity duration-500">
-    <div id="expedition-modal-card" class="w-full max-w-xl rounded-2xl bg-[#070B14] border border-amber-500/40 shadow-[0_0_60px_-12px_rgba(245,158,11,0.45)] overflow-hidden flex flex-col">
-      <!-- Top Status Header -->
-      <div class="px-4 py-3 sm:px-5 sm:py-3.5 border-b border-slate-800/90 flex flex-wrap items-center justify-between gap-2 bg-slate-950/80">
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
-          <span id="expedition-stage-badge" class="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-amber-300">01 &bull; Starting Expedition</span>
-        </div>
-        <span id="expedition-status-text" class="text-[11px] sm:text-xs font-mono text-slate-300">Connecting to market sources...</span>
-      </div>
-
-      <!-- Pure Animated Vector Mountain & Mining Stage -->
-      <div class="relative w-full h-52 sm:h-64 bg-gradient-to-b from-[#04070E] via-[#0A1222] to-[#060911] overflow-hidden">
-        <svg viewBox="0 0 600 240" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
-          <defs>
-            <radialGradient id="summitGlow" cx="50%" cy="35%" r="45%">
-              <stop offset="0%" stop-color="#FBBF24" stop-opacity="0.38" />
-              <stop offset="100%" stop-color="#0A1222" stop-opacity="0" />
-            </radialGradient>
-            <linearGradient id="mtnFar" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#1E293B" />
-              <stop offset="100%" stop-color="#090E1A" />
-            </linearGradient>
-            <linearGradient id="mtnMid" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#162238" />
-              <stop offset="100%" stop-color="#060A13" />
-            </linearGradient>
-            <linearGradient id="mtnPeak" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#253654" />
-              <stop offset="50%" stop-color="#0F172A" />
-              <stop offset="100%" stop-color="#050810" />
-            </linearGradient>
-            <linearGradient id="crystalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FEF9C3" />
-              <stop offset="50%" stop-color="#FBBF24" />
-              <stop offset="100%" stop-color="#B45309" />
-            </linearGradient>
-          </defs>
-
-          <!-- Starry Sky & Summit Aura -->
-          <circle cx="300" cy="85" r="140" fill="url(#summitGlow)" />
-          <g fill="#E2E8F0" opacity="0.55">
-            <circle cx="65" cy="34" r="1.2" /><circle cx="135" cy="22" r="1" /><circle cx="215" cy="42" r="1.4" />
-            <circle cx="385" cy="28" r="1.1" /><circle cx="465" cy="48" r="1.3" /><circle cx="535" cy="26" r="1" />
-            <circle cx="95" cy="68" r="0.9" /><circle cx="495" cy="76" r="1.1" />
-          </g>
-
-          <!-- Far Mountain Silhouette -->
-          <path d="M0,240 L0,168 L75,118 L155,155 L245,92 L345,148 L435,96 L525,145 L600,115 L600,240 Z" fill="url(#mtnFar)" opacity="0.75" />
-          <!-- Center Hero Peak -->
-          <path d="M90,240 L215,112 L265,68 L300,44 L338,72 L388,118 L510,240 Z" fill="url(#mtnPeak)" />
-          <!-- Foreground Ridges -->
-          <path d="M0,240 L0,185 L120,132 L230,192 L355,138 L475,188 L600,144 L600,240 Z" fill="url(#mtnMid)" />
-
-          <!-- Glowing Gold Veins Inside Mountain (Stage 2+) -->
-          <g id="expedition-veins" class="opacity-0 transition-opacity duration-700">
-            <path d="M300,44 L292,86 L312,118 L286,158 L308,195" fill="none" stroke="#FDE047" stroke-width="2.6" stroke-linecap="round" class="expedition-vein" />
-            <path d="M292,86 L258,118 L242,152" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" class="expedition-vein" />
-            <path d="M312,118 L348,144 L366,182" fill="none" stroke="#FBBF24" stroke-width="2.2" stroke-linecap="round" class="expedition-vein" />
-            <path d="M120,132 L138,166 L124,202" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" class="expedition-vein" />
-            <path d="M475,188 L462,158 L482,135" fill="none" stroke="#FBBF24" stroke-width="1.8" stroke-linecap="round" class="expedition-vein" />
-          </g>
-
-          <!-- Explorer Orb Travelling Along Ridge (Stage 1 & 2) -->
-          <circle id="expedition-orb" cx="75" cy="118" r="5" fill="#FEF08A" style="filter: drop-shadow(0 0 12px #FBBF24); transition: all 0.9s ease-in-out;" />
-
-          <!-- Stage 3: Glowing Gold Crystal & Swinging Pickaxe -->
-          <g id="expedition-mining-group" class="opacity-0 transition-opacity duration-500">
-            <!-- Gold Crystal -->
-            <g class="crystal-pulse">
-              <polygon points="278,136 300,88 322,136 300,152" fill="url(#crystalGrad)" stroke="#FEF9C3" stroke-width="1.2" />
-              <polygon points="300,88 322,136 300,152" fill="#D97706" opacity="0.55" />
-            </g>
-            <!-- Swinging Pickaxe -->
-            <g class="pickaxe-swing">
-              <line x1="342" y1="126" x2="312" y2="82" stroke="#D97706" stroke-width="4" stroke-linecap="round" />
-              <path d="M292,88 Q312,72 332,92" fill="none" stroke="#FEF08A" stroke-width="4" stroke-linecap="round" />
-            </g>
-          </g>
-        </svg>
-
-        <!-- Sweeping Scanning Beam (Stage 2) -->
-        <div id="expedition-beam" class="hidden absolute inset-y-0 left-0 w-24 sm:w-32 pointer-events-none expedition-scan-beam" style="background: linear-gradient(90deg, transparent, rgba(253,224,71,0.32), transparent); border-right: 2px solid rgba(253,224,71,0.75);"></div>
-
-        <!-- Minted Spinning Gold Coin (Stage 3) -->
-        <div id="expedition-minted-coin" class="hidden absolute inset-0 items-center justify-center pointer-events-none">
-          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-yellow-200 via-amber-400 to-amber-700 border-2 border-yellow-100 shadow-[0_0_36px_rgba(251,191,36,0.95)] flex items-center justify-center expedition-coin-spin">
-            <span class="text-sm sm:text-base font-mono font-bold text-amber-950">₹24K</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Bottom Progress Bar & Dots -->
-      <div class="px-4 py-3 sm:px-5 bg-slate-950/90 border-t border-slate-800/90 flex items-center justify-between gap-3">
-        <div class="flex-1">
-          <div class="flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-400 mb-1.5">
-            <span>GOLD EXPEDITION &bull; AI MARKET DISCOVERY</span>
-            <span id="expedition-timer-label" class="text-amber-300">20%</span>
-          </div>
-          <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-            <div id="expedition-progress-bar" class="h-full bg-gradient-to-r from-amber-500 to-yellow-300 transition-all duration-700" style="width: 20%"></div>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-1.5 shrink-0">
-          <span id="exp-dot-1" class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span id="exp-dot-2" class="w-2 h-2 rounded-full bg-slate-700"></span>
-          <span id="exp-dot-3" class="w-2 h-2 rounded-full bg-slate-700"></span>
-          <span id="exp-dot-4" class="w-2 h-2 rounded-full bg-slate-700"></span>
-        </div>
-      </div>
+  <!-- FULL-BLEED ATMOSPHERIC GOLD EXPEDITION LAYER (Mingles with entire page) -->
+  <div id="expedition-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#060911]/65 backdrop-blur-[6px] transition-opacity duration-700 pointer-events-auto">
+    <canvas id="expedition-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+    <div class="relative z-10 flex flex-col items-center text-center px-6 pointer-events-none select-none">
+      <div class="w-2.5 h-2.5 rounded-full bg-amber-300 shadow-[0_0_20px_6px_rgba(251,191,36,0.7)] animate-pulse mb-4"></div>
+      <p id="expedition-status-text" class="text-sm sm:text-lg font-medium tracking-wide text-amber-50/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] transition-opacity duration-500">
+        Connecting to global bullion markets...
+      </p>
+      <p id="expedition-sub-text" class="text-[11px] sm:text-xs font-mono tracking-widest uppercase text-amber-300/75 mt-2">
+        Retrieving Live Gold Intelligence
+      </p>
     </div>
   </div>
 
@@ -1385,85 +1284,137 @@
 
     async function runGoldExpedition(fetchPromise) {
       const overlay = document.getElementById("expedition-overlay");
-      const stageBadge = document.getElementById("expedition-stage-badge");
+      const canvas = document.getElementById("expedition-canvas");
       const statusText = document.getElementById("expedition-status-text");
-      const veins = document.getElementById("expedition-veins");
-      const orb = document.getElementById("expedition-orb");
-      const miningGroup = document.getElementById("expedition-mining-group");
-      const beam = document.getElementById("expedition-beam");
-      const coin = document.getElementById("expedition-minted-coin");
-      const progBar = document.getElementById("expedition-progress-bar");
-      const progLabel = document.getElementById("expedition-timer-label");
-      const dots = [1, 2, 3, 4].map((n) => document.getElementById(`exp-dot-${n}`));
+      const subText = document.getElementById("expedition-sub-text");
 
-      if (!overlay) {
+      if (!overlay || !canvas) {
         return await fetchPromise;
       }
 
-      // Reset modal state
       overlay.classList.remove("hidden", "opacity-0");
       overlay.classList.add("flex");
-      if (veins) veins.classList.add("opacity-0");
-      if (miningGroup) miningGroup.classList.add("opacity-0");
-      if (beam) beam.classList.add("hidden");
-      if (coin) { coin.classList.add("hidden"); coin.classList.remove("flex"); }
-      if (orb) { orb.setAttribute("cx", "75"); orb.setAttribute("cy", "118"); orb.classList.remove("opacity-0"); }
-      if (progBar) progBar.style.width = "20%";
-      if (progLabel) progLabel.textContent = "20%";
-      dots.forEach((d, idx) => {
-        if (d) d.className = idx === 0 ? "w-2 h-2 rounded-full bg-amber-400" : "w-2 h-2 rounded-full bg-slate-700";
-      });
 
-      // Stage 1: Explorer Orb climbs mountain (~1.5s)
-      stageBadge.textContent = "01 • Starting Expedition";
-      statusText.textContent = "Connecting to market sources...";
-      await sleep(650);
+      const ctx = canvas.getContext("2d");
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      if (orb) { orb.setAttribute("cx", "245"); orb.setAttribute("cy", "92"); }
-      statusText.textContent = "Scanning gold markets...";
-      if (progBar) progBar.style.width = "38%";
-      if (progLabel) progLabel.textContent = "38%";
-      await sleep(850);
+      // Target card coordinates so particles mingle directly into 22K & 24K cards
+      const el22 = document.getElementById("price-22k");
+      const el24 = document.getElementById("price-24k");
+      const r22 = el22 ? el22.getBoundingClientRect() : { left: W * 0.3, top: H * 0.3 };
+      const r24 = el24 ? el24.getBoundingClientRect() : { left: W * 0.7, top: H * 0.3 };
+      const targets = [
+        { x: r22.left + 40, y: r22.top + 16 },
+        { x: r24.left + 40, y: r24.top + 16 },
+      ];
 
-      // Stage 2: Scanning Beam & Glowing Gold Veins (~1.8s + wait for fetch)
-      stageBadge.textContent = "02 • Scanning Gold Vein";
-      statusText.textContent = "Gold veins detected — Analyzing market conditions...";
-      if (dots[1]) dots[1].className = "w-2 h-2 rounded-full bg-amber-400";
-      if (orb) { orb.setAttribute("cx", "300"); orb.setAttribute("cy", "44"); }
-      if (beam) beam.classList.remove("hidden");
-      if (veins) veins.classList.remove("opacity-0");
-      if (progBar) progBar.style.width = "65%";
-      if (progLabel) progLabel.textContent = "65%";
+      let phase = 1; // 1: ambient flow, 2: golden surge, 3: stream into price cards
+      let running = true;
+      const startTs = performance.now();
+      let phase3Start = 0;
 
-      const [fetchResult] = await Promise.all([fetchPromise, sleep(1800)]);
+      // Organic floating gold dust motes across the entire viewport
+      const dustCount = W < 640 ? 65 : 110;
+      const dust = Array.from({ length: dustCount }, (_, i) => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: -0.25 - Math.random() * 0.55,
+        size: 0.9 + Math.random() * 2.4,
+        alpha: 0.2 + Math.random() * 0.65,
+        twinkle: Math.random() * Math.PI * 2,
+        target: targets[i % 2],
+      }));
 
-      // Stage 3: Pickaxe Mining Crystal + Spinning Coin + Sparks (~1.4s)
-      stageBadge.textContent = "03 • Gold Discovery";
-      statusText.textContent = "Extracting & minting latest rate...";
-      if (dots[2]) dots[2].className = "w-2 h-2 rounded-full bg-amber-400";
-      if (beam) beam.classList.add("hidden");
-      if (orb) orb.classList.add("opacity-0");
-      if (miningGroup) miningGroup.classList.remove("opacity-0");
-      if (progBar) progBar.style.width = "90%";
-      if (progLabel) progLabel.textContent = "90%";
+      function renderFluidScene(now) {
+        if (!running) return;
+        const t = (now - startTs) / 1000;
+        ctx.clearRect(0, 0, W, H);
 
-      await sleep(550);
-      if (coin) { coin.classList.remove("hidden"); coin.classList.add("flex"); }
-      const rect = overlay.getBoundingClientRect();
-      burstGoldenCrackers(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        // Soft atmospheric radial warmth in center
+        const aura = ctx.createRadialGradient(W * 0.5, H * 0.48, 20, W * 0.5, H * 0.48, Math.max(W, H) * 0.55);
+        aura.addColorStop(0, phase >= 2 ? "rgba(245, 158, 11, 0.14)" : "rgba(245, 158, 11, 0.06)");
+        aura.addColorStop(1, "rgba(6, 9, 17, 0)");
+        ctx.fillStyle = aura;
+        ctx.fillRect(0, 0, W, H);
 
+        // Flowing organic golden silk / contour ribbons across full width
+        const ribbonCount = 7;
+        for (let r = 0; r < ribbonCount; r++) {
+          const baseY = H * (0.28 + r * 0.075);
+          const alpha = (phase === 3 ? 0.08 : 0.18) * (1 - Math.abs(r - 3) * 0.15);
+          ctx.beginPath();
+          for (let x = 0; x <= W; x += 24) {
+            const nx = x / W;
+            const yOffset =
+              Math.sin(nx * 3.8 + t * (0.65 + r * 0.08) + r) * (28 + r * 4) +
+              Math.cos(nx * 6.5 - t * 0.45 + r * 0.7) * 14;
+            const y = baseY + yOffset;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = r % 2 === 0
+            ? `rgba(251, 191, 36, ${alpha})`
+            : `rgba(253, 224, 71, ${alpha * 0.85})`;
+          ctx.lineWidth = r === 3 ? 1.8 : 1.1;
+          ctx.stroke();
+        }
+
+        // Floating gold dust & Phase 3 direct-to-card mingling stream
+        const p3 = phase === 3 ? Math.min(1, (now - phase3Start) / 1100) : 0;
+        dust.forEach((d) => {
+          d.twinkle += 0.04;
+          if (phase < 3) {
+            d.x += d.vx + Math.sin(t * 0.8 + d.twinkle) * 0.2;
+            d.y += d.vy * (phase === 2 ? 1.45 : 1);
+            if (d.y < -10) { d.y = H + 10; d.x = Math.random() * W; }
+            if (d.x < -10) d.x = W + 10;
+            if (d.x > W + 10) d.x = -10;
+          } else {
+            // Smoothly converge into the 22K and 24K price digits on the real page
+            d.x += (d.target.x - d.x) * (0.06 + p3 * 0.08);
+            d.y += (d.target.y - d.y) * (0.06 + p3 * 0.08);
+          }
+
+          const curAlpha = d.alpha * (0.65 + 0.35 * Math.sin(d.twinkle)) * (phase === 3 ? (1 - p3 * 0.55) : 1);
+          ctx.fillStyle = `rgba(254, 240, 138, ${Math.max(0, curAlpha)})`;
+          ctx.shadowBlur = d.size * 4;
+          ctx.shadowColor = "rgba(245, 158, 11, 0.85)";
+          ctx.beginPath();
+          ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.shadowBlur = 0;
+
+        requestAnimationFrame(renderFluidScene);
+      }
+
+      requestAnimationFrame(renderFluidScene);
+
+      // Gentle editorial pacing (~4.6s total, fetch runs in parallel)
+      statusText.textContent = "Connecting to global bullion markets...";
+      subText.textContent = "Retrieving Live Gold Intelligence";
+      await sleep(1300);
+
+      phase = 2;
+      statusText.textContent = "Analyzing currency & Indian retail spreads...";
+      subText.textContent = "Calibrating 22K & 24K Rates";
+      const [fetchResult] = await Promise.all([fetchPromise, sleep(1700)]);
+
+      phase = 3;
+      phase3Start = performance.now();
+      statusText.textContent = "Gold intelligence ready";
+      subText.textContent = "Updating Live Board";
       await sleep(950);
 
-      // Stage 4: Market Intelligence Revealed
-      stageBadge.textContent = "04 • Intelligence Revealed";
-      statusText.textContent = "Gold data successfully refreshed";
-      if (dots[3]) dots[3].className = "w-2 h-2 rounded-full bg-emerald-400";
-      if (progBar) progBar.style.width = "100%";
-      if (progLabel) progLabel.textContent = "100%";
-
-      await sleep(450);
       overlay.classList.add("opacity-0");
-      await sleep(420);
+      await sleep(550);
+      running = false;
       overlay.classList.add("hidden");
       overlay.classList.remove("flex", "opacity-0");
 

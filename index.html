@@ -40,7 +40,7 @@
       box-shadow: 0 0 32px -10px rgba(245, 158, 11, 0.25);
     }
     .gold-card-bg {
-      background: radial-gradient(circle at 88% 55%, rgba(245, 158, 11, 0.12), transparent 55%), #131A26;
+      background: radial-gradient(circle at 86% 48%, rgba(245, 158, 11, 0.14), transparent 58%), #131A26;
     }
   </style>
 </head>
@@ -134,92 +134,309 @@
       </div>
     </section>
 
-    <!-- ROW 1 (PRIORITY HERO): LEFT = 22K & 24K RATES + 5-DAY CHART | RIGHT = AI MARKET SUMMARY & 15-DAY OUTLOOK -->
-    <section class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
-
-      <!-- Left 6 Columns: Live Price Cards + 5-Day Chart -->
-      <div class="xl:col-span-6 flex flex-col gap-5">
-
-        <!-- 22K & 24K Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- 22K Jewellery Card -->
-          <div class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 gold-glow relative overflow-hidden">
-            <div class="flex items-center justify-between mb-2">
+    <!-- ROW 1: 22K JEWELLERY GOLD & 24K PURE GOLD CARDS WITH METALLIC GOLD ILLUSTRATIONS -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- 22K Jewellery Gold Card with 3D Gold Ring Graphic -->
+      <div class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 gold-glow relative overflow-hidden flex flex-col justify-between">
+        <div class="flex items-center justify-between gap-4">
+          <div class="space-y-2.5 z-10">
+            <div class="flex items-center gap-2">
               <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/20">22K Jewellery Gold / g</span>
               <span class="text-[11px] text-slate-400">91.6% Hallmark</span>
             </div>
-            <div class="flex items-center justify-between mt-2">
-              <span id="price-22k" class="text-3xl font-bold font-mono text-white tracking-tight">—</span>
+            <div class="flex items-center gap-3">
+              <span id="price-22k" class="text-3xl sm:text-4xl font-bold font-mono text-white tracking-tight">—</span>
               <span id="badge-22k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-              <span id="subprice-22k" class="text-slate-400">—</span>
-              <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
             </div>
           </div>
 
-          <!-- 24K Pure Gold Card -->
-          <div class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 relative overflow-hidden">
-            <div class="flex items-center justify-between mb-2">
-              <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300 border border-yellow-500/20">24K Pure Gold / g</span>
-              <span class="text-[11px] text-slate-400">99.9% Coin / Bar</span>
-            </div>
-            <div class="flex items-center justify-between mt-2">
-              <span id="price-24k" class="text-3xl font-bold font-mono text-white tracking-tight">—</span>
-              <span id="badge-24k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
-            </div>
-            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-              <span id="subprice-24k" class="text-slate-400">—</span>
-              <span class="text-slate-400">10g Pure: <strong id="ten-gram-24k" class="font-mono text-slate-200">—</strong></span>
-            </div>
+          <!-- Shimmering 22K Gold Ring SVG Illustration -->
+          <div class="shrink-0 w-24 h-20 flex items-center justify-center pointer-events-none select-none">
+            <svg viewBox="0 0 120 96" class="w-24 h-20 drop-shadow-[0_8px_16px_rgba(245,158,11,0.35)]">
+              <defs>
+                <linearGradient id="ringOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FEF08A" />
+                  <stop offset="35%" stop-color="#F59E0B" />
+                  <stop offset="70%" stop-color="#B45309" />
+                  <stop offset="100%" stop-color="#FDE047" />
+                </linearGradient>
+                <linearGradient id="ringInner" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#78350F" />
+                  <stop offset="50%" stop-color="#FBBF24" />
+                  <stop offset="100%" stop-color="#92400E" />
+                </linearGradient>
+              </defs>
+              <!-- Soft reflection shadow -->
+              <ellipse cx="60" cy="80" rx="34" ry="6" fill="rgba(245,158,11,0.18)" />
+              <!-- Outer 3D Gold Band -->
+              <path d="M24,48 C24,28 40,16 60,16 C80,16 96,28 96,48 C96,68 80,78 60,78 C40,78 24,68 24,48 Z M36,48 C36,60 47,67 60,67 C73,67 84,60 84,48 C84,36 73,27 60,27 C47,27 36,36 36,48 Z" fill="url(#ringOuter)" />
+              <!-- Inner Bevel Highlight -->
+              <ellipse cx="60" cy="47" rx="25" ry="20" fill="none" stroke="url(#ringInner)" stroke-width="2.5" />
+              <!-- Specular Shine -->
+              <path d="M35,29 Q52,17 75,24" fill="none" stroke="#FFFBEB" stroke-width="2.2" stroke-linecap="round" opacity="0.85" />
+              <!-- 916 Hallmark Stamp -->
+              <text x="60" y="75" text-anchor="middle" font-size="6.5" font-family="monospace" font-weight="bold" fill="#78350F">916</text>
+            </svg>
           </div>
         </div>
 
-        <!-- 5-Day Gold Price Movement Chart -->
-        <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex-1 flex flex-col justify-between">
-          <div>
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-              <div>
-                <h2 class="text-base font-semibold text-white">5-Day Gold Price Movement</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Compare today's rate against this week's average and bargain buy level</p>
-              </div>
-
-              <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800">
-                <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer">
-                  22K Gold
-                </button>
-                <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
-                  24K Gold
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2.5 mb-4">
-              <div class="rounded-xl bg-slate-900/80 border border-slate-800/80 px-3 py-2.5">
-                <div class="text-[11px] text-slate-400">Good Bargain Price</div>
-                <div id="band-lower" class="text-sm font-mono font-semibold text-emerald-400 mt-0.5">—</div>
-              </div>
-              <div class="rounded-xl bg-slate-900/80 border border-slate-800/80 px-3 py-2.5">
-                <div class="text-[11px] text-slate-400">5-Day Average Price</div>
-                <div id="band-mean" class="text-sm font-mono font-semibold text-amber-300 mt-0.5">—</div>
-              </div>
-              <div class="rounded-xl bg-slate-900/80 border border-slate-800/80 px-3 py-2.5">
-                <div class="text-[11px] text-slate-400">5-Day High Price</div>
-                <div id="band-upper" class="text-sm font-mono font-semibold text-rose-400 mt-0.5">—</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="relative h-56 w-full">
-            <canvas id="goldChart"></canvas>
-          </div>
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs z-10">
+          <span id="subprice-22k" class="text-slate-400">—</span>
+          <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
         </div>
       </div>
 
-      <!-- Right 6 Columns: AI Market Summary + Key Drivers + AI Outlook (Next 15 Days) + AI Recommendation -->
+      <!-- 24K Pure Gold Card with 3D Gold Bullion Bar Graphic -->
+      <div class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 relative overflow-hidden flex flex-col justify-between">
+        <div class="flex items-center justify-between gap-4">
+          <div class="space-y-2.5 z-10">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300 border border-yellow-500/20">24K Pure Gold / g</span>
+              <span class="text-[11px] text-slate-400">99.9% Coin / Bar</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="price-24k" class="text-3xl sm:text-4xl font-bold font-mono text-white tracking-tight">—</span>
+              <span id="badge-24k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+            </div>
+          </div>
+
+          <!-- Beveled 24K 999.9 Pure Gold Bar SVG Illustration -->
+          <div class="shrink-0 w-24 h-20 flex items-center justify-center pointer-events-none select-none">
+            <svg viewBox="0 0 120 96" class="w-24 h-20 drop-shadow-[0_8px_16px_rgba(245,158,11,0.35)]">
+              <defs>
+                <linearGradient id="barTop" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FEF9C3" />
+                  <stop offset="45%" stop-color="#FACC15" />
+                  <stop offset="100%" stop-color="#D97706" />
+                </linearGradient>
+                <linearGradient id="barSide" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#92400E" />
+                  <stop offset="50%" stop-color="#B45309" />
+                  <stop offset="100%" stop-color="#78350F" />
+                </linearGradient>
+                <linearGradient id="barFront" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#D97706" />
+                  <stop offset="100%" stop-color="#F59E0B" />
+                </linearGradient>
+              </defs>
+              <!-- Soft shadow -->
+              <polygon points="16,74 88,82 108,64 36,56" fill="rgba(245,158,11,0.18)" />
+              <!-- 3D Side Face -->
+              <polygon points="84,22 104,44 104,62 84,78" fill="url(#barSide)" />
+              <!-- 3D Bottom Front Edge -->
+              <polygon points="18,62 84,78 104,62 36,48" fill="url(#barFront)" />
+              <!-- Top Ingot Face -->
+              <polygon points="34,18 84,22 104,44 18,62" fill="url(#barTop)" stroke="#FEF08A" stroke-width="1" />
+              <!-- Inner Recessed Frame -->
+              <polygon points="39,24 79,27 94,43 28,57" fill="none" stroke="#B45309" stroke-width="1.2" opacity="0.7" />
+              <!-- Bullion Stamp Text -->
+              <text x="61" y="38" text-anchor="middle" font-size="8.5" font-family="monospace" font-weight="bold" fill="#78350F" transform="rotate(-11 61 38)">24K</text>
+              <text x="63" y="48" text-anchor="middle" font-size="7" font-family="monospace" font-weight="bold" fill="#92400E" transform="rotate(-11 63 48)">999.9</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs z-10">
+          <span id="subprice-24k" class="text-slate-400">—</span>
+          <span class="text-slate-400">10g Pure: <strong id="ten-gram-24k" class="font-mono text-slate-200">—</strong></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROW 2 (MOVED TO TOP): SLEEK "HOW MUCH GOLD CAN MY MONEY BUY?" + "PRICE ESTIMATE FOR YOUR BUY DATE" -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+
+      <!-- Left 7 Columns: Sleek Redesigned Budget <-> Grams Calculator -->
+      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between gap-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center">
+              <i data-lucide="calculator" class="w-4 h-4"></i>
+            </span>
+            <div>
+              <h2 class="text-base font-semibold text-white">How Much Gold Can My Money Buy?</h2>
+              <p class="text-xs text-slate-400">Instant budget-to-grams & showroom bill breakdown</p>
+            </div>
+          </div>
+
+          <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs">
+            <button type="button" id="mode-budget-btn" onclick="switchCalcMode('budget')" class="px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer">
+              Budget (₹ &rarr; g)
+            </button>
+            <button type="button" id="mode-grams-btn" onclick="switchCalcMode('grams')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer">
+              Weight (g &rarr; ₹)
+            </button>
+          </div>
+        </div>
+
+        <!-- 2-Pane Sleek Calculator Body -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+
+          <!-- Left Input Pane (7 cols) -->
+          <div class="md:col-span-7 rounded-xl bg-slate-900/70 border border-slate-800/90 p-4 space-y-3.5">
+            <!-- Primary Input + Quick Pills -->
+            <div id="calc-budget-wrapper">
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="calc-budget-inr" class="text-xs font-medium text-slate-300">Your Budget Amount</label>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="setQuickBudget(25000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹25k</button>
+                  <button type="button" onclick="setQuickBudget(50000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹50k</button>
+                  <button type="button" onclick="setQuickBudget(100000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹1L</button>
+                  <button type="button" onclick="setQuickBudget(150000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹1.5L</button>
+                </div>
+              </div>
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-mono text-amber-400 font-bold">₹</span>
+                <input type="number" id="calc-budget-inr" value="50000" step="500" min="500" oninput="recalculateGoldWorth()"
+                  class="w-full rounded-xl bg-slate-950 border border-slate-700/90 pl-8 pr-3.5 py-2.5 text-base font-mono font-bold text-white focus:border-amber-500 focus:outline-none" />
+              </div>
+            </div>
+
+            <div id="calc-grams-wrapper" class="hidden">
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="calc-grams" class="text-xs font-medium text-slate-300">Gold Weight (grams)</label>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="setQuickGrams(1)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">1g</button>
+                  <button type="button" onclick="setQuickGrams(4)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">4g</button>
+                  <button type="button" onclick="setQuickGrams(8)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">8g (1 Pavan)</button>
+                  <button type="button" onclick="setQuickGrams(10)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">10g</button>
+                </div>
+              </div>
+              <div class="relative">
+                <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateGoldWorth()"
+                  class="w-full rounded-xl bg-slate-950 border border-slate-700/90 px-3.5 py-2.5 text-base font-mono font-bold text-white focus:border-amber-500 focus:outline-none" />
+                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400">grams</span>
+              </div>
+            </div>
+
+            <!-- Purity & Making Charges Row -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="calc-karat" class="block text-[11px] text-slate-400 mb-1">Gold Purity</label>
+                <select id="calc-karat" onchange="recalculateGoldWorth()"
+                  class="w-full rounded-xl bg-slate-950 border border-slate-700/90 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+                  <option value="22K">22K Jewellery</option>
+                  <option value="24K">24K Pure Gold</option>
+                </select>
+              </div>
+              <div>
+                <label for="calc-making" class="block text-[11px] text-slate-400 mb-1">Making Charges (%)</label>
+                <div class="relative">
+                  <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateGoldWorth()"
+                    class="w-full rounded-xl bg-slate-950 border border-slate-700/90 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Sleek Receipt Output Pane (5 cols) -->
+          <div class="md:col-span-5 rounded-xl bg-gradient-to-b from-amber-500/10 to-slate-900/95 border border-amber-500/30 p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span id="res-primary-label" class="text-[11px] font-semibold uppercase tracking-wider text-amber-300">Gold You Can Buy (22K)</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-950/80 text-slate-400 font-mono">Incl. 3% GST</span>
+              </div>
+              <div id="res-primary-val" class="text-2xl sm:text-3xl font-bold font-mono text-white mt-1.5 tracking-tight">—</div>
+
+              <!-- Visual Proportional Composition Bar -->
+              <div class="mt-3">
+                <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden flex">
+                  <div id="bar-gold-pct" class="bg-amber-400 h-full" style="width: 88%"></div>
+                  <div id="bar-making-pct" class="bg-sky-400 h-full" style="width: 9%"></div>
+                  <div id="bar-gst-pct" class="bg-rose-400 h-full" style="width: 3%"></div>
+                </div>
+                <div class="mt-2.5 space-y-1 text-[11px]">
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Net Gold</span>
+                    <span id="res-gold-val" class="font-mono font-semibold text-slate-200">—</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-400"></span>Making</span>
+                    <span id="res-making-val" class="font-mono font-semibold text-slate-200">—</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-slate-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400"></span>3% GST</span>
+                    <span id="res-gst-val" class="font-mono font-semibold text-slate-200">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" onclick="syncCalculatorToPlan()"
+              class="mt-3.5 w-full py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors cursor-pointer">
+              Use This Amount in 3-Part Plan &rarr;
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right 5 Columns: Price Estimate for Your Buy Date -->
+      <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-400 border border-sky-500/25 flex items-center justify-center">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+              </span>
+              <h2 class="text-base font-semibold text-white">Price Estimate for Your Buy Date</h2>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0">
+              Max 15d &bull; Est.
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-400 mb-3.5">
+            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to see the estimated price range:
+          </p>
+
+          <div class="grid grid-cols-2 gap-3 mb-3.5">
+            <div>
+              <label for="forecast-days-select" class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
+              <select id="forecast-days-select" onchange="renderDateForecast()"
+                class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+              </select>
+            </div>
+            <div>
+              <label for="forecast-karat" class="block text-xs text-slate-400 mb-1">Gold Type</label>
+              <select id="forecast-karat" onchange="renderDateForecast()"
+                class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+                <option value="22K">22K Jewellery</option>
+                <option value="24K">24K Pure Gold</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span id="forecast-floor-label" class="text-xs text-slate-400">Best-Case Low (If Drop Continues):</span>
+              <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
+            </div>
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+              <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Expected Price (Current Trend):</span>
+              <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
+            </div>
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+              <span id="forecast-ceil-label" class="text-xs text-slate-400">Worst-Case High (If Price Rises):</span>
+              <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-3 text-[11px] text-slate-400 leading-relaxed">
+          <strong class="text-amber-300">Note:</strong> 15-day estimates are rough assumptions—split your budget into 3 parts below instead of buying 100% on one day.
+        </p>
+      </div>
+
+    </section>
+
+    <!-- ROW 3: AI MARKET SUMMARY + MY STAGGERED BUYING PLAN & ALERTS -->
+    <section class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+
+      <!-- Left 6 Columns: AI Market Summary & 15-Day Outlook -->
       <div class="xl:col-span-6 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between gap-4">
         <div>
-          <!-- Card Header -->
           <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
             <div class="flex items-center gap-2">
               <span class="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
@@ -233,11 +450,9 @@
             </span>
           </div>
 
-          <!-- Plain-English Verdict & Story -->
           <div id="verdict-headline" class="text-sm sm:text-base font-bold text-emerald-400 mb-1.5">—</div>
           <p id="plain-english-story" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
 
-          <!-- Sub-Grid: Key Drivers Today (Left) + AI Outlook Next 15 Days (Right) -->
           <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
             <!-- Key Drivers Today -->
             <div class="md:col-span-7 space-y-2.5">
@@ -248,7 +463,7 @@
               <div id="drivers-list" class="space-y-2.5"></div>
             </div>
 
-            <!-- AI Outlook (Next 15 Days) with Buyer-Friendly Color Polarity -->
+            <!-- AI Outlook (Next 15 Days) -->
             <div class="md:col-span-5 rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 flex flex-col justify-between space-y-2.5">
               <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
                 <i data-lucide="compass" class="w-3.5 h-3.5"></i>
@@ -281,7 +496,6 @@
           </div>
         </div>
 
-        <!-- AI Recommendation Bottom Callout -->
         <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-center gap-2 shrink-0">
             <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
@@ -295,187 +509,87 @@
         </div>
       </div>
 
-    </section>
-
-    <!-- ROW 2 (INTERACTIVE TOOLS): BUDGET -> GRAMS CALCULATOR + 15-DAY BUY DATE ESTIMATOR -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-
-      <!-- Left 7 Columns: How Much Gold Can My Money Buy? -->
-      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
-        <div>
-          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <!-- Right 6 Columns: My Staggered Buying Plan + Price Drop Alerts -->
+      <div class="xl:col-span-6 flex flex-col gap-5">
+        <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
             <div>
-              <h2 class="text-base font-semibold text-white">How Much Gold Can My Money Buy?</h2>
-              <p class="text-xs text-slate-400 mt-0.5">Enter your budget in ₹ to see exact grams—or switch to grams to check the showroom bill</p>
+              <h2 class="text-base font-semibold text-white">My Staggered Buying Plan</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Split your budget into 3 parts—GoldBuddy alerts you as each dip hits</p>
             </div>
+            <button type="button" onclick="openTrancheModal()" class="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer">
+              + Custom Target
+            </button>
+          </div>
 
-            <div class="flex flex-wrap items-center gap-2">
-              <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 text-xs">
-                <button type="button" id="mode-budget-btn" onclick="switchCalcMode('budget')" class="px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer">
-                  Budget (₹ &rarr; g)
-                </button>
-                <button type="button" id="mode-grams-btn" onclick="switchCalcMode('grams')" class="px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer">
-                  Weight (g &rarr; ₹)
-                </button>
+          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div class="flex-1">
+              <label class="block text-[11px] text-slate-400 mb-1">My total gold budget (₹)</label>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-mono text-slate-400">₹</span>
+                <input type="number" id="auto-budget-inr" value="150000" step="1000" min="1000"
+                  class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
               </div>
-              <button type="button" onclick="syncCalculatorToPlan()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 cursor-pointer">
-                Use in 3-Part Plan
-              </button>
             </div>
+            <button type="button" onclick="generateSmartTranches()"
+              class="sm:self-end px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors shrink-0 cursor-pointer">
+              Split Into 3 Smart Parts
+            </button>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-            <div id="calc-budget-wrapper">
-              <label for="calc-budget-inr" class="block text-xs text-slate-400 mb-1">Your Budget (₹)</label>
-              <input type="number" id="calc-budget-inr" value="50000" step="500" min="500" oninput="recalculateGoldWorth()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-            </div>
-
-            <div id="calc-grams-wrapper" class="hidden">
-              <label for="calc-grams" class="block text-xs text-slate-400 mb-1">Gold Weight (g)</label>
-              <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateGoldWorth()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-            </div>
-
-            <div>
-              <label for="calc-karat" class="block text-xs text-slate-400 mb-1">Gold Purity</label>
-              <select id="calc-karat" onchange="recalculateGoldWorth()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-                <option value="22K">22K Jewellery</option>
-                <option value="24K">24K Pure Gold</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="calc-making" class="block text-xs text-slate-400 mb-1">Making Charges (%)</label>
-              <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateGoldWorth()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-            </div>
-
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Tax Applied</label>
-              <input type="text" value="3% GST Included" disabled
-                class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-slate-400" />
-            </div>
-          </div>
+          <div id="tranches-list" class="space-y-3"></div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 text-xs">
-          <div>
-            <div id="res-primary-label" class="text-amber-300 font-medium">Gold You Can Buy</div>
-            <div id="res-primary-val" class="text-base font-mono font-bold text-amber-400 mt-0.5">—</div>
-          </div>
-          <div>
-            <div class="text-slate-400">Net Gold Value</div>
-            <div id="res-gold-val" class="text-sm font-mono font-semibold text-white mt-0.5">—</div>
-          </div>
-          <div>
-            <div class="text-slate-400">Making Charges</div>
-            <div id="res-making-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
-          </div>
-          <div>
-            <div class="text-slate-400">3% GST</div>
-            <div id="res-gst-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right 5 Columns: Price Estimate for Your Buy Date -->
-      <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <h2 class="text-base font-semibold text-white">Price Estimate for Your Buy Date</h2>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
-              Max 15 Days &bull; Assumption
-            </span>
-          </div>
-
-          <p class="text-xs text-slate-400 mb-3.5">
-            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to see the estimated price range:
-          </p>
-
-          <div class="grid grid-cols-2 gap-3 mb-3.5">
+        <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
             <div>
-              <label for="forecast-days-select" class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
-              <select id="forecast-days-select" onchange="renderDateForecast()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-              </select>
+              <h2 class="text-sm font-semibold text-white">Price Drop Alerts</h2>
+              <p class="text-xs text-slate-400">Triggered automatically when gold hits your target rates</p>
             </div>
-            <div>
-              <label for="forecast-karat" class="block text-xs text-slate-400 mb-1">Gold Type</label>
-              <select id="forecast-karat" onchange="renderDateForecast()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-                <option value="22K">22K Jewellery</option>
-                <option value="24K">24K Pure Gold</option>
-              </select>
-            </div>
+            <span id="alert-count-badge" class="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">0</span>
           </div>
 
-          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3 space-y-2">
-            <div class="flex items-center justify-between">
-              <span id="forecast-floor-label" class="text-xs text-slate-400">Best-Case Low (If Drop Continues):</span>
-              <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
-            </div>
-            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Expected Price (Current Trend):</span>
-              <span id="forecast-base-price" class="text-sm font-mono font-bold text-amber-300">—</span>
-            </div>
-            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span id="forecast-ceil-label" class="text-xs text-slate-400">Worst-Case High (If Price Rises):</span>
-              <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
-            </div>
-          </div>
+          <div id="alerts-list" class="space-y-2.5 max-h-48 overflow-y-auto pr-1"></div>
         </div>
-
-        <p class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-          <strong class="text-amber-300">Note:</strong> 15-day estimates are rough assumptions—split your budget into 3 parts below instead of buying 100% on one day.
-        </p>
       </div>
 
     </section>
 
-    <!-- ROW 3 (ACTION & ALERTS): MY STAGGERED BUYING PLAN + PRICE DROP ALERTS -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-
-      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
-          <div>
-            <h2 class="text-base font-semibold text-white">My Staggered Buying Plan</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Split your total budget into 3 parts—GoldBuddy alerts you as each price drops</p>
-          </div>
-          <button type="button" onclick="openTrancheModal()" class="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer">
-            + Custom Target
-          </button>
+    <!-- ROW 4 (MOVED DOWN): 5-DAY GOLD PRICE MOVEMENT CHART -->
+    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-base font-semibold text-white">5-Day Gold Price Movement</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Compare today's rate against this week's average and bargain buy level</p>
         </div>
 
-        <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-          <div class="flex-1">
-            <label class="block text-[11px] text-slate-400 mb-1">My total gold budget (₹)</label>
-            <div class="flex items-center gap-2">
-              <span class="text-sm font-mono text-slate-400">₹</span>
-              <input type="number" id="auto-budget-inr" value="150000" step="1000" min="1000"
-                class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
-            </div>
-          </div>
-          <button type="button" onclick="generateSmartTranches()"
-            class="sm:self-end px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors shrink-0 cursor-pointer">
-            Split Into 3 Smart Parts
+        <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 self-start">
+          <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer">
+            22K Gold
+          </button>
+          <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
+            24K Gold
           </button>
         </div>
-
-        <div id="tranches-list" class="space-y-3 flex-1"></div>
       </div>
 
-      <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-base font-semibold text-white">Price Drop Alerts</h2>
-            <p class="text-xs text-slate-400 mt-0.5">You get alerted here whenever gold reaches your target price</p>
-          </div>
-          <span id="alert-count-badge" class="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">0</span>
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">Good Bargain Price</div>
+          <div id="band-lower" class="text-sm sm:text-base font-mono font-semibold text-emerald-400 mt-0.5">—</div>
         </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">5-Day Average Price</div>
+          <div id="band-mean" class="text-sm sm:text-base font-mono font-semibold text-amber-300 mt-0.5">—</div>
+        </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">5-Day High Price</div>
+          <div id="band-upper" class="text-sm sm:text-base font-mono font-semibold text-rose-400 mt-0.5">—</div>
+        </div>
+      </div>
 
-        <div id="alerts-list" class="space-y-3 flex-1 max-h-[380px] overflow-y-auto pr-1"></div>
+      <div class="relative h-64 sm:h-72 w-full">
+        <canvas id="goldChart"></canvas>
       </div>
     </section>
 
@@ -676,6 +790,16 @@
 
       select.innerHTML = optionsHtml.join("");
       select.value = String(defaultDays);
+    }
+
+    function setQuickBudget(amount) {
+      document.getElementById("calc-budget-inr").value = amount;
+      recalculateGoldWorth();
+    }
+
+    function setQuickGrams(grams) {
+      document.getElementById("calc-grams").value = grams;
+      recalculateGoldWorth();
     }
 
     function setScenarioOverride(mode) {
@@ -1008,13 +1132,13 @@
       const gramsWrap = document.getElementById("calc-grams-wrapper");
 
       if (mode === "budget") {
-        btnBudget.className = "px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer";
-        btnGrams.className = "px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer";
+        btnBudget.className = "px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
+        btnGrams.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
         budgetWrap.classList.remove("hidden");
         gramsWrap.classList.add("hidden");
       } else {
-        btnGrams.className = "px-3 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 cursor-pointer";
-        btnBudget.className = "px-3 py-1 rounded-md font-semibold text-slate-400 hover:text-white cursor-pointer";
+        btnGrams.className = "px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
+        btnBudget.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
         gramsWrap.classList.remove("hidden");
         budgetWrap.classList.add("hidden");
       }
@@ -1032,30 +1156,42 @@
       const ratePerGram = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
       const effectiveCostPerGram = ratePerGram * (1 + makingPct / 100) * 1.03;
 
+      let goldVal = 0;
+      let makingVal = 0;
+      let gstVal = 0;
+      let totalAmt = 0;
+
       if (calcMode === "budget") {
-        const budgetInr = Math.max(0, Number(document.getElementById("calc-budget-inr").value) || 0);
-        const buyableGrams = effectiveCostPerGram > 0 ? budgetInr / effectiveCostPerGram : 0;
-        const goldVal = buyableGrams * ratePerGram;
-        const makingVal = goldVal * (makingPct / 100);
-        const gstVal = (goldVal + makingVal) * 0.03;
+        totalAmt = Math.max(0, Number(document.getElementById("calc-budget-inr").value) || 0);
+        const buyableGrams = effectiveCostPerGram > 0 ? totalAmt / effectiveCostPerGram : 0;
+        goldVal = buyableGrams * ratePerGram;
+        makingVal = goldVal * (makingPct / 100);
+        gstVal = (goldVal + makingVal) * 0.03;
 
         document.getElementById("res-primary-label").textContent = `Gold You Can Buy (${karat})`;
         document.getElementById("res-primary-val").textContent = `${buyableGrams.toFixed(3)} g`;
-        document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
-        document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
-        document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
       } else {
         const grams = Math.max(0.1, Number(document.getElementById("calc-grams").value) || 0);
-        const goldVal = ratePerGram * grams;
-        const makingVal = goldVal * (makingPct / 100);
-        const gstVal = (goldVal + makingVal) * 0.03;
-        const totalBill = goldVal + makingVal + gstVal;
+        goldVal = ratePerGram * grams;
+        makingVal = goldVal * (makingPct / 100);
+        gstVal = (goldVal + makingVal) * 0.03;
+        totalAmt = goldVal + makingVal + gstVal;
 
-        document.getElementById("res-primary-label").textContent = "Final Showroom Bill";
-        document.getElementById("res-primary-val").textContent = formatINR(totalBill, 0);
-        document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
-        document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
-        document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
+        document.getElementById("res-primary-label").textContent = `Final Showroom Bill (${karat})`;
+        document.getElementById("res-primary-val").textContent = formatINR(totalAmt, 0);
+      }
+
+      document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
+      document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
+      document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
+
+      if (totalAmt > 0) {
+        const goldPct = Math.max(5, Math.round((goldVal / totalAmt) * 100));
+        const makingBarPct = Math.max(0, Math.round((makingVal / totalAmt) * 100));
+        const gstBarPct = Math.max(0, 100 - goldPct - makingBarPct);
+        document.getElementById("bar-gold-pct").style.width = `${goldPct}%`;
+        document.getElementById("bar-making-pct").style.width = `${makingBarPct}%`;
+        document.getElementById("bar-gst-pct").style.width = `${gstBarPct}%`;
       }
     }
 
@@ -1092,7 +1228,6 @@
 
       if (!s22) return;
 
-      // Populate AI Outlook 15-Day Bands (Buyer-Friendly Colors: Green = Dip Opportunity, Red = Bounce Risk)
       const base22 = s22.latestPrice;
       const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988));
       const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
@@ -1326,7 +1461,6 @@
           ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
           : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
 
-      // Sort strictly chronologically (oldest -> newest) so X-axis timestamps never jump backward
       const chrono = [...activeRows]
         .slice(0, 60)
         .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
@@ -1346,7 +1480,7 @@
       const ctx = canvas.getContext("2d");
       if (chartInstance) chartInstance.destroy();
 
-      const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+      const gradient = ctx.createLinearGradient(0, 0, 0, 260);
       gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)");
       gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
 
@@ -1494,13 +1628,13 @@
       if (badge) badge.textContent = appState.alerts.length;
 
       if (!appState.alerts || appState.alerts.length === 0) {
-        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">No price alerts triggered yet. When gold drops to your target prices, alerts appear here automatically.</div>`;
+        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-6 text-center text-xs text-slate-400">No price alerts triggered yet. When gold drops to your target prices, alerts appear here automatically.</div>`;
         return;
       }
 
       container.innerHTML = appState.alerts
         .map((a) => `
-          <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3.5">
+          <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3">
             <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
               <span>${a.karat} PRICE DROP REACHED</span>
               <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>

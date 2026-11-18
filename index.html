@@ -1,364 +1,1576 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoldBuddy — Smart Gold Buying Helper</title>
 
-const TROY_OZ_TO_GRAMS = 31.1034768;
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-};
-
-const CITY_SLUGS: Record<string, { goodreturns: string; groww: string; label: string }> = {
-  bangalore: { goodreturns: "bangalore", groww: "bangalore", label: "Bangalore" },
-  chennai: { goodreturns: "chennai", groww: "chennai", label: "Chennai" },
-  madurai: { goodreturns: "madurai", groww: "madurai", label: "Madurai" },
-  mumbai: { goodreturns: "mumbai", groww: "mumbai", label: "Mumbai" },
-  delhi: { goodreturns: "delhi", groww: "delhi", label: "Delhi" },
-  hyderabad: { goodreturns: "hyderabad", groww: "hyderabad", label: "Hyderabad" },
-  coimbatore: { goodreturns: "coimbatore", groww: "coimbatore", label: "Coimbatore" },
-  kolkata: { goodreturns: "kolkata", groww: "kolkata", label: "Kolkata" },
-};
-
-interface CityRetailRates {
-  rate24k: number;
-  rate22k: number;
-  rate18k: number;
-  change24k: number;
-  change22k: number;
-  change18k: number;
-  source: string;
-}
-
-async function fetchIndianCityRetailRates(cityKey: string): Promise<CityRetailRates | null> {
-  const city = CITY_SLUGS[cityKey] || CITY_SLUGS.bangalore;
-  const headers = {
-    "User-Agent":
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    Accept: "text/html,application/xhtml+xml",
-  };
-
-  // Source 1: GoodReturns city retail board
-  try {
-    const grRes = await fetch(`https://www.goodreturns.in/gold-rates/${city.goodreturns}.html`, { headers });
-    if (grRes.ok) {
-      const html = await grRes.text();
-      const cleanText = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-
-      // Matches pattern: "₹13,326 (-278) ₹12,215 (-255) ₹9,994 (-209)"
-      const trioMatch = cleanText.match(
-        /₹\s*([\d,]+)\s*\(([+-]?\s*[\d,]+)\)\s*₹\s*([\d,]+)\s*\(([+-]?\s*[\d,]+)\)\s*₹\s*([\d,]+)\s*\(([+-]?\s*[\d,]+)\)/
-      );
-
-      if (trioMatch) {
-        const r24 = Number(trioMatch[1].replace(/,/g, ""));
-        const c24 = Number(trioMatch[2].replace(/[,\s]/g, ""));
-        const r22 = Number(trioMatch[3].replace(/,/g, ""));
-        const c22 = Number(trioMatch[4].replace(/[,\s]/g, ""));
-        const r18 = Number(trioMatch[5].replace(/,/g, ""));
-        const c18 = Number(trioMatch[6].replace(/[,\s]/g, ""));
-
-        if (r24 > 5000 && r22 > 4500 && r18 > 3500) {
-          return {
-            rate24k: r24,
-            rate22k: r22,
-            rate18k: r18,
-            change24k: c24,
-            change22k: c22,
-            change18k: c18,
-            source: `Retail Board (${city.label})`,
-          };
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#0B0F17',
+            card: '#131A26',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+          }
         }
       }
+    };
+  </script>
 
-      // Fallback sentence match on GoodReturns
-      const sentenceMatch = cleanText.match(
-        /stands at ₹\s*([\d,]+)(?:\.\d+)? per gram for 24 karat gold.*?₹\s*([\d,]+)(?:\.\d+)? per gram for 22 karat gold.*?₹\s*([\d,]+)(?:\.\d+)? per gram for 18 karat gold/i
-      );
-      if (sentenceMatch) {
-        const r24 = Number(sentenceMatch[1].replace(/,/g, ""));
-        const r22 = Number(sentenceMatch[2].replace(/,/g, ""));
-        const r18 = Number(sentenceMatch[3].replace(/,/g, ""));
-        if (r24 > 5000 && r22 > 4500) {
-          return {
-            rate24k: r24,
-            rate22k: r22,
-            rate18k: r18 || Math.floor(r24 * 0.75),
-            change24k: 0,
-            change22k: 0,
-            change18k: 0,
-            source: `Retail Board (${city.label})`,
-          };
-        }
-      }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    :root { color-scheme: dark; }
+    body {
+      background-color: #0B0F17;
+      color: #F1F5F9;
+      font-family: 'Inter', system-ui, sans-serif;
     }
-  } catch (err) {
-    console.warn("GoodReturns fetch fallback triggered:", err);
-  }
-
-  // Source 2: Groww city retail board
-  try {
-    const growwRes = await fetch(`https://groww.in/gold-rates/gold-rate-today-in-${city.groww}`, { headers });
-    if (growwRes.ok) {
-      const html = await growwRes.text();
-      const cleanText = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
-      const growwMatch = cleanText.match(
-        /stands at ₹\s*([\d,]+(?:\.\d+)?) per gram for 24 karat gold.*?₹\s*([\d,]+(?:\.\d+)?) per gram for 22 karat gold.*?₹\s*([\d,]+(?:\.\d+)?) per gram for 18 karat gold/i
-      );
-      if (growwMatch) {
-        const r24 = Number(growwMatch[1].replace(/,/g, ""));
-        const r22 = Number(growwMatch[2].replace(/,/g, ""));
-        const r18 = Number(growwMatch[3].replace(/,/g, ""));
-        if (r24 > 5000 && r22 > 4500) {
-          return {
-            rate24k: r24,
-            rate22k: r22,
-            rate18k: r18 || Math.floor(r24 * 0.75),
-            change24k: 0,
-            change22k: 0,
-            change18k: 0,
-            source: `Groww Retail (${city.label})`,
-          };
-        }
-      }
+    .gold-glow {
+      box-shadow: 0 0 28px -8px rgba(245, 158, 11, 0.22);
     }
-  } catch (err) {
-    console.warn("Groww fetch fallback triggered:", err);
-  }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-amber-500/30 selection:text-amber-200">
 
-  return null;
-}
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
 
-async function generateAiMarketInsight(params: {
-  cityLabel: string;
-  rate22k: number;
-  rate24k: number;
-  change22k: number;
-  xauUsd: number;
-  usdInr: number;
-}) {
-  const apiKey = Deno.env.get("GEMINI_API_KEY")?.trim();
-  if (!apiKey) return { insight: null, debug: "GEMINI_API_KEY missing" };
+  <!-- Header -->
+  <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#0B0F17]/90 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold">
+          <i data-lucide="coins" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
+          <p class="text-xs text-slate-400 hidden sm:block">Exact city rates, jewellery bill calculator & AI dip alerts</p>
+        </div>
+      </div>
 
-  const direction =
-    params.change22k < 0
-      ? `dropped by ₹${Math.abs(params.change22k)}/g today`
-      : params.change22k > 0
-      ? `increased by ₹${params.change22k}/g today`
-      : "remained steady today";
+      <div class="flex items-center gap-2 sm:gap-2.5">
+        <button type="button" id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300 cursor-pointer">
+          <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="status-text">Sample Mode</span>
+        </button>
 
-  const prompt = `You are GoldBuddy, a friendly, plain-English gold buying advisor for everyday families in ${params.cityLabel}, India. Avoid all financial jargon.
-Today's live ${params.cityLabel} retail 22K gold price is ₹${params.rate22k}/g (24K is ₹${params.rate24k}/g). 22K gold has ${direction}. Global gold is $${params.xauUsd}/oz and 1 USD = ₹${params.usdInr}.
+        <button type="button" id="gst-toggle-btn" onclick="toggleGst()" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300 cursor-pointer">
+          <span id="gst-toggle-label">Without 3% GST</span>
+        </button>
 
-Return ONLY valid JSON matching this exact structure:
-{
-  "headline": "Short 6-8 word verdict (e.g., Good Time to Start — Buy Part 1 Now)",
-  "story": "2 simple sentences explaining what is happening in ${params.cityLabel} today and what a regular buyer should do.",
-  "drivers": [
-    { "title": "Short reason 1 (4-5 words)", "detail": "1 simple sentence explaining how global bank interest or US Dollar affected today's rate." },
-    { "title": "Short reason 2 (4-5 words)", "detail": "1 simple sentence explaining how the Indian Rupee or local demand affected today's rate." },
-    { "title": "Short reason 3 (4-5 words)", "detail": "1 practical takeaway for someone splitting their budget into 3 parts." }
-  ]
-}`;
+        <button type="button" id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all disabled:opacity-60 cursor-pointer">
+          <span id="refresh-spinner" class="inline-flex items-center justify-center">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          </span>
+          <span id="refresh-btn-text" class="hidden sm:inline">Update Price</span>
+        </button>
 
-  const models = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-3-flash-preview"];
-  let lastError = "Unknown error";
+        <button type="button" onclick="openSettingsModal()" title="Settings" class="p-2 rounded-lg border border-slate-800 bg-slate-900/70 hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
-  for (const model of models) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
-          }),
-        }
-      );
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-      const rawBody = await res.text();
-      if (!res.ok) {
-        lastError = `${model} HTTP ${res.status}`;
-        continue;
-      }
+    <!-- Scenario Preview Alert Banner -->
+    <div id="scenario-banner" class="hidden rounded-xl border border-purple-500/35 bg-purple-500/10 px-4 py-2.5 flex items-center justify-between gap-3">
+      <p id="scenario-banner-text" class="text-xs text-purple-200 font-medium"></p>
+      <button type="button" onclick="setScenarioOverride('actual')" class="text-xs font-semibold px-2.5 py-1 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/30 shrink-0 cursor-pointer">
+        Exit Preview
+      </button>
+    </div>
 
-      const data = JSON.parse(rawBody);
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!rawText) continue;
+    <!-- Connection Banner -->
+    <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <p class="text-xs sm:text-sm text-slate-300">
+        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian city retail rates & AI summaries.
+      </p>
+      <button type="button" onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 cursor-pointer">
+        Connect Account &rarr;
+      </button>
+    </div>
 
-      const cleaned = rawText.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
-      const parsed = JSON.parse(cleaned);
-      if (parsed?.headline && parsed?.story && Array.isArray(parsed?.drivers)) {
-        return { insight: parsed, debug: `OK (${model})` };
-      }
-    } catch (err) {
-      lastError = (err as Error).message;
-    }
-  }
+    <div id="empty-db-banner" class="hidden rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <p class="text-xs sm:text-sm text-slate-200">
+        <span class="font-semibold text-sky-300">Account Connected!</span> Click <strong class="text-white">Update Price</strong> to fetch today's live gold rate.
+      </p>
+      <button type="button" onclick="handleManualRefresh()" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer">
+        Get Today's Price &rarr;
+      </button>
+    </div>
 
-  return { insight: null, debug: lastError };
-}
+    <!-- Retail Board Strip -->
+    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-2.5">
+        <span id="board-date-badge" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-medium text-emerald-400">
+          Today
+        </span>
+        <select id="city-select" onchange="handleCityChange()"
+          class="rounded-lg bg-slate-900 border border-slate-700 px-3 py-1.5 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+          <option value="Bangalore">Bangalore</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Madurai">Madurai</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Hyderabad">Hyderabad</option>
+        </select>
+        <span class="text-xs text-slate-400">Retail Board</span>
+      </div>
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+      <div class="flex items-center gap-4 text-xs text-slate-400 font-mono">
+        <span>USD: <strong id="board-usd" class="text-slate-200">—</strong></span>
+        <span>Global Gold: <strong id="board-xau" class="text-slate-200">—</strong></span>
+        <span id="updated-time-badge" class="font-sans text-slate-400">Just now</span>
+      </div>
+    </section>
 
-  try {
-    let requestedCity = "bangalore";
-    if (req.method === "POST") {
-      try {
-        const body = await req.json();
-        if (body?.city && CITY_SLUGS[String(body.city).toLowerCase()]) {
-          requestedCity = String(body.city).toLowerCase();
-        }
-      } catch {
-        // Ignore empty body
-      }
-    }
+    <!-- 1. 24K, 22K & 18K LIVE CARDS -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300">24K Gold /g</span>
+          <span class="text-[11px] text-slate-400">99.9% Pure</span>
+        </div>
+        <div class="flex items-baseline justify-between mt-1">
+          <span id="price-24k" class="text-3xl font-bold font-mono text-white">—</span>
+          <span id="badge-24k" class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span id="subprice-24k" class="text-slate-400">—</span>
+          <span id="delta-24k" class="font-medium text-emerald-400">—</span>
+        </div>
+      </div>
 
-    const cityInfo = CITY_SLUGS[requestedCity] || CITY_SLUGS.bangalore;
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow">
+        <div class="flex items-center justify-between mb-2">
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400">22K Gold /g</span>
+          <span class="text-[11px] text-slate-400">91.6% Jewellery</span>
+        </div>
+        <div class="flex items-baseline justify-between mt-1">
+          <span id="price-22k" class="text-3xl font-bold font-mono text-white">—</span>
+          <span id="badge-22k" class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span id="subprice-22k" class="text-slate-400">—</span>
+          <span id="delta-22k" class="font-medium text-emerald-400">—</span>
+        </div>
+      </div>
 
-    const [configRes, prevRateRes, retailRates, goldRes, fxRes] = await Promise.all([
-      supabase.from("gold_config").select("*").eq("id", 1).maybeSingle(),
-      supabase
-        .from("gold_rates_history")
-        .select("rate_24k_gram, rate_22k_gram")
-        .order("fetched_at", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      fetchIndianCityRetailRates(requestedCity),
-      fetch("https://api.gold-api.com/price/XAU"),
-      fetch("https://api.frankfurter.dev/v2/rate/USD/INR"),
-    ]);
+      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-sky-500/15 text-sky-300">18K Gold /g</span>
+          <span class="text-[11px] text-slate-400">75.0% Studded</span>
+        </div>
+        <div class="flex items-baseline justify-between mt-1">
+          <span id="price-18k" class="text-3xl font-bold font-mono text-white">—</span>
+          <span id="badge-18k" class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
+          <span id="subprice-18k" class="text-slate-400">—</span>
+          <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
+        </div>
+      </div>
+    </section>
 
-    const goldData = goldRes.ok ? await goldRes.json() : { price: 3775 };
-    const fxData = fxRes.ok ? await fxRes.json() : { rate: 93.98 };
-    const xauUsd = Number(goldData.price) || 3775;
-    const usdInr = Number(fxData.rate) || 93.98;
-    const gstRate = Number(configRes.data?.gst_rate ?? 0.03);
+    <!-- 2. JEWELLERY BILL & BUDGET CALCULATOR -->
+    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <h2 class="text-base font-semibold text-white">Jewellery Bill & Budget Calculator</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Calculate final showroom bill with making charges & GST—or check how much gold your budget buys</p>
+        </div>
+        <button type="button" onclick="syncCalculatorToPlan()" class="self-start sm:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 cursor-pointer">
+          Use This Amount in 3-Part Plan
+        </button>
+      </div>
 
-    let rate24k: number;
-    let rate22k: number;
-    let rate18k: number;
-    let change24k: number;
-    let change22k: number;
-    let change18k: number;
-    let rateSource: string;
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Purity</label>
+          <select id="calc-karat" onchange="recalculateBill()"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none">
+            <option value="22K">22K Jewellery</option>
+            <option value="24K">24K Coin / Bar</option>
+            <option value="18K">18K Studded</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Weight (grams)</label>
+          <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateBill()"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Making Charges (%)</label>
+          <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateBill()"
+            class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">GST</label>
+          <input type="text" value="3% (Standard)" disabled
+            class="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-xs font-mono text-slate-400" />
+        </div>
+      </div>
 
-    if (retailRates) {
-      rate24k = retailRates.rate24k;
-      rate22k = retailRates.rate22k;
-      rate18k = retailRates.rate18k;
-      change24k = retailRates.change24k;
-      change22k = retailRates.change22k;
-      change18k = retailRates.change18k;
-      rateSource = retailRates.source;
-    } else {
-      const multiplier = Number(configRes.data?.local_premium_multiplier ?? 1.1755);
-      const raw24kGram = (xauUsd * usdInr) / TROY_OZ_TO_GRAMS;
-      rate24k = Math.round(raw24kGram * multiplier);
-      rate22k = Math.round(rate24k * (22 / 24));
-      rate18k = Math.round(rate24k * (18 / 24));
-      const prev24 = prevRateRes.data?.rate_24k_gram ? Number(prevRateRes.data.rate_24k_gram) : rate24k;
-      const prev22 = prevRateRes.data?.rate_22k_gram ? Number(prevRateRes.data.rate_22k_gram) : rate22k;
-      change24k = Number((rate24k - prev24).toFixed(0));
-      change22k = Number((rate22k - prev22).toFixed(0));
-      change18k = Math.round(change24k * 0.75);
-      rateSource = `Spot Parity (${cityInfo.label})`;
-    }
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 text-xs">
+        <div>
+          <div class="text-slate-400">Gold Value</div>
+          <div id="bill-gold-val" class="text-sm font-mono font-semibold text-white mt-0.5">—</div>
+        </div>
+        <div>
+          <div class="text-slate-400">Making Charges</div>
+          <div id="bill-making-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
+        </div>
+        <div>
+          <div class="text-slate-400">3% GST</div>
+          <div id="bill-gst-val" class="text-sm font-mono font-semibold text-slate-200 mt-0.5">—</div>
+        </div>
+        <div>
+          <div class="text-amber-300 font-medium">Final Showroom Bill</div>
+          <div id="bill-total-val" class="text-base font-mono font-bold text-amber-400 mt-0.5">—</div>
+        </div>
+      </div>
+    </section>
 
-    const rate24kGst = Number((rate24k * (1 + gstRate)).toFixed(2));
-    const rate22kGst = Number((rate22k * (1 + gstRate)).toFixed(2));
+    <!-- 3. AI MARKET ANALYSIS + 15-DAY SHOPPING DATE ESTIMATE -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    const aiResult = await generateAiMarketInsight({
-      cityLabel: cityInfo.label,
-      rate22k,
-      rate24k,
-      change22k,
-      xauUsd,
-      usdInr,
-    });
+      <!-- Left: AI-Powered Plain-English Explanation -->
+      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h2 id="why-moving-title" class="text-base font-semibold text-white flex items-center gap-2">
+              Why Are Gold Prices Moving Right Now?
+            </h2>
+            <div class="flex items-center gap-2">
+              <span id="ai-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/25">AI Insight</span>
+              <span id="trend-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400">
+                Prices Dropping
+              </span>
+            </div>
+          </div>
 
-    const enrichedAiPayload = {
-      ...(aiResult.insight || {}),
-      meta: {
-        city: requestedCity,
-        city_label: cityInfo.label,
-        rate_18k_gram: rate18k,
-        change_24k: change24k,
-        change_22k: change22k,
-        change_18k: change18k,
-        source: rateSource,
-      },
+          <div id="verdict-headline" class="text-sm font-bold text-emerald-400 mb-1.5">—</div>
+          <p id="plain-english-story" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
+
+          <div id="drivers-list" class="space-y-2.5"></div>
+        </div>
+      </div>
+
+      <!-- Right: Shopping Date Price Estimate (1-Click Dropdown up to 15 Days) -->
+      <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <h2 class="text-base font-semibold text-white">Price Estimate for Your Buy Date</h2>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              Max 15 Days &bull; Assumption
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-400 mb-3.5">
+            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to see the estimated price range if today's trend continues:
+          </p>
+
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div>
+              <label for="forecast-days-select" class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
+              <select id="forecast-days-select" onchange="renderDateForecast()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+              </select>
+            </div>
+            <div>
+              <label for="forecast-karat" class="block text-xs text-slate-400 mb-1">Gold Type</label>
+              <select id="forecast-karat" onchange="renderDateForecast()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+                <option value="22K">22K Jewellery</option>
+                <option value="24K">24K Pure Gold</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span id="forecast-floor-label" class="text-xs text-slate-400">Best-Case Low (If Drop Continues):</span>
+              <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
+            </div>
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+              <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Expected Price (Current Trend):</span>
+              <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
+            </div>
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+              <span id="forecast-ceil-label" class="text-xs text-slate-400">Worst-Case High (If Price Rises):</span>
+              <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-xl bg-rose-500/10 border border-rose-500/25 p-3">
+          <p class="text-[11px] text-rose-200/90 leading-relaxed">
+            <strong class="text-rose-300">Risk & Assumption Notice:</strong> Forecasts are capped at 15 days and are only a rough assumption—not a guaranteed rate. Split your budget into 3 parts below rather than buying 100% on one date.
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 4. SMART BUDGET SPLITTER & MY BUYING ALERTS -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
+          <div>
+            <h2 class="text-base font-semibold text-white">My Staggered Buying Plan</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Split your total budget into 3 parts—GoldBuddy alerts you as each price drops</p>
+          </div>
+          <button type="button" onclick="openTrancheModal()" class="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer">
+            + Custom Target
+          </button>
+        </div>
+
+        <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <div class="flex-1">
+            <label class="block text-[11px] text-slate-400 mb-1">How much total money do you plan to spend on gold?</label>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-mono text-slate-400">₹</span>
+              <input type="number" id="auto-budget-inr" value="50000" step="1000" min="1000"
+                class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
+            </div>
+          </div>
+          <button type="button" onclick="generateSmartTranches()"
+            class="sm:self-end px-4 py-2 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors shrink-0 cursor-pointer">
+            Split Into 3 Smart Parts
+          </button>
+        </div>
+
+        <div id="tranches-list" class="space-y-3 flex-1"></div>
+      </div>
+
+      <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-white">Price Drop Alerts</h2>
+            <p class="text-xs text-slate-400 mt-0.5">You get alerted here whenever gold reaches your target price</p>
+          </div>
+          <span id="alert-count-badge" class="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">0</span>
+        </div>
+
+        <div id="alerts-list" class="space-y-3 flex-1 max-h-[380px] overflow-y-auto pr-1"></div>
+      </div>
+    </section>
+
+    <!-- 5. SIMPLE 5-DAY PRICE CHART -->
+    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div>
+          <h2 class="text-base font-semibold text-white">5-Day Gold Price Movement</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Compare today's rate against this week's average and bargain buy level</p>
+        </div>
+
+        <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 self-start">
+          <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer">
+            22K Gold
+          </button>
+          <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
+            24K Gold
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">Good Bargain Price</div>
+          <div id="band-lower" class="text-sm sm:text-base font-mono font-semibold text-emerald-400 mt-0.5">—</div>
+        </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">5-Day Average Price</div>
+          <div id="band-mean" class="text-sm sm:text-base font-mono font-semibold text-amber-300 mt-0.5">—</div>
+        </div>
+        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
+          <div class="text-[11px] text-slate-400">5-Day High Price</div>
+          <div id="band-upper" class="text-sm sm:text-base font-mono font-semibold text-rose-400 mt-0.5">—</div>
+        </div>
+      </div>
+
+      <div class="relative h-64 sm:h-72 w-full">
+        <canvas id="goldChart"></canvas>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL 1: Add Custom Target -->
+  <div id="tranche-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-md rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-white">Add Custom Price Alert</h3>
+        <button type="button" onclick="closeTrancheModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
+      </div>
+
+      <form id="tranche-form" onsubmit="handleCreateTranche(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Note / Name</label>
+          <input type="text" id="tranche-label" required placeholder="e.g., Wedding Ring Purchase"
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Gold Type</label>
+            <select id="tranche-karat" onchange="prefillSuggestedTarget()"
+              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none">
+              <option value="22K">22K Jewellery</option>
+              <option value="24K">24K Pure Gold</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Alert Me at Price (₹/g)</label>
+            <input type="number" step="0.01" id="tranche-target" required
+              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Amount to Spend (₹)</label>
+          <input type="number" step="100" id="tranche-allocation" required value="20000"
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2.5">
+          <button type="button" onclick="closeTrancheModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer">Save Alert</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: Settings & Developer Scenario Tester -->
+  <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="w-full max-w-lg rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-base font-bold text-white">GoldBuddy Settings</h3>
+          <p class="text-xs text-slate-400">Saved privately on this device</p>
+        </div>
+        <button type="button" onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Project URL</label>
+          <input type="url" id="cfg-supabase-url" placeholder="https://xyzcompany.supabase.co"
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Public Key (anon)</label>
+          <input type="password" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
+        <div class="text-xs font-semibold text-amber-300">Match Local Jewellery Shop Rate (One-Time)</div>
+        <p class="text-xs text-slate-400">
+          Enter today's 24K rate from your local shop (without GST) so GoldBuddy matches local taxes automatically:
+        </p>
+        <div class="flex items-center gap-2">
+          <input type="number" step="0.01" id="calibrate-24k-input" placeholder="e.g., 13326"
+            class="flex-1 rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+          <button type="button" onclick="calibrateMultiplierFromLocal24k()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 cursor-pointer">
+            Match Rate
+          </button>
+        </div>
+      </div>
+
+      <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
+        <div class="text-xs font-semibold text-purple-300">Preview Market Scenarios (Testing Only)</div>
+        <p class="text-xs text-slate-400">
+          Simulate how the dashboard responds when prices are dropping vs. increasing:
+        </p>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setScenarioOverride('actual'); closeSettingsModal();" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer">
+            Live Data
+          </button>
+          <button type="button" onclick="setScenarioOverride('drop'); closeSettingsModal();" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 cursor-pointer">
+            Test Drop
+          </button>
+          <button type="button" onclick="setScenarioOverride('rise'); closeSettingsModal();" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 cursor-pointer">
+            Test Increase
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-1 flex flex-wrap items-center justify-between gap-2">
+        <button type="button" onclick="resetToDemoMode()" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white border border-slate-700 hover:bg-slate-800 cursor-pointer">
+          Use Sample Mode
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">Cancel</button>
+          <button type="button" onclick="saveSupabaseSettings()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer">Save & Connect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_URL_KEY = "goldbuddy_supabase_url";
+    const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
+    const STORAGE_CITY_KEY = "goldbuddy_selected_city";
+    const TROY_OZ_TO_GRAMS = 31.1034768;
+    const MAX_FORECAST_DAYS = 15;
+
+    const CITY_ADJUSTMENTS = {
+      Bangalore: 1.0000,
+      Chennai: 1.0018,
+      Madurai: 1.0018,
+      Hyderabad: 1.0000,
+      Mumbai: 0.9992,
+      Delhi: 1.0008,
     };
 
-    const { data: insertedRate, error: insertError } = await supabase
-      .from("gold_rates_history")
-      .insert({
-        xau_usd: xauUsd,
-        usd_inr: usdInr,
-        rate_24k_gram: rate24k,
-        rate_24k_with_gst: rate24kGst,
-        rate_22k_gram: rate22k,
-        rate_22k_with_gst: rate22kGst,
-        ai_analysis: enrichedAiPayload,
-      })
-      .select()
-      .single();
+    let supabaseClient = null;
+    let pollingFallbackInterval = null;
+    let syncInitialized = false;
+    let isDemoMode = true;
+    let includeGst = false;
+    let activeChartKarat = "22K";
+    let scenarioOverride = "actual";
+    let selectedCity = "Bangalore";
+    let chartInstance = null;
 
-    if (insertError) throw insertError;
+    let appState = {
+      history: [],
+      tranches: [],
+      alerts: [],
+      stats22K: null,
+      stats24K: null,
+    };
 
-    const { data: activeTranches } = await supabase
-      .from("buy_tranches")
-      .select("*")
-      .eq("status", "active");
+    function formatINR(value, decimals = 2) {
+      if (value === null || value === undefined || isNaN(Number(value))) return "—";
+      return "₹" + Number(value).toLocaleString("en-IN", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+      });
+    }
 
-    const triggeredAlerts = [];
-    for (const tranche of activeTranches ?? []) {
-      const currentRate = tranche.karat === "24K" ? rate24k : rate22k;
-      if (currentRate <= Number(tranche.target_rate_gram)) {
-        const message = `Good news! ${cityInfo.label} ${tranche.karat} gold dropped to ₹${currentRate}/g (your target was ₹${tranche.target_rate_gram}/g). Ready to buy "${tranche.label}" (₹${tranche.allocation_inr}).`;
-        await supabase
-          .from("buy_tranches")
-          .update({ status: "triggered", triggered_at: new Date().toISOString() })
-          .eq("id", tranche.id);
-        const { data: alertRow } = await supabase
-          .from("alert_logs")
-          .insert({
-            tranche_id: tranche.id,
-            karat: tranche.karat,
-            triggered_rate: currentRate,
-            target_rate: tranche.target_rate_gram,
-            message,
-          })
-          .select()
-          .single();
-        if (alertRow) triggeredAlerts.push(alertRow);
+    function getCityFactor() {
+      return CITY_ADJUSTMENTS[selectedCity] || 1.0;
+    }
+
+    function timeAgo(isoString) {
+      if (!isoString) return "Just now";
+      const diffSec = Math.max(1, Math.floor((Date.now() - new Date(isoString).getTime()) / 1000));
+      if (diffSec < 60) return "Just now";
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return `${diffHr}h ago`;
+      return `${Math.floor(diffHr / 24)}d ago`;
+    }
+
+    function showToast(title, body, type = "info") {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+      const el = document.createElement("div");
+      const borderClass =
+        type === "alert" ? "border-emerald-500/50 bg-slate-900/95" :
+        type === "error" ? "border-rose-500/50 bg-slate-900/95" :
+        "border-amber-500/40 bg-slate-900/95";
+
+      el.className = `pointer-events-auto rounded-xl border ${borderClass} p-3.5 shadow-xl backdrop-blur-md transition-all`;
+      el.innerHTML = `
+        <div class="text-xs font-semibold text-white">${title}</div>
+        <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${body}</div>
+      `;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 300);
+      }, 4500);
+    }
+
+    function populateForecastDateDropdown() {
+      const select = document.getElementById("forecast-days-select");
+      if (!select) return;
+      const today = new Date();
+      let defaultDays = 5;
+      const optionsHtml = [];
+
+      for (let d = 1; d <= MAX_FORECAST_DAYS; d++) {
+        const dt = new Date(today);
+        dt.setDate(today.getDate() + d);
+        if (dt.getDate() === 23) defaultDays = d;
+        const labelDate = dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+        optionsHtml.push(`<option value="${d}">${labelDate} (In ${d} day${d > 1 ? "s" : ""})</option>`);
+      }
+
+      select.innerHTML = optionsHtml.join("");
+      select.value = String(defaultDays);
+    }
+
+    function handleCityChange() {
+      selectedCity = document.getElementById("city-select").value || "Bangalore";
+      localStorage.setItem(STORAGE_CITY_KEY, selectedCity);
+      recomputeAndRender();
+    }
+
+    function setScenarioOverride(mode) {
+      scenarioOverride = mode;
+      const banner = document.getElementById("scenario-banner");
+      const bannerText = document.getElementById("scenario-banner-text");
+
+      if (mode === "actual") {
+        banner.classList.add("hidden");
+      } else if (mode === "drop") {
+        banner.classList.remove("hidden");
+        bannerText.textContent = "Scenario Preview: Simulating a falling market so you can test dip-buying guidance.";
+      } else if (mode === "rise") {
+        banner.classList.remove("hidden");
+        bannerText.textContent = "Scenario Preview: Simulating an increasing market so you can test rally explanations and upward forecasts.";
+      }
+
+      recomputeAndRender();
+    }
+
+    function getActiveHistoryRows() {
+      const baseRows = appState.history;
+      if (!baseRows || baseRows.length === 0) return [];
+
+      const cityFactor = getCityFactor();
+      const scaled = baseRows.map((row) => {
+        const r24 = Number((Number(row.rate_24k_gram) * cityFactor).toFixed(2));
+        const r22 = Number((Number(row.rate_22k_gram) * cityFactor).toFixed(2));
+        return {
+          ...row,
+          rate_24k_gram: r24,
+          rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
+          rate_22k_gram: r22,
+          rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
+        };
+      });
+
+      if (scenarioOverride === "actual") return scaled;
+
+      const anchor24 = Number(scaled[0].rate_24k_gram) || 13326.00;
+      const now = Date.now();
+      const simRows = [];
+      const count = 24;
+
+      for (let i = count - 1; i >= 0; i--) {
+        const ts = new Date(now - i * 4 * 60 * 60 * 1000).toISOString();
+        const progress = (count - 1 - i) / (count - 1);
+        const factor = scenarioOverride === "drop"
+          ? 1.018 - 0.018 * progress
+          : 0.981 + 0.019 * progress;
+        const r24 = Number((anchor24 * factor).toFixed(2));
+        const r22 = Number((r24 * (22 / 24)).toFixed(2));
+        simRows.push({
+          ...scaled[0],
+          id: 9000 + i,
+          rate_24k_gram: r24,
+          rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
+          rate_22k_gram: r22,
+          rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
+          ai_analysis: null,
+          fetched_at: ts,
+        });
+      }
+
+      return simRows.reverse();
+    }
+
+    function buildDemoDataset() {
+      const now = Date.now();
+      const rows = [];
+      const start24k = 13603;
+      const end24k = 13326;
+
+      for (let i = 47; i >= 0; i--) {
+        const ts = new Date(now - i * 2.5 * 60 * 60 * 1000).toISOString();
+        const progress = (47 - i) / 47;
+        const trendPrice = start24k + (end24k - start24k) * progress;
+        const wave = i === 0 ? 0 : Math.sin(i / 3.5) * 28;
+        const r24 = Number((trendPrice + wave).toFixed(2));
+        const r22 = Number((r24 * (22 / 24)).toFixed(2));
+        rows.push({
+          id: 48 - i,
+          xau_usd: 3775.00,
+          usd_inr: 93.56,
+          rate_24k_gram: r24,
+          rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
+          rate_22k_gram: r22,
+          rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
+          ai_analysis: null,
+          fetched_at: ts,
+        });
+      }
+
+      return {
+        history: [...rows].reverse(),
+        tranches: [
+          { id: "demo-1", label: "Part 1 (30%) — Buy Today on Dip", karat: "22K", target_rate_gram: 12215.00, allocation_inr: 15000.00, status: "active" },
+          { id: "demo-2", label: "Part 2 (40%) — Buy if Price Drops More", karat: "22K", target_rate_gram: 12090.00, allocation_inr: 20000.00, status: "active" },
+          { id: "demo-3", label: "Part 3 (30%) — Buy on Bigger Dip", karat: "22K", target_rate_gram: 11950.00, allocation_inr: 15000.00, status: "active" },
+        ],
+        alerts: [],
+      };
+    }
+
+    function calculatePriceStats(historyRows, karat = "22K") {
+      if (!historyRows || historyRows.length === 0) return null;
+
+      const field =
+        karat === "24K"
+          ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
+          : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
+
+      const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
+      const recent = historyRows.filter((r) => new Date(r.fetched_at).getTime() >= fiveDaysAgo);
+      const sample = recent.length > 0 ? recent : historyRows;
+
+      const prices = sample.map((r) => Number(r[field]));
+      const latestPrice = Number(historyRows[0][field]);
+      const oldestPrice = Number(sample[sample.length - 1][field]);
+      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+
+      const bargainPrice = Number(Math.min(minPrice, avgPrice * 0.992).toFixed(2));
+      const highPrice = Number(Math.max(maxPrice, avgPrice * 1.008).toFixed(2));
+      const pctVsAvg = Number((((latestPrice - avgPrice) / avgPrice) * 100).toFixed(2));
+      const trendPct = oldestPrice > 0 ? Number((((latestPrice - oldestPrice) / oldestPrice) * 100).toFixed(2)) : 0;
+
+      return {
+        karat,
+        latestPrice,
+        avgPrice: Number(avgPrice.toFixed(2)),
+        bargainPrice,
+        highPrice,
+        pctVsAvg,
+        trendPct,
+        isRising: trendPct > 0.25 || pctVsAvg > 0.25,
+      };
+    }
+
+    function cleanSupabaseUrl(rawUrl) {
+      if (!rawUrl) return "";
+      return rawUrl.trim().replace(/\/+$/, "").replace(/\/(rest|functions|auth|realtime)\/v1.*$/i, "");
+    }
+
+    async function fetchDashboardData() {
+      if (isDemoMode || !supabaseClient) {
+        if (appState.history.length === 0) {
+          const demo = buildDemoDataset();
+          appState.history = demo.history;
+          appState.tranches = demo.tranches;
+          appState.alerts = demo.alerts;
+        }
+        recomputeAndRender();
+        return;
+      }
+
+      try {
+        const [ratesRes, tranchesRes, alertsRes] = await Promise.all([
+          supabaseClient.from("gold_rates_history").select("*").order("fetched_at", { ascending: false }).limit(350),
+          supabaseClient.from("buy_tranches").select("*").order("target_rate_gram", { ascending: false }),
+          supabaseClient.from("alert_logs").select("*").order("created_at", { ascending: false }).limit(15),
+        ]);
+
+        if (ratesRes.error) throw ratesRes.error;
+        if (tranchesRes.error) throw tranchesRes.error;
+        if (alertsRes.error) throw alertsRes.error;
+
+        appState.history = ratesRes.data ?? [];
+        appState.tranches = tranchesRes.data ?? [];
+        appState.alerts = alertsRes.data ?? [];
+
+        recomputeAndRender();
+
+        if (!syncInitialized) {
+          syncInitialized = true;
+          setupBackgroundSync();
+        }
+      } catch (err) {
+        console.error("Supabase fetch error:", err);
+        showToast("Connection Issue", err.message || "Please check your Supabase settings.", "error");
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        ok: true,
-        rate: insertedRate,
-        city: cityInfo.label,
-        source: rateSource,
-        ai_enabled: Boolean(aiResult.insight),
-        ai_debug: aiResult.debug,
-        triggered_count: triggeredAlerts.length,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  } catch (err) {
-    return new Response(
-      JSON.stringify({ ok: false, error: (err as Error).message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
-});
+    function setupBackgroundSync() {
+      if (!supabaseClient) return;
+      try {
+        supabaseClient
+          .channel("goldbuddy-live")
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "gold_rates_history" }, () => fetchDashboardData())
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "alert_logs" }, (payload) => {
+            if (payload.new?.message) showToast("Price Drop Alert!", payload.new.message, "alert");
+            fetchDashboardData();
+          })
+          .subscribe((status) => {
+            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") startPollingFallback();
+          });
+      } catch (_err) {
+        startPollingFallback();
+      }
+    }
+
+    function startPollingFallback() {
+      if (pollingFallbackInterval) return;
+      pollingFallbackInterval = setInterval(() => {
+        if (!isDemoMode && supabaseClient) fetchDashboardData();
+      }, 60000);
+    }
+
+    function setRefreshLoading(isLoading) {
+      const btn = document.getElementById("refresh-btn");
+      const spinner = document.getElementById("refresh-spinner");
+      const label = document.getElementById("refresh-btn-text");
+      if (!btn) return;
+      btn.disabled = isLoading;
+      if (isLoading) {
+        if (spinner) spinner.classList.add("animate-spin");
+        if (label) label.textContent = "Updating...";
+      } else {
+        if (spinner) spinner.classList.remove("animate-spin");
+        if (label) label.textContent = "Update Price";
+      }
+    }
+
+    async function handleManualRefresh() {
+      const btn = document.getElementById("refresh-btn");
+      if (btn && btn.disabled) return;
+
+      setRefreshLoading(true);
+      const safetyTimer = setTimeout(() => setRefreshLoading(false), 15000);
+
+      try {
+        if (isDemoMode || !supabaseClient) {
+          const prev = appState.history[0];
+          const deltaPct = (Math.random() - 0.52) * 0.006;
+          const new24 = Number((Number(prev.rate_24k_gram) * (1 + deltaPct)).toFixed(2));
+          const new22 = Number((new24 * (22 / 24)).toFixed(2));
+          appState.history.unshift({
+            id: prev.id + 1,
+            xau_usd: prev.xau_usd,
+            usd_inr: prev.usd_inr,
+            rate_24k_gram: new24,
+            rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)),
+            rate_22k_gram: new22,
+            rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)),
+            ai_analysis: null,
+            fetched_at: new Date().toISOString(),
+          });
+          recomputeAndRender();
+          showToast("Sample Price Updated", `22K: ${formatINR(new22)}/g | 24K: ${formatINR(new24)}/g`, "info");
+        } else {
+          const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
+          if (error) throw error;
+          await fetchDashboardData();
+          showToast("Gold Price Updated", "Fetched today's latest rate & market summary.", "info");
+        }
+      } catch (err) {
+        console.error("Refresh failed:", err);
+        showToast("Update Failed", err.message || "Could not fetch latest price.", "error");
+      } finally {
+        clearTimeout(safetyTimer);
+        setRefreshLoading(false);
+      }
+    }
+
+    function recomputeAndRender() {
+      const activeRows = getActiveHistoryRows();
+      appState.stats22K = calculatePriceStats(activeRows, "22K");
+      appState.stats24K = calculatePriceStats(activeRows, "24K");
+
+      renderConnectionBadge();
+      renderTopCards(activeRows);
+      recalculateBill();
+      renderMarketStory(activeRows);
+      renderDateForecast();
+      renderChart(activeRows);
+      renderTranches(activeRows);
+      renderAlerts();
+    }
+
+    function renderConnectionBadge() {
+      const dot = document.getElementById("status-dot");
+      const text = document.getElementById("status-text");
+      const demoBanner = document.getElementById("demo-banner");
+      const emptyBanner = document.getElementById("empty-db-banner");
+
+      if (isDemoMode) {
+        dot.className = "w-2 h-2 rounded-full bg-amber-400";
+        text.textContent = "Sample Mode";
+        demoBanner.classList.remove("hidden");
+        emptyBanner.classList.add("hidden");
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
+        text.textContent = "Live Rates";
+        demoBanner.classList.add("hidden");
+        emptyBanner.classList.toggle("hidden", appState.history.length > 0);
+      }
+    }
+
+    function renderTopCards(activeRows) {
+      const latest = activeRows?.[0];
+      const s22 = appState.stats22K;
+      const s24 = appState.stats24K;
+
+      document.getElementById("board-date-badge").textContent = new Date().toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
+
+      if (!latest || !s22 || !s24) return;
+
+      document.getElementById("board-usd").textContent = `₹${Number(latest.usd_inr || 93.56).toFixed(2)}`;
+      document.getElementById("board-xau").textContent = `$${Number(latest.xau_usd || 3775).toLocaleString("en-US")}/oz`;
+      document.getElementById("updated-time-badge").textContent =
+        scenarioOverride !== "actual" ? "Preview Mode" : timeAgo(latest.fetched_at);
+
+      const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
+      const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
+      const diff24 = Number((main24 - s24.avgPrice).toFixed(0));
+      document.getElementById("price-24k").textContent = formatINR(main24, 0);
+      document.getElementById("badge-24k").textContent = `${diff24 <= 0 ? "" : "+"}${diff24} ${diff24 <= 0 ? "▼" : "▲"}`;
+      document.getElementById("badge-24k").className = `px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${diff24 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
+      document.getElementById("delta-24k").textContent = `${Math.abs(s24.pctVsAvg)}% ${s24.pctVsAvg <= 0 ? "below" : "above"} 5d avg`;
+
+      const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
+      const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
+      const diff22 = Number((main22 - s22.avgPrice).toFixed(0));
+      document.getElementById("price-22k").textContent = formatINR(main22, 0);
+      document.getElementById("badge-22k").textContent = `${diff22 <= 0 ? "" : "+"}${diff22} ${diff22 <= 0 ? "▼" : "▲"}`;
+      document.getElementById("badge-22k").className = `px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${diff22 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("subprice-22k").textContent = includeGst ? `Excl. GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
+      document.getElementById("delta-22k").textContent = `${Math.abs(s22.pctVsAvg)}% ${s22.pctVsAvg <= 0 ? "below" : "above"} 5d avg`;
+
+      const main18 = Number((main24 * (18 / 24)).toFixed(0));
+      const alt18 = Number((alt24 * (18 / 24)).toFixed(0));
+      const diff18 = Math.round(diff24 * (18 / 24));
+      document.getElementById("price-18k").textContent = formatINR(main18, 0);
+      document.getElementById("badge-18k").textContent = `${diff18 <= 0 ? "" : "+"}${diff18} ${diff18 <= 0 ? "▼" : "▲"}`;
+      document.getElementById("badge-18k").className = `px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${diff18 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("subprice-18k").textContent = includeGst ? `Excl. GST: ${formatINR(alt18, 0)}` : `Incl. 3% GST: ${formatINR(alt18, 0)}`;
+      document.getElementById("pavan-22k").textContent = formatINR(main22 * 8, 0);
+    }
+
+    function recalculateBill() {
+      const activeRows = getActiveHistoryRows();
+      const latest = activeRows?.[0];
+      if (!latest) return;
+
+      const karat = document.getElementById("calc-karat").value;
+      const grams = Math.max(0.1, Number(document.getElementById("calc-grams").value) || 0);
+      const makingPct = Math.max(0, Number(document.getElementById("calc-making").value) || 0);
+
+      const base24 = Number(latest.rate_24k_gram);
+      const ratePerGram = karat === "24K" ? base24 : karat === "22K" ? Number(latest.rate_22k_gram) : base24 * (18 / 24);
+
+      const goldVal = ratePerGram * grams;
+      const makingVal = goldVal * (makingPct / 100);
+      const gstVal = (goldVal + makingVal) * 0.03;
+      const totalBill = goldVal + makingVal + gstVal;
+
+      document.getElementById("bill-gold-val").textContent = formatINR(goldVal, 0);
+      document.getElementById("bill-making-val").textContent = formatINR(makingVal, 0);
+      document.getElementById("bill-gst-val").textContent = formatINR(gstVal, 0);
+      document.getElementById("bill-total-val").textContent = formatINR(totalBill, 0);
+    }
+
+    function syncCalculatorToPlan() {
+      const text = document.getElementById("bill-total-val").textContent.replace(/[₹,]/g, "");
+      const amt = Math.round(Number(text));
+      if (amt >= 1000) {
+        document.getElementById("auto-budget-inr").value = amt;
+        showToast("Budget Updated", `Set your 3-part plan budget to ${formatINR(amt, 0)}.`, "info");
+      }
+    }
+
+    function renderMarketStory(activeRows) {
+      const s22 = appState.stats22K;
+      const latest = activeRows?.[0];
+      const titleEl = document.getElementById("why-moving-title");
+      const pill = document.getElementById("trend-pill");
+      const headlineEl = document.getElementById("verdict-headline");
+      const story = document.getElementById("plain-english-story");
+      const driversEl = document.getElementById("drivers-list");
+      const aiBadge = document.getElementById("ai-badge");
+      if (!s22) return;
+
+      if (latest?.ai_analysis?.drivers && scenarioOverride === "actual") {
+        aiBadge.classList.remove("hidden");
+        titleEl.textContent = "AI Market Summary: Why Gold Moved Today";
+        pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : `Prices Rising (+${s22.pctVsAvg}%)`;
+        pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold ${s22.pctVsAvg < 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+        headlineEl.textContent = latest.ai_analysis.headline;
+        headlineEl.className = `text-sm font-bold mb-1.5 ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
+        story.textContent = latest.ai_analysis.story;
+
+        const badgeColors = ["bg-amber-500/15 text-amber-400", "bg-sky-500/15 text-sky-400", "bg-emerald-500/15 text-emerald-400"];
+        driversEl.innerHTML = latest.ai_analysis.drivers
+          .map((d, idx) => `
+            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+              <span class="w-6 h-6 rounded-full ${badgeColors[idx % 3]} text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+              <div>
+                <div class="text-xs font-semibold text-white">${d.title}</div>
+                <p class="text-xs text-slate-400 mt-0.5">${d.detail}</p>
+              </div>
+            </div>
+          `)
+          .join("");
+        return;
+      }
+
+      aiBadge.classList.add("hidden");
+      if (s22.isRising) {
+        titleEl.textContent = "Why Are Gold Prices Increasing Right Now?";
+        pill.textContent = `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)`;
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400";
+        headlineEl.textContent = "Prices Rising — Wait for a Dip Before Buying Heavy";
+        headlineEl.className = "text-sm font-bold text-rose-400 mb-1.5";
+        story.textContent = `22K gold has moved ${s22.pctVsAvg}% above its 5-day average (${formatINR(s22.avgPrice)}/g). Based on World Gold Council & Indian bullion market research, three forces drive prices higher during an upward rally:`;
+        driversEl.innerHTML = `
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-rose-500/15 text-rose-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Central Banks & Gold ETFs Are Buying Heavily</div>
+              <p class="text-xs text-slate-400 mt-0.5">Global central banks and Indian Gold ETFs have been steadily adding physical gold to their reserves, absorbing supply and lifting prices back up after dips.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Indian Wedding Season & Jeweller Restocking</div>
+              <p class="text-xs text-slate-400 mt-0.5">Strong post-Diwali wedding jewellery demand across India leads jewellers to restock bars and coins, narrowing local discounts and lifting counter prices.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Rupee Exchange Rate & Safe-Haven Demand</div>
+              <p class="text-xs text-slate-400 mt-0.5">When the Indian Rupee weakens against the US Dollar or global investors seek safety from geopolitical tension, imported gold becomes costlier in rupees.</p>
+            </div>
+          </div>
+        `;
+      } else {
+        titleEl.textContent = "Why Are Gold Prices Going Down Right Now?";
+        pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady";
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400";
+        headlineEl.textContent = "Good Time to Start — Buy Part 1 Now, Save Rest for Dips";
+        headlineEl.className = "text-sm font-bold text-emerald-400 mb-1.5";
+        story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% below its 5-day average (${formatINR(s22.avgPrice)}/g). Market research points to three clear reasons behind this price pullback:`;
+        driversEl.innerHTML = `
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <div>
+              <div class="text-xs font-semibold text-white">US Banks Are Offering Higher Interest</div>
+              <p class="text-xs text-slate-400 mt-0.5">When bank interest rates stay high in the US, big investors prefer keeping money in interest-paying bonds rather than gold, pushing global gold rates down.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-sky-500/15 text-sky-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <div>
+              <div class="text-xs font-semibold text-white">The US Dollar Has Gotten Stronger</div>
+              <p class="text-xs text-slate-400 mt-0.5">Gold is priced in US Dollars worldwide. Whenever the Dollar becomes stronger, international gold prices naturally cool down.</p>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <div>
+              <div class="text-xs font-semibold text-white">Steady Rupee & Adequate Domestic Supply</div>
+              <p class="text-xs text-slate-400 mt-0.5">Because the Indian Rupee is holding steady and domestic bullion supply is comfortable, the global drop passes directly to local prices.</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function renderDateForecast() {
+      const daysSelect = document.getElementById("forecast-days-select");
+      const karat = document.getElementById("forecast-karat").value;
+      const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
+      if (!stats || !daysSelect) return;
+
+      const daysAhead = Math.min(MAX_FORECAST_DAYS, Math.max(1, Number(daysSelect.value || 5)));
+      const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0035;
+      const clampedDailyRate = Math.max(-0.0045, Math.min(0.0045, rawDailyRate));
+
+      const supportFloor = stats.avgPrice * 0.965;
+      const rallyCeiling = stats.avgPrice * 1.035;
+
+      const rawProjected = stats.latestPrice * (1 + clampedDailyRate * Math.sqrt(daysAhead));
+      const expectedPrice = Math.min(rallyCeiling, Math.max(supportFloor, rawProjected));
+
+      const lowestPrice = Math.max(supportFloor * 0.992, Math.min(stats.latestPrice, expectedPrice) * (1 - 0.003 * Math.sqrt(daysAhead)));
+      const highestPrice = Math.min(rallyCeiling * 1.008, Math.max(stats.latestPrice, expectedPrice) * (1 + 0.004 * Math.sqrt(daysAhead)));
+
+      const baseLabel = document.getElementById("forecast-base-label");
+      const floorLabel = document.getElementById("forecast-floor-label");
+      const ceilLabel = document.getElementById("forecast-ceil-label");
+
+      if (expectedPrice > stats.latestPrice * 1.001) {
+        floorLabel.textContent = "Best-Case Low (If Prices Cool Off):";
+        baseLabel.textContent = "Expected Price (If Rise Continues):";
+        ceilLabel.textContent = "Worst-Case High (If Rally Speeds Up):";
+      } else {
+        floorLabel.textContent = "Best-Case Low (If Drop Continues):";
+        baseLabel.textContent = "Expected Price (If Drop Continues):";
+        ceilLabel.textContent = "Worst-Case High (If Market Bounces):";
+      }
+
+      document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice)} / g`;
+      document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice)} / g`;
+      document.getElementById("forecast-ceil-price").textContent = `${formatINR(highestPrice)} / g`;
+    }
+
+    async function generateSmartTranches() {
+      const totalBudget = Number(document.getElementById("auto-budget-inr").value);
+      const karat = document.getElementById("forecast-karat").value;
+      const activeRows = getActiveHistoryRows();
+      const latest = activeRows?.[0];
+
+      if (!totalBudget || totalBudget < 1000) {
+        showToast("Enter Budget", "Please enter at least ₹1,000.", "error");
+        return;
+      }
+      if (!latest) {
+        showToast("No Price Yet", "Click Update Price first so we have today's rate.", "error");
+        return;
+      }
+
+      const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
+      const p1Rate = Number((currentBase * 0.998).toFixed(2));
+      const p2Rate = Number((currentBase * 0.988).toFixed(2));
+      const p3Rate = Number((currentBase * 0.976).toFixed(2));
+
+      const plan = [
+        { label: `Part 1 (30%) — Buy Today on Dip`, karat, target_rate_gram: p1Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+        { label: `Part 2 (40%) — Buy on Small Drop`, karat, target_rate_gram: p2Rate, allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
+        { label: `Part 3 (30%) — Buy on Bigger Dip`, karat, target_rate_gram: p3Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+      ];
+
+      if (isDemoMode || !supabaseClient) {
+        plan.forEach((t, idx) => appState.tranches.unshift({ id: `part-${Date.now()}-${idx}`, ...t }));
+        renderTranches(activeRows);
+        showToast("3-Part Plan Ready!", `Split ${formatINR(totalBudget, 0)} into 3 safe buying steps.`, "info");
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").insert(plan);
+        if (error) throw error;
+        await fetchDashboardData();
+        showToast("3-Part Plan Saved!", `We will alert you as ${karat} gold drops to each target.`, "info");
+      } catch (err) {
+        showToast("Could Not Save Plan", err.message, "error");
+      }
+    }
+
+    function renderChart(activeRows) {
+      const stats = activeChartKarat === "24K" ? appState.stats24K : appState.stats22K;
+      if (!stats || !activeRows || activeRows.length === 0 || typeof Chart === "undefined") return;
+
+      document.getElementById("band-lower").textContent = formatINR(stats.bargainPrice);
+      document.getElementById("band-mean").textContent = formatINR(stats.avgPrice);
+      document.getElementById("band-upper").textContent = formatINR(stats.highPrice);
+
+      const field =
+        activeChartKarat === "24K"
+          ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
+          : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
+
+      const chrono = [...activeRows].slice(0, 60).reverse();
+      const labels = chrono.map((r) => {
+        const d = new Date(r.fetched_at);
+        return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " +
+               d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+      });
+
+      const prices = chrono.map((r) => Number(r[field]));
+      const avgSeries = chrono.map(() => stats.avgPrice);
+      const bargainSeries = chrono.map(() => stats.bargainPrice);
+
+      const canvas = document.getElementById("goldChart");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+      gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)");
+      gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
+
+      chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: `${activeChartKarat} Gold Price (₹/g)`,
+              data: prices,
+              borderColor: "#FBBF24",
+              backgroundColor: gradient,
+              borderWidth: 2.5,
+              pointRadius: chrono.length > 30 ? 1 : 4,
+              pointBackgroundColor: "#FBBF24",
+              fill: true,
+              tension: 0.25,
+            },
+            {
+              label: "5-Day Average",
+              data: avgSeries,
+              borderColor: "rgba(148, 163, 184, 0.55)",
+              borderWidth: 1.5,
+              borderDash: [4, 4],
+              pointRadius: 0,
+              fill: false,
+            },
+            {
+              label: "Good Bargain Price",
+              data: bargainSeries,
+              borderColor: "rgba(16, 185, 129, 0.75)",
+              borderWidth: 1.5,
+              borderDash: [4, 4],
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { labels: { color: "#94A3B8", font: { size: 11, family: "Inter" }, boxWidth: 12 } },
+            tooltip: {
+              backgroundColor: "#0F172A",
+              titleColor: "#F8FAFC",
+              bodyColor: "#CBD5E1",
+              borderColor: "#334155",
+              borderWidth: 1,
+              callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatINR(ctx.parsed.y)}` },
+            },
+          },
+          scales: {
+            x: {
+              grid: { color: "rgba(30, 41, 59, 0.4)" },
+              ticks: { color: "#64748B", font: { size: 10 }, maxTicksLimit: 6 },
+            },
+            y: {
+              grid: { color: "rgba(30, 41, 59, 0.4)" },
+              ticks: {
+                color: "#94A3B8",
+                font: { size: 11, family: "JetBrains Mono" },
+                callback: (val) => "₹" + Number(val).toLocaleString("en-IN"),
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function renderTranches(activeRows) {
+      const container = document.getElementById("tranches-list");
+      const latest = activeRows?.[0];
+      if (!container) return;
+
+      if (!appState.tranches || appState.tranches.length === 0) {
+        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">Enter your total gold budget above and click <strong class="text-amber-400">Split Into 3 Smart Parts</strong> to create your plan.</div>`;
+        return;
+      }
+
+      container.innerHTML = appState.tranches
+        .map((t) => {
+          const baseSpot = latest ? (t.karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) : null;
+          const targetBase = Number(t.target_rate_gram);
+          const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
+          const displaySpot = baseSpot ? (includeGst ? baseSpot * 1.03 : baseSpot) : null;
+
+          let distanceText = `<span class="text-slate-500">Waiting for today's price</span>`;
+          if (displaySpot) {
+            const diff = displaySpot - displayTarget;
+            distanceText = diff <= 0
+              ? `<span class="text-emerald-400 font-semibold">Target Reached! Good time to buy this part</span>`
+              : `<span class="text-slate-400">Needs to drop ${formatINR(diff)}/g more to trigger</span>`;
+          }
+
+          const statusLabels = {
+            active: { text: "Watching Price", cls: "bg-sky-500/15 text-sky-400 border-sky-500/30" },
+            triggered: { text: "Ready to Buy!", cls: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
+            executed: { text: "Bought", cls: "bg-purple-500/15 text-purple-300 border-purple-500/30" },
+            paused: { text: "Paused", cls: "bg-slate-800 text-slate-400 border-slate-700" },
+          };
+          const st = statusLabels[t.status] || statusLabels.active;
+          const estGrams = (Number(t.allocation_inr) / displayTarget).toFixed(2);
+
+          return `
+            <div class="rounded-xl bg-slate-900/75 border border-slate-800/90 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-400">${t.karat}</span>
+                    <span class="text-sm font-semibold text-white">${t.label}</span>
+                  </div>
+                  <div class="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                    <span class="text-slate-300">Buy at: <strong class="font-mono text-amber-300">${formatINR(displayTarget)}/g</strong></span>
+                    <span class="text-slate-400">Budget: <strong class="font-mono text-slate-200">${formatINR(t.allocation_inr, 0)}</strong> (~${estGrams}g gold)</span>
+                  </div>
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${st.cls}">
+                  ${st.text}
+                </span>
+              </div>
+
+              <div class="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                <div>${distanceText}</div>
+                <div class="flex items-center gap-2">
+                  ${t.status === "triggered" ? `<button type="button" onclick="updateTrancheStatus('${t.id}', 'executed')" class="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-medium cursor-pointer">Mark Bought</button>` : ""}
+                  ${t.status === "active" ? `<button type="button" onclick="updateTrancheStatus('${t.id}', 'paused')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer">Pause</button>` : (t.status === "paused" || t.status === "triggered") ? `<button type="button" onclick="updateTrancheStatus('${t.id}', 'active')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800 cursor-pointer">Watch Again</button>` : ""}
+                  <button type="button" onclick="deleteTranche('${t.id}')" title="Remove" class="px-2 py-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800 cursor-pointer">
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function renderAlerts() {
+      const container = document.getElementById("alerts-list");
+      const badge = document.getElementById("alert-count-badge");
+      if (!container) return;
+      if (badge) badge.textContent = appState.alerts.length;
+
+      if (!appState.alerts || appState.alerts.length === 0) {
+        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">No price alerts triggered yet. When gold drops to your target prices, alerts appear here automatically.</div>`;
+        return;
+      }
+
+      container.innerHTML = appState.alerts
+        .map((a) => `
+          <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3.5">
+            <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
+              <span>${a.karat} PRICE DROP REACHED</span>
+              <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed">${a.message}</p>
+          </div>
+        `)
+        .join("");
+    }
+
+    function toggleGst() {
+      includeGst = !includeGst;
+      document.getElementById("gst-toggle-label").textContent = includeGst ? "With 3% GST" : "Without 3% GST";
+      recomputeAndRender();
+    }
+
+    function switchChartKarat(karat) {
+      activeChartKarat = karat;
+      const btn22 = document.getElementById("tab-22k");
+      const btn24 = document.getElementById("tab-24k");
+      if (karat === "22K") {
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer";
+      } else {
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer";
+      }
+      renderChart(getActiveHistoryRows());
+    }
+
+    function openTrancheModal() {
+      prefillSuggestedTarget();
+      document.getElementById("tranche-modal").classList.remove("hidden");
+      document.getElementById("tranche-modal").classList.add("flex");
+    }
+
+    function closeTrancheModal() {
+      document.getElementById("tranche-modal").classList.add("hidden");
+      document.getElementById("tranche-modal").classList.remove("flex");
+    }
+
+    function prefillSuggestedTarget() {
+      const karat = document.getElementById("tranche-karat").value;
+      const latest = getActiveHistoryRows()?.[0];
+      if (!latest) return;
+      const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
+      document.getElementById("tranche-target").value = (currentBase * 0.99).toFixed(2);
+    }
+
+    async function handleCreateTranche(e) {
+      e.preventDefault();
+      const label = document.getElementById("tranche-label").value.trim();
+      const karat = document.getElementById("tranche-karat").value;
+      const target_rate_gram = Number(document.getElementById("tranche-target").value);
+      const allocation_inr = Number(document.getElementById("tranche-allocation").value);
+
+      if (isDemoMode || !supabaseClient) {
+        appState.tranches.unshift({ id: "demo-" + Date.now(), label, karat, target_rate_gram, allocation_inr, status: "active" });
+        closeTrancheModal();
+        document.getElementById("tranche-form").reset();
+        renderTranches(getActiveHistoryRows());
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").insert({ label, karat, target_rate_gram, allocation_inr, status: "active" });
+        if (error) throw error;
+        closeTrancheModal();
+        document.getElementById("tranche-form").reset();
+        await fetchDashboardData();
+        showToast("Alert Saved", `We will alert you when ${karat} gold hits ${formatINR(target_rate_gram)}/g.`, "info");
+      } catch (err) {
+        showToast("Could Not Save", err.message, "error");
+      }
+    }
+
+    async function updateTrancheStatus(id, newStatus) {
+      if (isDemoMode || !supabaseClient) {
+        const item = appState.tranches.find((t) => t.id === id);
+        if (item) item.status = newStatus;
+        renderTranches(getActiveHistoryRows());
+        return;
+      }
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").update({ status: newStatus }).eq("id", id);
+        if (error) throw error;
+        await fetchDashboardData();
+      } catch (err) {
+        showToast("Update Failed", err.message, "error");
+      }
+    }
+
+    async function deleteTranche(id) {
+      if (isDemoMode || !supabaseClient) {
+        appState.tranches = appState.tranches.filter((t) => t.id !== id);
+        renderTranches(getActiveHistoryRows());
+        return;
+      }
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").delete().eq("id", id);
+        if (error) throw error;
+        await fetchDashboardData();
+      } catch (err) {
+        showToast("Delete Failed", err.message, "error");
+      }
+    }
+
+    function openSettingsModal() {
+      document.getElementById("cfg-supabase-url").value = localStorage.getItem(STORAGE_URL_KEY) || "";
+      document.getElementById("cfg-supabase-key").value = localStorage.getItem(STORAGE_ANON_KEY) || "";
+      document.getElementById("settings-modal").classList.remove("hidden");
+      document.getElementById("settings-modal").classList.add("flex");
+    }
+
+    function closeSettingsModal() {
+      document.getElementById("settings-modal").classList.add("hidden");
+      document.getElementById("settings-modal").classList.remove("flex");
+    }
+
+    async function calibrateMultiplierFromLocal24k() {
+      const target24k = Number(document.getElementById("calibrate-24k-input").value);
+      if (!target24k || target24k < 1000) {
+        showToast("Invalid Rate", "Enter today's local 24K rate (e.g., 13326).", "error");
+        return;
+      }
+      if (isDemoMode || !supabaseClient) {
+        showToast("Connect Account First", "Save your Supabase connection first.", "error");
+        return;
+      }
+      const latest = appState.history[0];
+      if (!latest || !latest.xau_usd || !latest.usd_inr) {
+        showToast("Update Price First", "Click Update Price once before matching.", "error");
+        return;
+      }
+
+      const raw24kGram = (Number(latest.xau_usd) * Number(latest.usd_inr)) / TROY_OZ_TO_GRAMS;
+      const newMultiplier = Number((target24k / raw24kGram).toFixed(4));
+
+      try {
+        const { error } = await supabaseClient
+          .from("gold_config")
+          .update({ local_premium_multiplier: newMultiplier, updated_at: new Date().toISOString() })
+          .eq("id", 1);
+        if (error) throw error;
+        closeSettingsModal();
+        showToast("Local Rate Matched", "Refreshing price now...", "info");
+        await handleManualRefresh();
+      } catch (err) {
+        showToast("Could Not Match Rate", err.message, "error");
+      }
+    }
+
+    async function saveSupabaseSettings() {
+      const cleanedUrl = cleanSupabaseUrl(document.getElementById("cfg-supabase-url").value);
+      const anonKey = document.getElementById("cfg-supabase-key").value.trim();
+      if (!cleanedUrl || !anonKey) {
+        showToast("Missing Details", "Enter both Project URL and Public Key.", "error");
+        return;
+      }
+      localStorage.setItem(STORAGE_URL_KEY, cleanedUrl);
+      localStorage.setItem(STORAGE_ANON_KEY, anonKey);
+      supabaseClient = window.supabase.createClient(cleanedUrl, anonKey);
+      isDemoMode = false;
+      syncInitialized = false;
+      closeSettingsModal();
+      await fetchDashboardData();
+      showToast("Connected!", "Your live gold tracker is ready.", "info");
+    }
+
+    function resetToDemoMode() {
+      localStorage.removeItem(STORAGE_URL_KEY);
+      localStorage.removeItem(STORAGE_ANON_KEY);
+      if (pollingFallbackInterval) {
+        clearInterval(pollingFallbackInterval);
+        pollingFallbackInterval = null;
+      }
+      supabaseClient = null;
+      isDemoMode = true;
+      syncInitialized = false;
+      appState.history = [];
+      closeSettingsModal();
+      fetchDashboardData();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        if (window.lucide) window.lucide.createIcons();
+      } catch (_e) {}
+
+      const savedCity = localStorage.getItem(STORAGE_CITY_KEY);
+      if (savedCity && CITY_ADJUSTMENTS[savedCity]) {
+        selectedCity = savedCity;
+        document.getElementById("city-select").value = savedCity;
+      }
+
+      populateForecastDateDropdown();
+
+      const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY));
+      const savedKey = localStorage.getItem(STORAGE_ANON_KEY);
+      if (savedUrl && savedKey && window.supabase) {
+        supabaseClient = window.supabase.createClient(savedUrl, savedKey);
+        isDemoMode = false;
+      }
+      fetchDashboardData();
+    });
+  </script>
+</body>
+</html>

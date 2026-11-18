@@ -205,7 +205,7 @@
           <span id="refresh-btn-text" class="hidden sm:inline">Update Price</span>
         </button>
 
-        <button type="button" id="auth-header-btn" onclick="handleAuthHeaderClick()" class="hidden items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer">
+        <button type="button" id="auth-header-btn" onclick="handleAuthHeaderClick()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer">
           <i data-lucide="user" class="w-3.5 h-3.5 text-amber-400"></i>
           <span id="auth-header-label">Sign In</span>
         </button>
@@ -856,15 +856,25 @@
     </div>
   </div>
 
-  <!-- MODAL 0: Multi-User Sign In (Supabase Auth) -->
+  <!-- MODAL 0: Multi-User Sign In & Account Creation (Supabase Auth) -->
   <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="w-full max-w-md rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-base font-bold text-white">Sign In to GoldBuddy</h3>
+          <h3 id="auth-modal-title" class="text-base font-bold text-white">Sign In to GoldBuddy</h3>
           <p class="text-xs text-slate-400">Save your private 3-part plan &amp; price drop alerts</p>
         </div>
         <button type="button" onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
+      </div>
+
+      <!-- Mode Switcher: Sign In vs Create Account -->
+      <div class="grid grid-cols-2 rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs">
+        <button type="button" id="auth-tab-signin" onclick="switchAuthTab('signin')" class="py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer">
+          Sign In
+        </button>
+        <button type="button" id="auth-tab-signup" onclick="switchAuthTab('signup')" class="py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer">
+          Create Account
+        </button>
       </div>
 
       <button type="button" onclick="signInWithGoogle()" class="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-semibold transition-colors cursor-pointer">
@@ -877,20 +887,25 @@
         Continue with Google
       </button>
 
-      <div class="relative flex items-center py-1">
+      <div class="relative flex items-center py-0.5">
         <div class="flex-grow border-t border-slate-800"></div>
-        <span class="shrink mx-3 text-[10px] uppercase tracking-widest text-slate-500">or email magic link</span>
+        <span class="shrink mx-3 text-[10px] uppercase tracking-widest text-slate-500">or with email</span>
         <div class="flex-grow border-t border-slate-800"></div>
       </div>
 
-      <form onsubmit="signInWithMagicLink(event)" class="space-y-3">
+      <form onsubmit="handleEmailAuthSubmit(event)" class="space-y-3">
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
           <input type="email" id="auth-email-input" required placeholder="you@example.com"
             class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
         </div>
-        <button type="submit" id="auth-magic-btn" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors cursor-pointer">
-          Send Magic Link
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+          <input type="password" id="auth-password-input" required minlength="6" placeholder="Minimum 6 characters"
+            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+        </div>
+        <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors cursor-pointer">
+          Sign In
         </button>
       </form>
 
@@ -1013,6 +1028,8 @@
   </div>
 
   <script>
+    const DEFAULT_SUPABASE_URL = "https://qcwangaymlurglvamjsq.supabase.co";
+    const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2FuZ2F5bWx1cmdsdmFtanNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzkyMTEsImV4cCI6MjA5Nzc1NTIxMX0.Q8JeHm0H4ZqdO7sN48DxPQS8kTpyX-LS7sjs7n8dIbU";
     const STORAGE_URL_KEY = "goldbuddy_supabase_url";
     const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
     const TROY_OZ_TO_GRAMS = 31.1034768;
@@ -1766,6 +1783,13 @@
       const btn = document.getElementById("refresh-btn");
       if (btn && btn.disabled) return;
 
+      // Require sign-in to trigger live rate fetch when connected to Supabase
+      if (!isDemoMode && supabaseClient && !currentUser) {
+        showToast("Sign In Required", "Please sign in or create an account to fetch fresh live rates.", "info");
+        openAuthModal();
+        return;
+      }
+
       setRefreshLoading(true);
       const safetyTimer = setTimeout(() => setRefreshLoading(false), 15000);
 
@@ -1789,9 +1813,24 @@
             });
             return { mode: "demo", new22, new24 };
           } else {
+            const COOLDOWN_MS = 30 * 60 * 1000;
+            const latestRow = appState.history?.[0];
+            const lastDbTs = latestRow?.fetched_at ? new Date(latestRow.fetched_at).getTime() : 0;
+            const lastLocalTs = Number(localStorage.getItem("goldbuddy_last_fetch_ts") || 0);
+            const newestTs = Math.max(lastDbTs, lastLocalTs);
+            const elapsedMs = Date.now() - newestTs;
+
+            if (newestTs > 0 && elapsedMs < COOLDOWN_MS) {
+              const minsLeft = Math.max(1, Math.ceil((COOLDOWN_MS - elapsedMs) / 60000));
+              await fetchDashboardData();
+              return { mode: "cached", minsLeft };
+            }
+
             const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
             if (error) {
               console.warn("Edge function invoke fallback to cached DB:", error.message);
+            } else {
+              localStorage.setItem("goldbuddy_last_fetch_ts", String(Date.now()));
             }
             await fetchDashboardData();
             return { mode: "live" };
@@ -1828,6 +1867,8 @@
 
         if (res?.mode === "demo") {
           showToast("Sample Price Updated", `22K: ${formatINR(res.new22)}/g | 24K: ${formatINR(res.new24)}/g`, "info");
+        } else if (res?.mode === "cached") {
+          showToast("Rate Already Up to Date", `Loaded latest cached rate. Next live fetch in ~${res.minsLeft}m (30-min limit).`, "info");
         } else {
           showToast("Gold Price Updated", "Fetched today's latest rate & AI market summary.", "info");
         }
@@ -2944,11 +2985,6 @@
       const btn = document.getElementById("auth-header-btn");
       const label = document.getElementById("auth-header-label");
       if (!btn || !label) return;
-      if (isDemoMode || !supabaseClient) {
-        btn.classList.add("hidden");
-        btn.classList.remove("flex");
-        return;
-      }
       btn.classList.remove("hidden");
       btn.classList.add("flex");
       if (currentUser) {
@@ -2984,7 +3020,7 @@
     }
 
     async function signInWithGoogle() {
-      if (!supabaseClient) return;
+      if (!supabaseClient) { showToast("Connect Supabase First", "Open Settings to add your Supabase URL & Key before signing in.", "error"); return; }
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo: window.location.href },
@@ -2992,28 +3028,76 @@
       if (error) showToast("Sign In Failed", error.message, "error");
     }
 
-    async function signInWithMagicLink(e) {
-      e.preventDefault();
-      if (!supabaseClient) return;
-      const email = document.getElementById("auth-email-input").value.trim();
+    let authMode = "signin";
+
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const tabIn = document.getElementById("auth-tab-signin");
+      const tabUp = document.getElementById("auth-tab-signup");
+      const title = document.getElementById("auth-modal-title");
+      const btn = document.getElementById("auth-submit-btn");
       const fb = document.getElementById("auth-feedback");
-      const { error } = await supabaseClient.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.href },
-      });
-      if (error) {
-        showToast("Sign In Failed", error.message, "error");
-        return;
+      if (fb) fb.classList.add("hidden");
+
+      if (mode === "signup") {
+        tabUp.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
+        tabIn.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
+        title.textContent = "Create GoldBuddy Account";
+        btn.textContent = "Create Account";
+      } else {
+        tabIn.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
+        tabUp.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
+        title.textContent = "Sign In to GoldBuddy";
+        btn.textContent = "Sign In";
       }
-      if (fb) {
-        fb.textContent = `Magic link sent to ${email}! Check your inbox to sign in.`;
-        fb.classList.remove("hidden");
+    }
+
+    async function handleEmailAuthSubmit(e) {
+      e.preventDefault();
+      if (!supabaseClient) { showToast("Connect Supabase First", "Open Settings to add your Supabase URL & Key before signing in.", "error"); return; }
+      const email = document.getElementById("auth-email-input").value.trim();
+      const password = document.getElementById("auth-password-input").value;
+      const fb = document.getElementById("auth-feedback");
+      const btn = document.getElementById("auth-submit-btn");
+
+      btn.disabled = true;
+      try {
+        if (authMode === "signup") {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: window.location.href },
+          });
+          if (error) throw error;
+          if (data?.session) {
+            currentUser = data.user;
+            updateAuthHeaderUI();
+            closeAuthModal();
+            await fetchDashboardData();
+            showToast("Account Created!", "Welcome to GoldBuddy.", "info");
+          } else if (fb) {
+            fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`;
+            fb.classList.remove("hidden");
+          }
+        } else {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          currentUser = data.user;
+          updateAuthHeaderUI();
+          closeAuthModal();
+          await fetchDashboardData();
+          showToast("Signed In!", "Your private 3-part plan & alerts are loaded.", "info");
+        }
+      } catch (err) {
+        showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", err.message, "error");
+      } finally {
+        btn.disabled = false;
       }
     }
 
     function openSettingsModal() {
-      document.getElementById("cfg-supabase-url").value = localStorage.getItem(STORAGE_URL_KEY) || "";
-      document.getElementById("cfg-supabase-key").value = localStorage.getItem(STORAGE_ANON_KEY) || "";
+      document.getElementById("cfg-supabase-url").value = localStorage.getItem(STORAGE_URL_KEY) || DEFAULT_SUPABASE_URL;
+      document.getElementById("cfg-supabase-key").value = localStorage.getItem(STORAGE_ANON_KEY) || DEFAULT_SUPABASE_ANON_KEY;
       document.getElementById("settings-modal").classList.remove("hidden");
       document.getElementById("settings-modal").classList.add("flex");
     }
@@ -3095,8 +3179,8 @@
 
       populateForecastDateDropdown();
 
-      const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY));
-      const savedKey = localStorage.getItem(STORAGE_ANON_KEY);
+      const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY)) || DEFAULT_SUPABASE_URL;
+      const savedKey = localStorage.getItem(STORAGE_ANON_KEY) || DEFAULT_SUPABASE_ANON_KEY;
       if (savedUrl && savedKey && window.supabase) {
         supabaseClient = window.supabase.createClient(savedUrl, savedKey);
         isDemoMode = false;

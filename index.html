@@ -1,291 +1,364 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GoldBuddy — Smart Gold Buying Helper & City Rate Calculator</title>
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+const TROY_OZ_TO_GRAMS = 31.1034768;
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            obsidian: '#0B0F17',
-            card: '#131A26',
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-          }
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+};
+
+const CITY_SLUGS: Record<string, { goodreturns: string; groww: string; label: string }> = {
+  bangalore: { goodreturns: "bangalore", groww: "bangalore", label: "Bangalore" },
+  chennai: { goodreturns: "chennai", groww: "chennai", label: "Chennai" },
+  madurai: { goodreturns: "madurai", groww: "madurai", label: "Madurai" },
+  mumbai: { goodreturns: "mumbai", groww: "mumbai", label: "Mumbai" },
+  delhi: { goodreturns: "delhi", groww: "delhi", label: "Delhi" },
+  hyderabad: { goodreturns: "hyderabad", groww: "hyderabad", label: "Hyderabad" },
+  coimbatore: { goodreturns: "coimbatore", groww: "coimbatore", label: "Coimbatore" },
+  kolkata: { goodreturns: "kolkata", groww: "kolkata", label: "Kolkata" },
+};
+
+interface CityRetailRates {
+  rate24k: number;
+  rate22k: number;
+  rate18k: number;
+  change24k: number;
+  change22k: number;
+  change18k: number;
+  source: string;
+}
+
+async function fetchIndianCityRetailRates(cityKey: string): Promise<CityRetailRates | null> {
+  const city = CITY_SLUGS[cityKey] || CITY_SLUGS.bangalore;
+  const headers = {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    Accept: "text/html,application/xhtml+xml",
+  };
+
+  // Source 1: GoodReturns city retail board
+  try {
+    const grRes = await fetch(`https://www.goodreturns.in/gold-rates/${city.goodreturns}.html`, { headers });
+    if (grRes.ok) {
+      const html = await grRes.text();
+      const cleanText = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+
+      // Matches pattern: "₹13,326 (-278) ₹12,215 (-255) ₹9,994 (-209)"
+      const trioMatch = cleanText.match(
+        /₹\s*([\d,]+)\s*\(([+-]?\s*[\d,]+)\)\s*₹\s*([\d,]+)\s*\(([+-]?\s*[\d,]+)\)\s*₹\s*([\d,]+)\s*\(([+-]?\s*[\d,]+)\)/
+      );
+
+      if (trioMatch) {
+        const r24 = Number(trioMatch[1].replace(/,/g, ""));
+        const c24 = Number(trioMatch[2].replace(/[,\s]/g, ""));
+        const r22 = Number(trioMatch[3].replace(/,/g, ""));
+        const c22 = Number(trioMatch[4].replace(/[,\s]/g, ""));
+        const r18 = Number(trioMatch[5].replace(/,/g, ""));
+        const c18 = Number(trioMatch[6].replace(/[,\s]/g, ""));
+
+        if (r24 > 5000 && r22 > 4500 && r18 > 3500) {
+          return {
+            rate24k: r24,
+            rate22k: r22,
+            rate18k: r18,
+            change24k: c24,
+            change22k: c22,
+            change18k: c18,
+            source: `Retail Board (${city.label})`,
+          };
         }
       }
+
+      // Fallback sentence match on GoodReturns
+      const sentenceMatch = cleanText.match(
+        /stands at ₹\s*([\d,]+)(?:\.\d+)? per gram for 24 karat gold.*?₹\s*([\d,]+)(?:\.\d+)? per gram for 22 karat gold.*?₹\s*([\d,]+)(?:\.\d+)? per gram for 18 karat gold/i
+      );
+      if (sentenceMatch) {
+        const r24 = Number(sentenceMatch[1].replace(/,/g, ""));
+        const r22 = Number(sentenceMatch[2].replace(/,/g, ""));
+        const r18 = Number(sentenceMatch[3].replace(/,/g, ""));
+        if (r24 > 5000 && r22 > 4500) {
+          return {
+            rate24k: r24,
+            rate22k: r22,
+            rate18k: r18 || Math.floor(r24 * 0.75),
+            change24k: 0,
+            change22k: 0,
+            change18k: 0,
+            source: `Retail Board (${city.label})`,
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("GoodReturns fetch fallback triggered:", err);
+  }
+
+  // Source 2: Groww city retail board
+  try {
+    const growwRes = await fetch(`https://groww.in/gold-rates/gold-rate-today-in-${city.groww}`, { headers });
+    if (growwRes.ok) {
+      const html = await growwRes.text();
+      const cleanText = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+      const growwMatch = cleanText.match(
+        /stands at ₹\s*([\d,]+(?:\.\d+)?) per gram for 24 karat gold.*?₹\s*([\d,]+(?:\.\d+)?) per gram for 22 karat gold.*?₹\s*([\d,]+(?:\.\d+)?) per gram for 18 karat gold/i
+      );
+      if (growwMatch) {
+        const r24 = Number(growwMatch[1].replace(/,/g, ""));
+        const r22 = Number(growwMatch[2].replace(/,/g, ""));
+        const r18 = Number(growwMatch[3].replace(/,/g, ""));
+        if (r24 > 5000 && r22 > 4500) {
+          return {
+            rate24k: r24,
+            rate22k: r22,
+            rate18k: r18 || Math.floor(r24 * 0.75),
+            change24k: 0,
+            change22k: 0,
+            change18k: 0,
+            source: `Groww Retail (${city.label})`,
+          };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Groww fetch fallback triggered:", err);
+  }
+
+  return null;
+}
+
+async function generateAiMarketInsight(params: {
+  cityLabel: string;
+  rate22k: number;
+  rate24k: number;
+  change22k: number;
+  xauUsd: number;
+  usdInr: number;
+}) {
+  const apiKey = Deno.env.get("GEMINI_API_KEY")?.trim();
+  if (!apiKey) return { insight: null, debug: "GEMINI_API_KEY missing" };
+
+  const direction =
+    params.change22k < 0
+      ? `dropped by ₹${Math.abs(params.change22k)}/g today`
+      : params.change22k > 0
+      ? `increased by ₹${params.change22k}/g today`
+      : "remained steady today";
+
+  const prompt = `You are GoldBuddy, a friendly, plain-English gold buying advisor for everyday families in ${params.cityLabel}, India. Avoid all financial jargon.
+Today's live ${params.cityLabel} retail 22K gold price is ₹${params.rate22k}/g (24K is ₹${params.rate24k}/g). 22K gold has ${direction}. Global gold is $${params.xauUsd}/oz and 1 USD = ₹${params.usdInr}.
+
+Return ONLY valid JSON matching this exact structure:
+{
+  "headline": "Short 6-8 word verdict (e.g., Good Time to Start — Buy Part 1 Now)",
+  "story": "2 simple sentences explaining what is happening in ${params.cityLabel} today and what a regular buyer should do.",
+  "drivers": [
+    { "title": "Short reason 1 (4-5 words)", "detail": "1 simple sentence explaining how global bank interest or US Dollar affected today's rate." },
+    { "title": "Short reason 2 (4-5 words)", "detail": "1 simple sentence explaining how the Indian Rupee or local demand affected today's rate." },
+    { "title": "Short reason 3 (4-5 words)", "detail": "1 practical takeaway for someone splitting their budget into 3 parts." }
+  ]
+}`;
+
+  const models = ["gemini-3.8-flash", "gemini-2.5-flash", "gemini-3-flash-preview"];
+  let lastError = "Unknown error";
+
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
+          }),
+        }
+      );
+
+      const rawBody = await res.text();
+      if (!res.ok) {
+        lastError = `${model} HTTP ${res.status}`;
+        continue;
+      }
+
+      const data = JSON.parse(rawBody);
+      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) continue;
+
+      const cleaned = rawText.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed?.headline && parsed?.story && Array.isArray(parsed?.drivers)) {
+        return { insight: parsed, debug: `OK (${model})` };
+      }
+    } catch (err) {
+      lastError = (err as Error).message;
+    }
+  }
+
+  return { insight: null, debug: lastError };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    let requestedCity = "bangalore";
+    if (req.method === "POST") {
+      try {
+        const body = await req.json();
+        if (body?.city && CITY_SLUGS[String(body.city).toLowerCase()]) {
+          requestedCity = String(body.city).toLowerCase();
+        }
+      } catch {
+        // Ignore empty body
+      }
+    }
+
+    const cityInfo = CITY_SLUGS[requestedCity] || CITY_SLUGS.bangalore;
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const [configRes, prevRateRes, retailRates, goldRes, fxRes] = await Promise.all([
+      supabase.from("gold_config").select("*").eq("id", 1).maybeSingle(),
+      supabase
+        .from("gold_rates_history")
+        .select("rate_24k_gram, rate_22k_gram")
+        .order("fetched_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      fetchIndianCityRetailRates(requestedCity),
+      fetch("https://api.gold-api.com/price/XAU"),
+      fetch("https://api.frankfurter.dev/v2/rate/USD/INR"),
+    ]);
+
+    const goldData = goldRes.ok ? await goldRes.json() : { price: 3775 };
+    const fxData = fxRes.ok ? await fxRes.json() : { rate: 93.98 };
+    const xauUsd = Number(goldData.price) || 3775;
+    const usdInr = Number(fxData.rate) || 93.98;
+    const gstRate = Number(configRes.data?.gst_rate ?? 0.03);
+
+    let rate24k: number;
+    let rate22k: number;
+    let rate18k: number;
+    let change24k: number;
+    let change22k: number;
+    let change18k: number;
+    let rateSource: string;
+
+    if (retailRates) {
+      rate24k = retailRates.rate24k;
+      rate22k = retailRates.rate22k;
+      rate18k = retailRates.rate18k;
+      change24k = retailRates.change24k;
+      change22k = retailRates.change22k;
+      change18k = retailRates.change18k;
+      rateSource = retailRates.source;
+    } else {
+      const multiplier = Number(configRes.data?.local_premium_multiplier ?? 1.1755);
+      const raw24kGram = (xauUsd * usdInr) / TROY_OZ_TO_GRAMS;
+      rate24k = Math.round(raw24kGram * multiplier);
+      rate22k = Math.round(rate24k * (22 / 24));
+      rate18k = Math.round(rate24k * (18 / 24));
+      const prev24 = prevRateRes.data?.rate_24k_gram ? Number(prevRateRes.data.rate_24k_gram) : rate24k;
+      const prev22 = prevRateRes.data?.rate_22k_gram ? Number(prevRateRes.data.rate_22k_gram) : rate22k;
+      change24k = Number((rate24k - prev24).toFixed(0));
+      change22k = Number((rate22k - prev22).toFixed(0));
+      change18k = Math.round(change24k * 0.75);
+      rateSource = `Spot Parity (${cityInfo.label})`;
+    }
+
+    const rate24kGst = Number((rate24k * (1 + gstRate)).toFixed(2));
+    const rate22kGst = Number((rate22k * (1 + gstRate)).toFixed(2));
+
+    const aiResult = await generateAiMarketInsight({
+      cityLabel: cityInfo.label,
+      rate22k,
+      rate24k,
+      change22k,
+      xauUsd,
+      usdInr,
+    });
+
+    const enrichedAiPayload = {
+      ...(aiResult.insight || {}),
+      meta: {
+        city: requestedCity,
+        city_label: cityInfo.label,
+        rate_18k_gram: rate18k,
+        change_24k: change24k,
+        change_22k: change22k,
+        change_18k: change18k,
+        source: rateSource,
+      },
     };
-  </script>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-    :root { color-scheme: dark; }
-    body {
-      background-color: #0B0F17;
-      color: #F1F5F9;
-      font-family: 'Inter', system-ui, sans-serif;
+    const { data: insertedRate, error: insertError } = await supabase
+      .from("gold_rates_history")
+      .insert({
+        xau_usd: xauUsd,
+        usd_inr: usdInr,
+        rate_24k_gram: rate24k,
+        rate_24k_with_gst: rate24kGst,
+        rate_22k_gram: rate22k,
+        rate_22k_with_gst: rate22kGst,
+        ai_analysis: enrichedAiPayload,
+      })
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+
+    const { data: activeTranches } = await supabase
+      .from("buy_tranches")
+      .select("*")
+      .eq("status", "active");
+
+    const triggeredAlerts = [];
+    for (const tranche of activeTranches ?? []) {
+      const currentRate = tranche.karat === "24K" ? rate24k : rate22k;
+      if (currentRate <= Number(tranche.target_rate_gram)) {
+        const message = `Good news! ${cityInfo.label} ${tranche.karat} gold dropped to ₹${currentRate}/g (your target was ₹${tranche.target_rate_gram}/g). Ready to buy "${tranche.label}" (₹${tranche.allocation_inr}).`;
+        await supabase
+          .from("buy_tranches")
+          .update({ status: "triggered", triggered_at: new Date().toISOString() })
+          .eq("id", tranche.id);
+        const { data: alertRow } = await supabase
+          .from("alert_logs")
+          .insert({
+            tranche_id: tranche.id,
+            karat: tranche.karat,
+            triggered_rate: currentRate,
+            target_rate: tranche.target_rate_gram,
+            message,
+          })
+          .select()
+          .single();
+        if (alertRow) triggeredAlerts.push(alertRow);
+      }
     }
-    .gold-glow {
-      box-shadow: 0 0 28px -8px rgba(245, 158, 11, 0.22);
-    }
-  </style>
-</head>
-<body class="min-h-screen antialiased selection:bg-amber-500/30 selection:text-amber-200">
 
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
-
-  <!-- Top Header -->
-  <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#0B0F17]/90 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-          <i data-lucide="coins" class="w-5 h-5 text-slate-950 stroke-[2.2]"></i>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
-          <p class="text-xs text-slate-400 hidden sm:block">Exact city rates, jewellery bill calculator & AI dip alerts</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 sm:gap-2.5">
-        <button id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300">
-          <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
-          <span id="status-text">Sample Mode</span>
-        </button>
-
-        <button id="gst-toggle-btn" onclick="toggleGst()" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300">
-          <span id="gst-toggle-label">Without 3% GST</span>
-        </button>
-
-        <button id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all disabled:opacity-60">
-          <span id="refresh-spinner" class="inline-flex items-center justify-center">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-          </span>
-          <span id="refresh-btn-text" class="hidden sm:inline">Update Price</span>
-        </button>
-
-        <button onclick="openSettingsModal()" title="Settings" class="p-2 rounded-lg border border-slate-800 bg-slate-900/70 hover:bg-slate-800 text-slate-400 hover:text-white">
-          <i data-lucide="settings" class="w-4 h-4"></i>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-
-    <!-- Scenario Preview Alert Banner -->
-    <div id="scenario-banner" class="hidden rounded-xl border border-purple-500/35 bg-purple-500/10 px-4 py-2.5 flex items-center justify-between gap-3">
-      <p id="scenario-banner-text" class="text-xs text-purple-200 font-medium"></p>
-      <button type="button" onclick="setScenarioOverride('actual')" class="text-xs font-semibold px-2.5 py-1 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/30 shrink-0">
-        Exit Preview
-      </button>
-    </div>
-
-    <!-- Connection Banner -->
-    <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <p class="text-xs sm:text-sm text-slate-300">
-        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian city retail rates & AI summaries.
-      </p>
-      <button onclick="openSettingsModal()" class="shrink-0 self-start sm:self-center text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30">
-        Connect Account &rarr;
-      </button>
-    </div>
-
-    <!-- Context Control Bar: Date + City Selector + Macro Ticker -->
-    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex flex-wrap items-center gap-2.5">
-        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-medium text-slate-200">
-          <i data-lucide="calendar" class="w-3.5 h-3.5 text-emerald-400"></i>
-          <span id="today-date-label">—</span>
-        </div>
-
-        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700/80">
-          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-400"></i>
-          <select id="city-selector" onchange="handleCityChange()"
-            class="bg-transparent text-xs font-semibold text-white focus:outline-none cursor-pointer pr-1">
-            <option value="bangalore" class="bg-slate-900">Bangalore</option>
-            <option value="chennai" class="bg-slate-900">Chennai</option>
-            <option value="madurai" class="bg-slate-900">Madurai</option>
-            <option value="mumbai" class="bg-slate-900">Mumbai</option>
-            <option value="delhi" class="bg-slate-900">Delhi</option>
-            <option value="hyderabad" class="bg-slate-900">Hyderabad</option>
-            <option value="coimbatore" class="bg-slate-900">Coimbatore</option>
-            <option value="kolkata" class="bg-slate-900">Kolkata</option>
-          </select>
-        </div>
-
-        <span id="rate-source-badge" class="text-[11px] text-slate-400 hidden sm:inline">Retail Board</span>
-      </div>
-
-      <div class="flex items-center gap-4 text-xs font-mono text-slate-400">
-        <span>USD: <strong id="macro-usdinr" class="text-slate-200">—</strong></span>
-        <span>Global Gold: <strong id="macro-xau" class="text-slate-200">—</strong></span>
-        <span id="updated-time-badge" class="text-[11px] font-sans text-slate-400">Just now</span>
-      </div>
-    </section>
-
-    <!-- 1. THREE PURITY RATE CARDS (24K, 22K, 18K) WITH DAILY CHANGE BADGES -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- 24K Card -->
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
-        <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300">24K Gold /g</span>
-          <span class="text-[11px] text-slate-400">99.9% Pure</span>
-        </div>
-        <div class="flex items-center justify-between gap-2 mt-1">
-          <span id="price-24k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="change-pill-24k" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400">—</span>
-        </div>
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="subprice-24k" class="text-slate-400">—</span>
-          <span id="delta-24k" class="font-medium text-emerald-400">—</span>
-        </div>
-      </div>
-
-      <!-- 22K Card -->
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow">
-        <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400">22K Gold /g</span>
-          <span class="text-[11px] text-slate-400">91.6% Jewellery</span>
-        </div>
-        <div class="flex items-center justify-between gap-2 mt-1">
-          <span id="price-22k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="change-pill-22k" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400">—</span>
-        </div>
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="subprice-22k" class="text-slate-400">—</span>
-          <span id="delta-22k" class="font-medium text-emerald-400">—</span>
-        </div>
-      </div>
-
-      <!-- 18K Card -->
-      <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
-        <div class="flex items-center justify-between mb-2">
-          <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-sky-500/15 text-sky-300">18K Gold /g</span>
-          <span class="text-[11px] text-slate-400">75.0% Studded</span>
-        </div>
-        <div class="flex items-center justify-between gap-2 mt-1">
-          <span id="price-18k" class="text-3xl font-bold font-mono text-white">—</span>
-          <span id="change-pill-18k" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/15 text-emerald-400">—</span>
-        </div>
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
-          <span id="subprice-18k" class="text-slate-400">—</span>
-          <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="text-slate-200 font-mono">—</strong></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. JEWELLERY BILL CALCULATOR + "KNOW YOUR MONEY'S WORTH!" -->
-    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <div>
-          <h2 class="text-base font-semibold text-white flex items-center gap-2">
-            <i data-lucide="calculator" class="w-4 h-4 text-amber-400"></i>
-            Jewellery Bill & Budget Calculator
-          </h2>
-          <p class="text-xs text-slate-400 mt-0.5">Calculate final showroom bill with making charges & GST—or check how much gold your budget buys</p>
-        </div>
-        <button type="button" onclick="applyCalculatorToPlan()"
-          class="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30">
-          <i data-lucide="arrow-down-right" class="w-3.5 h-3.5"></i>
-          Use This Amount in 3-Part Plan
-        </button>
-      </div>
-
-      <!-- Calculator Controls -->
-      <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1.5">Purity</label>
-          <div class="grid grid-cols-3 rounded-xl bg-slate-900 p-1 border border-slate-700/80">
-            <button type="button" id="calc-purity-24K" onclick="setCalcPurity('24K')" class="py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white">24K</button>
-            <button type="button" id="calc-purity-22K" onclick="setCalcPurity('22K')" class="py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950">22K</button>
-            <button type="button" id="calc-purity-18K" onclick="setCalcPurity('18K')" class="py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white">18K</button>
-          </div>
-        </div>
-
-        <div>
-          <label for="calc-weight" class="block text-xs text-slate-400 mb-1.5">Weight (gm)</label>
-          <input type="number" id="calc-weight" value="10" min="0.1" step="0.1" oninput="renderJewelleryCalculator()"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label for="calc-making" class="block text-xs text-slate-400 mb-1.5">Making Charges (%)</label>
-          <input type="number" id="calc-making" value="12" min="0" max="50" step="0.5" oninput="renderJewelleryCalculator()"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label for="calc-gst-mode" class="block text-xs text-slate-400 mb-1.5">GST</label>
-          <select id="calc-gst-mode" onchange="renderJewelleryCalculator()"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2 text-sm font-semibold text-white focus:border-amber-500 focus:outline-none">
-            <option value="incl">Incl. 3%</option>
-            <option value="excl">Excl. 3%</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Calculator Output + Know Your Money's Worth Card -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div class="lg:col-span-8 rounded-xl bg-slate-900/90 border border-slate-800 grid grid-cols-1 sm:grid-cols-12 overflow-hidden">
-          <div class="sm:col-span-7 p-4 space-y-2.5 border-b sm:border-b-0 sm:border-r border-slate-800">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-400">Base gold value</span>
-              <span id="calc-base-val" class="font-mono font-semibold text-slate-200">—</span>
-            </div>
-            <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-800/80">
-              <span class="text-slate-400">Making charges (<span id="calc-making-lbl">12</span>%)</span>
-              <span id="calc-making-val" class="font-mono font-semibold text-slate-200">—</span>
-            </div>
-            <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-800/80">
-              <span class="text-slate-400">GST (3%)</span>
-              <span id="calc-gst-val" class="font-mono font-semibold text-slate-200">—</span>
-            </div>
-          </div>
-
-          <div class="sm:col-span-5 p-4 bg-emerald-500/5 flex flex-col items-center justify-center text-center">
-            <div class="text-xs font-medium text-slate-300">Total Showroom Amount</div>
-            <div id="calc-total-val" class="text-2xl sm:text-3xl font-bold font-mono text-emerald-400 mt-1">—</div>
-            <div id="calc-total-note" class="text-[11px] text-slate-400 mt-1">Incl. all charges</div>
-          </div>
-        </div>
-
-        <!-- Reverse Budget-to-Grams Box -->
-        <div class="lg:col-span-4 rounded-xl bg-slate-900/90 border border-slate-800 p-4 flex flex-col justify-between">
-          <div>
-            <div class="text-sm font-bold text-white">Know your money's worth!</div>
-            <p class="text-xs text-slate-400 mt-0.5">Enter any rupee amount to see how much gold you can buy today:</p>
-          </div>
-
-          <div class="mt-3 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-mono text-slate-400">₹</span>
-              <input type="number" id="worth-inr-input" value="10000" min="500" step="500" oninput="renderMoneysWorth()"
-                class="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-emerald-500 focus:outline-none" />
-            </div>
-            <div class="flex items-center justify-between text-xs pt-1">
-              <span class="text-slate-400">Pure Gold (<span id="worth-purity-lbl">22K</span>):</span>
-              <strong id="worth-grams-raw" class="font-mono text-amber-300">—</strong>
-            </div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-400">With Making & GST:</span>
-              <strong id="worth-grams-final" class="font-mono text-emerald-400">—</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. SHOULD I
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        rate: insertedRate,
+        city: cityInfo.label,
+        source: rateSource,
+        ai_enabled: Boolean(aiResult.insight),
+        ai_debug: aiResult.debug,
+        triggered_count: triggeredAlerts.length,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ ok: false, error: (err as Error).message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

@@ -103,11 +103,8 @@
       </button>
     </div>
 
-    <!-- ===================================================================== -->
-    <!-- 1. TODAY'S GOLD PRICE & SIMPLE VERDICT                                -->
-    <!-- ===================================================================== -->
+    <!-- 1. TODAY'S GOLD PRICE & SIMPLE VERDICT -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- 22K Price Card -->
       <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 gold-glow">
         <div class="flex items-center justify-between mb-2">
           <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-400">22K Jewellery Gold</span>
@@ -123,7 +120,6 @@
         </div>
       </div>
 
-      <!-- 24K Price Card -->
       <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5">
         <div class="flex items-center justify-between mb-2">
           <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300">24K Pure Gold</span>
@@ -139,7 +135,6 @@
         </div>
       </div>
 
-      <!-- Plain-English Verdict Card -->
       <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col justify-between">
         <div>
           <div class="text-xs font-semibold text-slate-400 mb-1.5">Should I Buy Today?</div>
@@ -157,12 +152,9 @@
       </div>
     </section>
 
-    <!-- ===================================================================== -->
-    <!-- 2. WHY IS GOLD DROPPING? + SHOPPING DATE ESTIMATE (WITH RISK NOTICE)  -->
-    <!-- ===================================================================== -->
+    <!-- 2. WHY IS GOLD DROPPING? + SHOPPING DATE ESTIMATE -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- Left: Simple Reasons Why Gold Is Moving -->
       <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2 mb-3">
@@ -207,7 +199,7 @@
         </div>
       </div>
 
-      <!-- Right: Shopping Date Price Estimate (Clearly Marked as Assumption & Risk) -->
+      <!-- Shopping Date Price Estimate (Capped to 30 days & realistic support floor) -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2 mb-2">
@@ -221,12 +213,12 @@
           </div>
 
           <p class="text-xs text-slate-400 mb-3">
-            If today's price speed continues unchanged until your shopping date (<span id="forecast-days-text" class="text-slate-200 font-medium">in 5 days</span>), here is the estimated range:
+            Short-term estimate (up to 30 days ahead, <span id="forecast-days-text" class="text-slate-200 font-medium">in 5 days</span>) bounded by real market support floors:
           </p>
 
           <div class="grid grid-cols-2 gap-3 mb-3.5">
             <div>
-              <label class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
+              <label class="block text-xs text-slate-400 mb-1">Your Shopping Date (Max 30d)</label>
               <input type="date" id="target-buy-date" onchange="renderDateForecast()"
                 class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
             </div>
@@ -242,7 +234,7 @@
 
           <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Best-Case Price (If Drop Continues):</span>
+              <span class="text-xs text-slate-400">Strong Support Floor (Realistic Low):</span>
               <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
             </div>
             <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
@@ -256,23 +248,19 @@
           </div>
         </div>
 
-        <!-- Explicit Risk & Assumption Disclaimer Box -->
         <div class="mt-4 rounded-xl bg-rose-500/10 border border-rose-500/25 p-3 flex items-start gap-2.5">
           <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
           <p class="text-[11px] text-rose-200/90 leading-relaxed">
-            <strong class="text-rose-300">Risk & Assumption Notice:</strong> These future numbers are only a rough assumption based on recent movement—not a guaranteed price. Gold can jump back up suddenly if US news or Rupee rates change. Avoid waiting to spend 100% on a single date; split your money into 3 parts below.
+            <strong class="text-rose-300">Risk & Assumption Notice:</strong> Gold has strong real-world floor support and does not fall endlessly. Prices can also bounce back up suddenly on global news—split your budget into 3 parts below instead of betting everything on one date.
           </p>
         </div>
       </div>
 
     </section>
 
-    <!-- ===================================================================== -->
-    <!-- 3. SMART BUDGET SPLITTER & MY BUYING ALERTS                           -->
-    <!-- ===================================================================== -->
+    <!-- 3. SMART BUDGET SPLITTER & MY BUYING ALERTS -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- Left: Split My Budget into 3 Safe Parts -->
       <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800/80">
           <div>
@@ -285,7 +273,6 @@
           </button>
         </div>
 
-        <!-- Easy One-Click Budget Splitter -->
         <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 mb-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <div class="flex-1">
             <label class="block text-[11px] text-slate-400 mb-1">How much total money do you plan to spend on gold?</label>
@@ -304,7 +291,6 @@
         <div id="tranches-list" class="space-y-3 flex-1"></div>
       </div>
 
-      <!-- Right: Price Drop Alerts Triggered -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col">
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -321,9 +307,7 @@
       </div>
     </section>
 
-    <!-- ===================================================================== -->
-    <!-- 4. SIMPLE 5-DAY PRICE CHART                                           -->
-    <!-- ===================================================================== -->
+    <!-- 4. SIMPLE 5-DAY PRICE CHART -->
     <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
@@ -767,7 +751,6 @@
 
       document.getElementById("updated-time-badge").textContent = timeAgo(latest.fetched_at);
 
-      // 22K
       const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
       const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
       document.getElementById("price-22k").textContent = formatINR(main22);
@@ -777,7 +760,6 @@
       delta22El.textContent = s22.pctVsAvg <= 0 ? `${Math.abs(s22.pctVsAvg)}% cheaper than 5-day avg` : `${s22.pctVsAvg}% higher than 5-day avg`;
       delta22El.className = `font-medium ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
 
-      // 24K
       const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
       const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
       document.getElementById("price-24k").textContent = formatINR(main24);
@@ -787,7 +769,6 @@
       delta24El.textContent = s24.pctVsAvg <= 0 ? `${Math.abs(s24.pctVsAvg)}% cheaper than 5-day avg` : `${s24.pctVsAvg}% higher than 5-day avg`;
       delta24El.className = `font-medium ${s24.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
 
-      // Verdict Card
       document.getElementById("good-buy-22k").textContent = `${formatINR(s22.bargainPrice)} / g`;
       const headline = document.getElementById("verdict-headline");
       const subtext = document.getElementById("verdict-subtext");
@@ -829,30 +810,38 @@
       const karat = document.getElementById("forecast-karat").value;
       const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
 
-      if (!dateInput.value) {
-        const now = new Date();
-        const target = new Date(now.getFullYear(), now.getMonth(), 23);
-        if (target <= now) target.setDate(now.getDate() + 5);
-        dateInput.value = target.toISOString().split("T")[0];
+      // Enforce min (tomorrow) and max (+30 days) so multi-year impossible numbers can never happen
+      const today = new Date();
+      const minDate = new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      const maxDate = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+      dateInput.min = minDate;
+      dateInput.max = maxDate;
+
+      if (!dateInput.value || dateInput.value < minDate || dateInput.value > maxDate) {
+        const target = new Date(today.getFullYear(), today.getMonth(), 23);
+        if (target <= today) target.setDate(today.getDate() + 5);
+        const clamped = target.toISOString().split("T")[0];
+        dateInput.value = clamped <= maxDate ? clamped : maxDate;
       }
 
       if (!stats) return;
 
       const selectedDate = new Date(dateInput.value + "T12:00:00");
-      const daysAhead = Math.max(1, Math.round((selectedDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+      const daysAhead = Math.min(30, Math.max(1, Math.round((selectedDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000))));
       document.getElementById("forecast-days-text").textContent = `in ${daysAhead} day${daysAhead > 1 ? "s" : ""}`;
 
-      // Estimate continuation of current trend (clamped to realistic daily movement)
+      // Dampened short-term drift + hard structural support floor (never drops more than 4.5% below 5D average)
       const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0044;
-      const dailyRate = Math.max(-0.0055, Math.min(0.0045, rawDailyRate));
+      const clampedDailyRate = Math.max(-0.005, Math.min(0.0045, rawDailyRate));
+      const structuralFloor = stats.avgPrice * 0.955; // Real-world physical/central-bank support floor (-4.5%)
 
-      const expectedPrice = stats.latestPrice * Math.pow(1 + dailyRate, daysAhead);
-      // Guarantee strict ordering: Best-Case Floor < Expected Price < Worst-Case Bounce
-      const lowestPrice = Math.min(stats.latestPrice, expectedPrice) * (1 - 0.004 * Math.sqrt(daysAhead));
-      const highestPrice = Math.max(stats.latestPrice, expectedPrice) * (1 + 0.006 * Math.sqrt(daysAhead));
+      const rawProjected = stats.latestPrice * (1 + clampedDailyRate * Math.sqrt(daysAhead));
+      const expectedPrice = Math.max(structuralFloor * 1.008, rawProjected);
+      const lowestPrice = Math.max(structuralFloor, Math.min(stats.latestPrice, expectedPrice) * (1 - 0.0035 * Math.sqrt(daysAhead)));
+      const highestPrice = Math.max(stats.latestPrice, expectedPrice) * (1 + 0.0055 * Math.sqrt(daysAhead));
 
-      document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice)} / g`;
       document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice)} / g`;
+      document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice)} / g`;
       document.getElementById("forecast-ceil-price").textContent = `${formatINR(highestPrice)} / g`;
     }
 

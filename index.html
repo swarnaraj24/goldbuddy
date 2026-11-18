@@ -158,7 +158,7 @@
     </section>
 
     <!-- ===================================================================== -->
-    <!-- 2. WHY IS GOLD DROPPING? + TARGET DATE PRICE ESTIMATOR                -->
+    <!-- 2. WHY IS GOLD DROPPING? + SHOPPING DATE ESTIMATE (WITH RISK NOTICE)  -->
     <!-- ===================================================================== -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -171,7 +171,7 @@
               Why Are Gold Prices Going Down Right Now?
             </h2>
             <span id="trend-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400">
-              Price Dropping
+              Prices Dropping
             </span>
           </div>
 
@@ -207,24 +207,24 @@
         </div>
       </div>
 
-      <!-- Right: Target Date Price Estimator (e.g., 23rd of this month) -->
+      <!-- Right: Shopping Date Price Estimate (Clearly Marked as Assumption & Risk) -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between gap-2 mb-2">
             <h2 class="text-base font-semibold text-white flex items-center gap-2">
               <i data-lucide="calendar" class="w-4 h-4 text-sky-400"></i>
               Price Estimate for Your Buy Date
             </h2>
-            <span id="forecast-days-badge" class="text-xs font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-              In 5 days
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30">
+              Assumption Only
             </span>
           </div>
 
-          <p class="text-xs text-slate-400 mb-4">
-            Planning to buy on a specific date (like the 23rd)? If prices keep dropping at the current speed, here is what you can expect:
+          <p class="text-xs text-slate-400 mb-3">
+            If today's price speed continues unchanged until your shopping date (<span id="forecast-days-text" class="text-slate-200 font-medium">in 5 days</span>), here is the estimated range:
           </p>
 
-          <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="grid grid-cols-2 gap-3 mb-3.5">
             <div>
               <label class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
               <input type="date" id="target-buy-date" onchange="renderDateForecast()"
@@ -240,25 +240,29 @@
             </div>
           </div>
 
-          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
+          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Expected Price on That Date:</span>
-              <span id="forecast-base-price" class="text-lg font-mono font-bold text-amber-300">—</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Lowest Possible Price (If Drop Continues):</span>
+              <span class="text-xs text-slate-400">Best-Case Price (If Drop Continues):</span>
               <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-xs text-slate-400">Estimated Savings vs Today (per 10g):</span>
-              <span id="forecast-savings-10g" class="text-xs font-mono font-semibold text-emerald-400">—</span>
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+              <span class="text-xs font-medium text-slate-300">Expected Price on That Date:</span>
+              <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
+            </div>
+            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
+              <span class="text-xs text-slate-400">Worst-Case Price (If Market Bounces):</span>
+              <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
             </div>
           </div>
         </div>
 
-        <p class="text-[11px] text-slate-400 mt-4 leading-relaxed">
-          <strong class="text-slate-300">Tip:</strong> Gold prices never fall in a straight line forever. Instead of waiting to spend 100% on one date, split your budget into 3 parts below so you catch dips safely.
-        </p>
+        <!-- Explicit Risk & Assumption Disclaimer Box -->
+        <div class="mt-4 rounded-xl bg-rose-500/10 border border-rose-500/25 p-3 flex items-start gap-2.5">
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+          <p class="text-[11px] text-rose-200/90 leading-relaxed">
+            <strong class="text-rose-300">Risk & Assumption Notice:</strong> These future numbers are only a rough assumption based on recent movement—not a guaranteed price. Gold can jump back up suddenly if US news or Rupee rates change. Avoid waiting to spend 100% on a single date; split your money into 3 parts below.
+          </p>
+        </div>
       </div>
 
     </section>
@@ -573,7 +577,6 @@
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
 
-      // Good bargain price = slightly below the 5-day average or recent low
       const bargainPrice = Number(Math.min(minPrice, avgPrice * 0.992).toFixed(2));
       const highPrice = Number(Math.max(maxPrice, avgPrice * 1.008).toFixed(2));
       const pctVsAvg = Number((((latestPrice - avgPrice) / avgPrice) * 100).toFixed(2));
@@ -837,19 +840,20 @@
 
       const selectedDate = new Date(dateInput.value + "T12:00:00");
       const daysAhead = Math.max(1, Math.round((selectedDate.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
-      document.getElementById("forecast-days-badge").textContent = `In ${daysAhead} day${daysAhead > 1 ? "s" : ""}`;
+      document.getElementById("forecast-days-text").textContent = `in ${daysAhead} day${daysAhead > 1 ? "s" : ""}`;
 
       // Estimate continuation of current trend (clamped to realistic daily movement)
       const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0044;
       const dailyRate = Math.max(-0.0055, Math.min(0.0045, rawDailyRate));
 
       const expectedPrice = stats.latestPrice * Math.pow(1 + dailyRate, daysAhead);
-      const lowestPrice = expectedPrice * (1 - 0.004 * Math.sqrt(daysAhead));
-      const savings10g = Math.max(0, (stats.latestPrice - expectedPrice) * 10);
+      // Guarantee strict ordering: Best-Case Floor < Expected Price < Worst-Case Bounce
+      const lowestPrice = Math.min(stats.latestPrice, expectedPrice) * (1 - 0.004 * Math.sqrt(daysAhead));
+      const highestPrice = Math.max(stats.latestPrice, expectedPrice) * (1 + 0.006 * Math.sqrt(daysAhead));
 
       document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice)} / g`;
       document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice)} / g`;
-      document.getElementById("forecast-savings-10g").textContent = savings10g > 0 ? `${formatINR(savings10g, 0)} saved` : "Prices trending up";
+      document.getElementById("forecast-ceil-price").textContent = `${formatINR(highestPrice)} / g`;
     }
 
     async function generateSmartTranches() {
@@ -874,7 +878,7 @@
       const plan = [
         { label: `Part 1 (30%) — Buy Today on Dip`, karat, target_rate_gram: p1Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
         { label: `Part 2 (40%) — Buy on Small Drop`, karat, target_rate_gram: p2Rate, allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
-        { label: `Part 3 (30%) — Buy on Bigger Drop`, karat, target_rate_gram: p3Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+        { label: `Part 3 (30%) — Buy on Bigger Dip`, karat, target_rate_gram: p3Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
       ];
 
       if (isDemoMode || !supabaseClient) {
@@ -1058,7 +1062,7 @@
                 <div>${distanceText}</div>
                 <div class="flex items-center gap-2">
                   ${t.status === "triggered" ? `<button onclick="updateTrancheStatus('${t.id}', 'executed')" class="px-2.5 py-1 rounded-md bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 font-medium">Mark Bought</button>` : ""}
-                  ${t.status === "active" ? `<button onclick="updateTrancheStatus('${t.id}', 'paused')" class="px-2 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800">Pause</button>` : (t.status === "paused" || t.status === "triggered") ? `<button onclick="updateTrancheStatus('${t.id}', 'active')" class="px-2 py-1 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800">Watch Again</button>` : ""}
+                  ${t.status === "active" ? `<button onclick="updateTrancheStatus('${t.id}', 'paused')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white hover:bg-slate-800">Pause</button>` : (t.status === "paused" || t.status === "triggered") ? `<button onclick="updateTrancheStatus('${t.id}', 'active')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-amber-300 hover:bg-slate-800">Watch Again</button>` : ""}
                   <button onclick="deleteTranche('${t.id}')" title="Remove" class="p-1 rounded-md text-slate-500 hover:text-rose-400 hover:bg-slate-800">
                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                   </button>

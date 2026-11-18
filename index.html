@@ -38,9 +38,6 @@
       color: #F1F5F9;
       font-family: 'Inter', system-ui, sans-serif;
     }
-    input[type="date"] {
-      color-scheme: dark;
-    }
     .gold-glow {
       box-shadow: 0 0 28px -8px rgba(245, 158, 11, 0.22);
     }
@@ -52,7 +49,7 @@
 
   <!-- Top Header -->
   <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#0B0F17]/90 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
           <i data-lucide="coins" class="w-5 h-5 text-slate-950 stroke-[2.2]"></i>
@@ -63,13 +60,26 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2 sm:gap-2.5">
-        <button id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Scenario Simulator Pill Group (Test Rising vs Dropping Anytime) -->
+        <div class="inline-flex rounded-lg bg-slate-900 p-0.5 border border-slate-700/80 text-[11px]">
+          <button type="button" id="sim-actual" onclick="setScenarioOverride('actual')" class="px-2.5 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 transition-colors">
+            Actual Data
+          </button>
+          <button type="button" id="sim-drop" onclick="setScenarioOverride('drop')" class="px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition-colors">
+            Test Drop
+          </button>
+          <button type="button" id="sim-rise" onclick="setScenarioOverride('rise')" class="px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition-colors">
+            Test Increase
+          </button>
+        </div>
+
+        <button id="status-badge-btn" onclick="openSettingsModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 hover:border-slate-600 text-slate-300">
           <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
           <span id="status-text">Sample Mode</span>
         </button>
 
-        <button id="gst-toggle-btn" onclick="toggleGst()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300">
+        <button id="gst-toggle-btn" onclick="toggleGst()" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300">
           <span id="gst-toggle-label">Without 3% GST</span>
         </button>
 
@@ -89,6 +99,14 @@
 
   <!-- Main Content -->
   <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- Scenario Preview Alert Banner (Visible only when Test Drop or Test Increase is active) -->
+    <div id="scenario-banner" class="hidden rounded-xl border border-purple-500/35 bg-purple-500/10 px-4 py-2.5 flex items-center justify-between gap-3">
+      <p id="scenario-banner-text" class="text-xs text-purple-200 font-medium"></p>
+      <button type="button" onclick="setScenarioOverride('actual')" class="text-xs font-semibold px-2.5 py-1 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/30 shrink-0">
+        Back to Actual Data
+      </button>
+    </div>
 
     <!-- Connection Banner -->
     <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -144,12 +162,8 @@
       <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col justify-between">
         <div>
           <div class="text-xs font-semibold text-slate-400 mb-1.5">Should I Buy Today?</div>
-          <div id="verdict-headline" class="text-base font-bold text-emerald-400">
-            Yes — Buy Part 1 Now, Wait for More Dips
-          </div>
-          <p id="verdict-subtext" class="text-xs text-slate-300 mt-1.5 leading-relaxed">
-            Prices have dropped compared to earlier this week. Buy a small portion today and keep the rest ready in case prices fall further.
-          </p>
+          <div id="verdict-headline" class="text-base font-bold text-emerald-400">—</div>
+          <p id="verdict-subtext" class="text-xs text-slate-300 mt-1.5 leading-relaxed">—</p>
         </div>
         <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs">
           <span class="text-slate-400">Good Bargain Price (22K):</span>
@@ -180,7 +194,7 @@
         </div>
       </div>
 
-      <!-- Right: Shopping Date Price Estimate (Editable Calendar + Quick Day Pills up to 15 Days) -->
+      <!-- Right: Shopping Date Price Estimate (1-Click Dropdown up to 15 Days) -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2 mb-2">
@@ -193,29 +207,22 @@
             </span>
           </div>
 
-          <p class="text-xs text-slate-400 mb-3">
-            Pick your shopping date (<span id="forecast-days-text" class="text-slate-200 font-medium">in 5 days</span>, max 15 days) to see the estimated range:
+          <p class="text-xs text-slate-400 mb-3.5">
+            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to see the estimated price range if today's trend continues:
           </p>
 
-          <!-- Quick Day Selector Pills -->
-          <div class="flex items-center gap-1.5 mb-3">
-            <span class="text-[11px] text-slate-400 mr-1">Quick pick:</span>
-            <button type="button" onclick="setForecastDaysOffset(3)" class="px-2 py-1 rounded text-[11px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700">+3d</button>
-            <button type="button" onclick="setForecastDaysOffset(5)" class="px-2 py-1 rounded text-[11px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700">+5d</button>
-            <button type="button" onclick="setForecastDaysOffset(10)" class="px-2 py-1 rounded text-[11px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700">+10d</button>
-            <button type="button" onclick="setForecastDaysOffset(15)" class="px-2 py-1 rounded text-[11px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700">+15d</button>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 mb-3.5">
+          <div class="grid grid-cols-2 gap-3 mb-4">
             <div>
-              <label for="target-buy-date" class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
-              <input type="date" id="target-buy-date" onblur="validateAndRenderDateForecast()" onchange="validateAndRenderDateForecast()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none cursor-pointer" />
+              <label for="forecast-days-select" class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
+              <select id="forecast-days-select" onchange="renderDateForecast()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none cursor-pointer">
+                <!-- Populated dynamically with next 15 dates -->
+              </select>
             </div>
             <div>
               <label for="forecast-karat" class="block text-xs text-slate-400 mb-1">Gold Type</label>
-              <select id="forecast-karat" onchange="validateAndRenderDateForecast()"
-                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none">
+              <select id="forecast-karat" onchange="renderDateForecast()"
+                class="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
                 <option value="22K">22K Jewellery</option>
                 <option value="24K">24K Pure Gold</option>
               </select>
@@ -449,6 +456,7 @@
     let isDemoMode = true;
     let includeGst = false;
     let activeChartKarat = "22K";
+    let scenarioOverride = "actual"; // "actual" | "drop" | "rise"
     let chartInstance = null;
 
     let appState = {
@@ -465,13 +473,6 @@
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals,
       });
-    }
-
-    function formatLocalDateISO(dateObj) {
-      const y = dateObj.getFullYear();
-      const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-      const d = String(dateObj.getDate()).padStart(2, "0");
-      return `${y}-${m}-${d}`;
     }
 
     function timeAgo(isoString) {
@@ -502,6 +503,93 @@
         el.style.opacity = "0";
         setTimeout(() => el.remove(), 300);
       }, 4500);
+    }
+
+    function populateForecastDateDropdown() {
+      const select = document.getElementById("forecast-days-select");
+      if (!select) return;
+
+      const today = new Date();
+      let defaultDays = 5;
+      const optionsHtml = [];
+
+      for (let d = 1; d <= MAX_FORECAST_DAYS; d++) {
+        const dt = new Date(today);
+        dt.setDate(today.getDate() + d);
+        if (dt.getDate() === 23) defaultDays = d;
+        const labelDate = dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+        optionsHtml.push(`<option value="${d}">${labelDate} (In ${d} day${d > 1 ? "s" : ""})</option>`);
+      }
+
+      select.innerHTML = optionsHtml.join("");
+      select.value = String(defaultDays);
+    }
+
+    function setScenarioOverride(mode) {
+      scenarioOverride = mode;
+      const btnActual = document.getElementById("sim-actual");
+      const btnDrop = document.getElementById("sim-drop");
+      const btnRise = document.getElementById("sim-rise");
+      const banner = document.getElementById("scenario-banner");
+      const bannerText = document.getElementById("scenario-banner-text");
+
+      btnActual.className = mode === "actual"
+        ? "px-2.5 py-1 rounded-md font-semibold bg-amber-500 text-slate-950 transition-colors"
+        : "px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition-colors";
+      btnDrop.className = mode === "drop"
+        ? "px-2.5 py-1 rounded-md font-semibold bg-emerald-500 text-slate-950 transition-colors"
+        : "px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition-colors";
+      btnRise.className = mode === "rise"
+        ? "px-2.5 py-1 rounded-md font-semibold bg-rose-500 text-white transition-colors"
+        : "px-2.5 py-1 rounded-md font-medium text-slate-300 hover:text-white transition-colors";
+
+      if (mode === "actual") {
+        banner.classList.add("hidden");
+      } else if (mode === "drop") {
+        banner.classList.remove("hidden");
+        bannerText.textContent = "Scenario Preview: Simulating a falling market (-1.4% below 5-day average) so you can see how GoldBuddy guides dip buying.";
+      } else if (mode === "rise") {
+        banner.classList.remove("hidden");
+        bannerText.textContent = "Scenario Preview: Simulating an increasing market (+1.6% above 5-day average) so you can see how GoldBuddy explains rallies and warns against rushing.";
+      }
+
+      recomputeAndRender();
+    }
+
+    function getActiveHistoryRows() {
+      const baseRows = appState.history;
+      if (!baseRows || baseRows.length === 0 || scenarioOverride === "actual") {
+        return baseRows;
+      }
+
+      // Build a non-destructive simulated series around the real latest anchor price
+      const anchor24 = Number(baseRows[0].rate_24k_gram) || 13361.10;
+      const now = Date.now();
+      const simRows = [];
+      const count = 24;
+
+      for (let i = count - 1; i >= 0; i--) {
+        const ts = new Date(now - i * 4 * 60 * 60 * 1000).toISOString();
+        const progress = (count - 1 - i) / (count - 1); // 0 -> 1
+        // For "drop": starts +1.8% higher 5 days ago and trends down to today's price
+        // For "rise": starts -1.9% lower 5 days ago and trends up to today's price
+        const factor = scenarioOverride === "drop"
+          ? 1.018 - 0.018 * progress
+          : 0.981 + 0.019 * progress;
+        const r24 = Number((anchor24 * factor).toFixed(2));
+        const r22 = Number((r24 * (22 / 24)).toFixed(2));
+        simRows.push({
+          ...baseRows[0],
+          id: 9000 + i,
+          rate_24k_gram: r24,
+          rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
+          rate_22k_gram: r22,
+          rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
+          fetched_at: ts,
+        });
+      }
+
+      return simRows.reverse(); // Newest first
     }
 
     function buildDemoDataset() {
@@ -700,15 +788,16 @@
     }
 
     function recomputeAndRender() {
-      appState.stats22K = calculatePriceStats(appState.history, "22K");
-      appState.stats24K = calculatePriceStats(appState.history, "24K");
+      const activeRows = getActiveHistoryRows();
+      appState.stats22K = calculatePriceStats(activeRows, "22K");
+      appState.stats24K = calculatePriceStats(activeRows, "24K");
 
       renderConnectionBadge();
-      renderTopCards();
+      renderTopCards(activeRows);
       renderMarketStory();
-      validateAndRenderDateForecast();
-      renderChart();
-      renderTranches();
+      renderDateForecast();
+      renderChart(activeRows);
+      renderTranches(activeRows);
       renderAlerts();
     }
 
@@ -731,8 +820,8 @@
       }
     }
 
-    function renderTopCards() {
-      const latest = appState.history[0];
+    function renderTopCards(activeRows) {
+      const latest = activeRows?.[0];
       const s22 = appState.stats22K;
       const s24 = appState.stats24K;
 
@@ -747,7 +836,8 @@
         return;
       }
 
-      document.getElementById("updated-time-badge").textContent = timeAgo(latest.fetched_at);
+      document.getElementById("updated-time-badge").textContent =
+        scenarioOverride !== "actual" ? "Simulated Scenario" : timeAgo(latest.fetched_at);
 
       const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
       const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
@@ -794,13 +884,13 @@
         titleEl.innerHTML = `<i data-lucide="trending-up" class="w-4 h-4 text-rose-400"></i> Why Are Gold Prices Increasing Right Now?`;
         pill.textContent = `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)`;
         pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400";
-        story.textContent = `22K gold has moved ${s22.pctVsAvg}% above its 5-day average (${formatINR(s22.avgPrice)}/g). Market research shows three main forces pushing Indian gold rates higher when a rally starts:`;
+        story.textContent = `22K gold has moved ${s22.pctVsAvg}% above its 5-day average (${formatINR(s22.avgPrice)}/g). Based on World Gold Council & Indian bullion market research, three forces drive prices higher during an upward rally:`;
         driversEl.innerHTML = `
           <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
             <span class="w-6 h-6 rounded-full bg-rose-500/15 text-rose-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
             <div>
               <div class="text-xs font-semibold text-white">Central Banks & Gold ETFs Are Buying Heavily</div>
-              <p class="text-xs text-slate-400 mt-0.5">Global central banks and Indian Gold ETFs have been steadily adding physical gold to their reserves, absorbing supply and pushing prices back up whenever dips occur.</p>
+              <p class="text-xs text-slate-400 mt-0.5">Global central banks and Indian Gold ETFs have been steadily adding physical gold to their reserves, absorbing supply and lifting prices back up after dips.</p>
             </div>
           </div>
           <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-3">
@@ -850,55 +940,16 @@
       lucide.createIcons({ nodes: [titleEl] });
     }
 
-    function setForecastDaysOffset(days) {
-      const clampedDays = Math.min(MAX_FORECAST_DAYS, Math.max(1, days));
-      const target = new Date();
-      target.setDate(target.getDate() + clampedDays);
-      document.getElementById("target-buy-date").value = formatLocalDateISO(target);
-      validateAndRenderDateForecast();
-    }
-
-    function validateAndRenderDateForecast() {
-      const dateInput = document.getElementById("target-buy-date");
+    function renderDateForecast() {
+      const daysSelect = document.getElementById("forecast-days-select");
       const karat = document.getElementById("forecast-karat").value;
       const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const minDateObj = new Date(today);
-      minDateObj.setDate(today.getDate() + 1);
-      const maxDateObj = new Date(today);
-      maxDateObj.setDate(today.getDate() + MAX_FORECAST_DAYS);
+      if (!stats || !daysSelect) return;
 
-      const minStr = formatLocalDateISO(minDateObj);
-      const maxStr = formatLocalDateISO(maxDateObj);
+      const daysAhead = Math.min(MAX_FORECAST_DAYS, Math.max(1, Number(daysSelect.value || 5)));
 
-      dateInput.min = minStr;
-      dateInput.max = maxStr;
-
-      if (!dateInput.value) {
-        const defaultTarget = new Date(today.getFullYear(), today.getMonth(), 23);
-        if (defaultTarget <= today) defaultTarget.setDate(today.getDate() + 5);
-        const defStr = formatLocalDateISO(defaultTarget);
-        dateInput.value = defStr <= maxStr ? defStr : maxStr;
-      } else if (dateInput.value.length === 10) {
-        if (dateInput.value > maxStr) {
-          dateInput.value = maxStr;
-          showToast("15-Day Maximum Limit", "Shopping date estimates are capped at 15 days ahead so projections stay realistic.", "info");
-        } else if (dateInput.value < minStr) {
-          dateInput.value = minStr;
-        }
-      } else {
-        return;
-      }
-
-      if (!stats) return;
-
-      const selectedDate = new Date(dateInput.value + "T00:00:00");
-      const daysAhead = Math.min(MAX_FORECAST_DAYS, Math.max(1, Math.round((selectedDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000))));
-      document.getElementById("forecast-days-text").textContent = `in ${daysAhead} day${daysAhead > 1 ? "s" : ""}`;
-
-      // Bidirectional short-term drift: follows actual recent trend (negative when falling, positive when rising)
+      // Bidirectional short-term drift: follows actual (or simulated) trend
       const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0035;
       const clampedDailyRate = Math.max(-0.0045, Math.min(0.0045, rawDailyRate));
 
@@ -964,7 +1015,7 @@
 
       if (isDemoMode || !supabaseClient) {
         plan.forEach((t, idx) => appState.tranches.unshift({ id: `part-${Date.now()}-${idx}`, ...t }));
-        renderTranches();
+        renderTranches(getActiveHistoryRows());
         showToast("3-Part Plan Ready!", `Split ${formatINR(totalBudget, 0)} into 3 safe buying steps.`, "info");
         return;
       }
@@ -979,9 +1030,9 @@
       }
     }
 
-    function renderChart() {
+    function renderChart(activeRows) {
       const stats = activeChartKarat === "24K" ? appState.stats24K : appState.stats22K;
-      if (!stats || appState.history.length === 0) {
+      if (!stats || !activeRows || activeRows.length === 0) {
         document.getElementById("band-lower").textContent = "—";
         document.getElementById("band-mean").textContent = "—";
         document.getElementById("band-upper").textContent = "—";
@@ -1001,7 +1052,7 @@
           ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
           : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
 
-      const chrono = [...appState.history].slice(0, 60).reverse();
+      const chrono = [...activeRows].slice(0, 60).reverse();
       const labels = chrono.map((r) => {
         const d = new Date(r.fetched_at);
         return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " +
@@ -1088,9 +1139,9 @@
       });
     }
 
-    function renderTranches() {
+    function renderTranches(activeRows) {
       const container = document.getElementById("tranches-list");
-      const latest = appState.history[0];
+      const latest = activeRows?.[0];
 
       if (!appState.tranches || appState.tranches.length === 0) {
         container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-8 text-center text-xs text-slate-400">Enter your total gold budget above and click <strong class="text-amber-400">Split Into 3 Smart Parts</strong> to create your plan.</div>`;
@@ -1196,7 +1247,7 @@
         btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950";
         btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white";
       }
-      renderChart();
+      renderChart(getActiveHistoryRows());
     }
 
     function openTrancheModal() {
@@ -1229,7 +1280,7 @@
         appState.tranches.unshift({ id: "demo-" + Date.now(), label, karat, target_rate_gram, allocation_inr, status: "active" });
         closeTrancheModal();
         document.getElementById("tranche-form").reset();
-        renderTranches();
+        renderTranches(getActiveHistoryRows());
         return;
       }
 
@@ -1249,7 +1300,7 @@
       if (isDemoMode || !supabaseClient) {
         const item = appState.tranches.find((t) => t.id === id);
         if (item) item.status = newStatus;
-        renderTranches();
+        renderTranches(getActiveHistoryRows());
         return;
       }
       try {
@@ -1264,7 +1315,7 @@
     async function deleteTranche(id) {
       if (isDemoMode || !supabaseClient) {
         appState.tranches = appState.tranches.filter((t) => t.id !== id);
-        renderTranches();
+        renderTranches(getActiveHistoryRows());
         return;
       }
       try {
@@ -1355,6 +1406,8 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
+      populateForecastDateDropdown();
+
       const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY));
       const savedKey = localStorage.getItem(STORAGE_ANON_KEY);
       if (savedUrl && savedKey) {

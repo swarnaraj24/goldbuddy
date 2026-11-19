@@ -1989,7 +1989,7 @@
       requestAnimationFrame(renderScene);
 
       const timeoutGuard = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Market server took too long to respond.")), 15000)
+        setTimeout(() => reject(new Error("Market server took too long to respond.")), 25000)
       );
       const safeFetch = Promise.race([fetchPromise, timeoutGuard]).then((res) => {
         fetchDone = true;
@@ -2066,7 +2066,7 @@
       }
 
       setRefreshLoading(true);
-      const safetyTimer = setTimeout(() => setRefreshLoading(false), 15000);
+      const safetyTimer = setTimeout(() => setRefreshLoading(false), 26000);
 
       try {
         const fetchTask = (async () => {
@@ -2101,12 +2101,12 @@
               return { mode: "cached", minsLeft };
             }
 
-            const { data: fnData, error } = await supabaseClient.functions.invoke("fetch-gold-rate");
+            incrementDailyFetchCount();
+            updateRefreshCooldownUI();
+            const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
             localStorage.setItem("goldbuddy_last_fetch_ts", String(Date.now()));
             if (error) {
               console.warn("Edge function invoke fallback to cached DB:", error.message);
-            } else if (!fnData?.cached) {
-              incrementDailyFetchCount();
             }
             await fetchDashboardData();
             return { mode: "live" };

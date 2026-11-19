@@ -152,7 +152,7 @@
 </head>
 <body class="min-h-screen overflow-x-hidden antialiased selection:bg-amber-500/30 selection:text-amber-200">
 
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
+  <div id="toast-container" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
 
   <!-- Rocket & Cracker Firework Canvas -->
   <canvas id="fx-canvas"></canvas>
@@ -3092,13 +3092,19 @@
 
     async function handleEmailAuthSubmit(e) {
       e.preventDefault();
-      if (!supabaseClient) { showToast("Connect Supabase First", "Open Settings to add your Supabase URL & Key before signing in.", "error"); return; }
+      if (!supabaseClient) {
+        showToast("Connect Supabase First", "Open Settings to add your Supabase URL & Key before signing in.", "error");
+        return;
+      }
       const email = document.getElementById("auth-email-input").value.trim();
       const password = document.getElementById("auth-password-input").value;
       const fb = document.getElementById("auth-feedback");
       const btn = document.getElementById("auth-submit-btn");
 
+      if (fb) fb.classList.add("hidden");
       btn.disabled = true;
+      btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
+
       try {
         if (authMode === "signup") {
           const { data, error } = await supabaseClient.auth.signUp({
@@ -3114,8 +3120,8 @@
             await fetchDashboardData();
             showToast("Account Created!", "Welcome to GoldBuddy.", "info");
           } else if (fb) {
+            fb.className = "text-xs text-emerald-300 text-center bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5";
             fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`;
-            fb.classList.remove("hidden");
           }
         } else {
           const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -3127,9 +3133,17 @@
           showToast("Signed In!", "Your private 3-part plan & alerts are loaded.", "info");
         }
       } catch (err) {
-        showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", err.message, "error");
+        const msg = /invalid login credentials/i.test(err.message || "")
+          ? "Incorrect email or password. Please try again."
+          : (err.message || "Authentication failed.");
+        if (fb) {
+          fb.className = "text-xs text-rose-300 text-center bg-rose-500/15 border border-rose-500/35 rounded-lg p-2.5";
+          fb.textContent = msg;
+        }
+        showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", msg, "error");
       } finally {
         btn.disabled = false;
+        btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
       }
     }
 

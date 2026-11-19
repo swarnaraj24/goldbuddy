@@ -1331,6 +1331,23 @@
     }
 
     const FETCH_COOLDOWN_MS = 30 * 60 * 1000;
+    const MAX_DAILY_MANUAL_FETCHES = 5;
+
+    function getDailyFetchKey() {
+      const uid = currentUser?.id || "guest";
+      const today = new Date().toISOString().slice(0, 10);
+      return `goldbuddy_daily_fetches_${uid}_${today}`;
+    }
+
+    function getDailyFetchCount() {
+      return Number(localStorage.getItem(getDailyFetchKey()) || 0);
+    }
+
+    function incrementDailyFetchCount() {
+      const next = getDailyFetchCount() + 1;
+      localStorage.setItem(getDailyFetchKey(), String(next));
+      return next;
+    }
 
     function getRemainingCooldownMins() {
       if (isDemoMode || !supabaseClient) return 0;
@@ -1348,8 +1365,15 @@
       const btn = document.getElementById("refresh-btn");
       const label = document.getElementById("refresh-btn-text");
       if (!btn || !label) return;
+      const dailyUsed = (!isDemoMode && currentUser) ? getDailyFetchCount() : 0;
       const minsLeft = getRemainingCooldownMins();
-      if (minsLeft > 0) {
+
+      if (!isDemoMode && currentUser && dailyUsed >= MAX_DAILY_MANUAL_FETCHES) {
+        btn.disabled = true;
+        btn.classList.add("opacity-60", "cursor-not-allowed");
+        btn.title = "Daily limit reached (5/5). Live rates still auto-update every 30 mins.";
+        label.textContent = "Limit (5/5)";
+      } else if (minsLeft > 0) {
         btn.disabled = true;
         btn.classList.add("opacity-60", "cursor-not-allowed");
         btn.title = `Rate updated recently. Next fetch available in ${minsLeft} min.`;
@@ -1357,7 +1381,7 @@
       } else {
         btn.disabled = false;
         btn.classList.remove("opacity-60", "cursor-not-allowed");
-        btn.title = "Fetch latest live gold price";
+        btn.title = currentUser ? `Update Price (${MAX_DAILY_MANUAL_FETCHES - dailyUsed} of ${MAX_DAILY_MANUAL_FETCHES} left today)` : "Fetch latest live gold price";
         label.textContent = "Update Price";
       }
     }
@@ -1819,6 +1843,13 @@
         return;
       }
 
+      // Enforce 5 manual fetches/day per user
+      if (!isDemoMode && supabaseClient && currentUser && getDailyFetchCount() >= MAX_DAILY_MANUAL_FETCHES) {
+        updateRefreshCooldownUI();
+        showToast("Daily Limit Reached (5/5)", "You've used all 5 manual updates today. Live rates still auto-update every 30 mins!", "info");
+        return;
+      }
+
       // Enforce 30-minute cooldown before starting expedition animation
       const minsLeft = getRemainingCooldownMins();
       if (minsLeft > 0) {
@@ -1868,6 +1899,7 @@
               console.warn("Edge function invoke fallback to cached DB:", error.message);
             } else {
               localStorage.setItem("goldbuddy_last_fetch_ts", String(Date.now()));
+              incrementDailyFetchCount();
             }
             await fetchDashboardData();
             return { mode: "live" };

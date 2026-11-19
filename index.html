@@ -198,12 +198,28 @@
           <span id="gst-toggle-label">Without 3% GST</span>
         </button>
 
-        <button type="button" id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all disabled:opacity-60 cursor-pointer">
-          <span id="refresh-spinner" class="inline-flex items-center justify-center">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-          </span>
-          <span id="refresh-btn-text" class="hidden sm:inline">Update Price</span>
-        </button>
+        <div class="relative group">
+          <button type="button" id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all disabled:opacity-60 cursor-pointer">
+            <span id="refresh-spinner" class="inline-flex items-center justify-center">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            </span>
+            <span id="refresh-btn-text" class="hidden sm:inline">Update Price</span>
+          </button>
+
+          <!-- Custom Hover Tooltip (works even when button is disabled) -->
+          <div id="refresh-hover-tooltip" class="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 absolute right-0 top-full mt-2 w-56 rounded-xl bg-slate-900/95 border border-slate-700/90 p-3 shadow-2xl backdrop-blur-md z-50 text-left">
+            <div class="flex items-center justify-between text-[11px] font-semibold text-white mb-1">
+              <span>Daily Manual Updates</span>
+              <span id="tooltip-quota-pill" class="font-mono text-amber-300">0 / 5 used</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden mb-1.5">
+              <div id="tooltip-quota-bar" class="h-full bg-amber-400 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="tooltip-quota-msg" class="text-[10px] text-slate-300 leading-snug">
+              5 updates remaining today. Auto-updates every 30 mins.
+            </p>
+          </div>
+        </div>
 
         <button type="button" id="auth-header-btn" onclick="handleAuthHeaderClick()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer">
           <i data-lucide="user" class="w-3.5 h-3.5 text-amber-400"></i>
@@ -1383,6 +1399,36 @@
         btn.classList.remove("opacity-60", "cursor-not-allowed");
         btn.title = currentUser ? `Update Price (${MAX_DAILY_MANUAL_FETCHES - dailyUsed} of ${MAX_DAILY_MANUAL_FETCHES} left today)` : "Fetch latest live gold price";
         label.textContent = "Update Price";
+      }
+
+      // Update custom hover tooltip
+      const pill = document.getElementById("tooltip-quota-pill");
+      const bar = document.getElementById("tooltip-quota-bar");
+      const msg = document.getElementById("tooltip-quota-msg");
+      if (pill && bar && msg) {
+        if (isDemoMode) {
+          pill.textContent = "Sample Mode";
+          bar.style.width = "0%";
+          msg.textContent = "Unlimited sample refreshes in preview mode.";
+        } else if (!currentUser) {
+          pill.textContent = "Sign In Needed";
+          bar.style.width = "0%";
+          msg.textContent = "Sign in to get 5 manual live updates/day (auto-updates every 30m).";
+        } else {
+          const remaining = Math.max(0, MAX_DAILY_MANUAL_FETCHES - dailyUsed);
+          pill.textContent = `${dailyUsed} / ${MAX_DAILY_MANUAL_FETCHES} used`;
+          bar.style.width = `${Math.min(100, (dailyUsed / MAX_DAILY_MANUAL_FETCHES) * 100)}%`;
+          bar.className = remaining === 0
+            ? "h-full bg-rose-400 transition-all duration-300"
+            : "h-full bg-amber-400 transition-all duration-300";
+          if (remaining === 0) {
+            msg.textContent = "0 remaining today. Live rates still auto-update every 30 mins.";
+          } else if (minsLeft > 0) {
+            msg.textContent = `${remaining} left today • Cooldown: ${minsLeft}m until next fetch.`;
+          } else {
+            msg.textContent = `${remaining} of ${MAX_DAILY_MANUAL_FETCHES} manual updates remaining today.`;
+          }
+        }
       }
     }
 

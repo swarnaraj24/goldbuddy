@@ -9,6 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 
   <script>
     tailwind.config = {
@@ -1008,6 +1009,7 @@
           <input type="password" id="auth-password-input" required minlength="6" placeholder="Minimum 6 characters"
             class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
         </div>
+        <div id="turnstile-widget-container" class="flex justify-center pt-1"></div>
         <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors cursor-pointer">
           Sign In
         </button>
@@ -3404,11 +3406,35 @@
       }
     }
 
+    const TURNSTILE_SITE_KEY = "0x4AAAAAAGJv9sHfNNOuuvKP";
+    let turnstileToken = "";
+    let turnstileWidgetId = null;
+
+    function renderTurnstileWidget() {
+      const container = document.getElementById("turnstile-widget-container");
+      if (!container || typeof window.turnstile === "undefined") return;
+      turnstileToken = "";
+      if (turnstileWidgetId !== null) {
+        try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {}
+        return;
+      }
+      turnstileWidgetId = window.turnstile.render("#turnstile-widget-container", {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: "dark",
+        callback: (token) => { turnstileToken = token; },
+        "expired-callback": () => { turnstileToken = ""; },
+        "error-callback": () => { turnstileToken = ""; },
+      });
+    }
+
     function openAuthModal() {
       const fb = document.getElementById("auth-feedback");
       if (fb) fb.classList.add("hidden");
+      turnstileToken = "";
+      if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
       document.getElementById("auth-modal").classList.remove("hidden");
       document.getElementById("auth-modal").classList.add("flex");
+      setTimeout(renderTurnstileWidget, 80);
     }
 
     function closeAuthModal() {
@@ -3464,12 +3490,25 @@
       btn.disabled = true;
       btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
 
+      if (!turnstileToken && typeof window.turnstile !== "undefined") {
+        if (fb) {
+          fb.className = "text-xs text-amber-300 text-center bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5";
+          fb.textContent = "Please complete the security check above first.";
+        }
+        btn.disabled = false;
+        btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
+        return;
+      }
+
       try {
         if (authMode === "signup") {
           const { data, error } = await supabaseClient.auth.signUp({
             email,
             password,
-            options: { emailRedirectTo: window.location.href },
+            options: {
+              emailRedirectTo: window.location.href,
+              captchaToken: turnstileToken || undefined,
+            },
           });
           if (error) throw error;
           if (data?.session) {
@@ -3483,7 +3522,11 @@
             fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`;
           }
         } else {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+            options: { captchaToken: turnstileToken || undefined },
+          });
           if (error) throw error;
           currentUser = data.user;
           updateAuthHeaderUI();
@@ -3501,6 +3544,8 @@
         }
         showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", msg, "error");
       } finally {
+        turnstileToken = "";
+        if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
         btn.disabled = false;
         btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
       }

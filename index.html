@@ -914,6 +914,36 @@
       </div>
     </section>
 
+    <!-- ROW 5: AFFILIATE PARTNER SECTION (Trusted Places to Buy Gold) -->
+    <section id="affiliate-partners-section" class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+          </span>
+          <div>
+            <h2 class="text-base font-semibold text-white">Trusted Places to Buy Gold</h2>
+            <p class="text-xs text-slate-400">Compare 916 hallmarked jewellery, 24K coins, or start a staggered digital gold SIP</p>
+          </div>
+        </div>
+        <span class="self-start sm:self-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-900 text-slate-400 border border-slate-800">
+          Partner Links &bull; Sponsored
+        </span>
+      </div>
+
+      <div id="affiliate-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+    </section>
+
+    <!-- Footer with Affiliate & Financial Disclaimers -->
+    <footer class="pt-2 pb-6 border-t border-slate-800/70 text-[11px] text-slate-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+      <p>
+        <strong class="text-slate-400">Affiliate Disclosure:</strong> Some partner links above are affiliate links. If you buy through them, GoldBuddy may earn a small commission at no extra cost to you.
+      </p>
+      <p class="shrink-0">
+        Rates &amp; 15-day estimates are informational only.
+      </p>
+    </footer>
+
   </main>
 
   <!-- FULL-BLEED ATMOSPHERIC GOLD EXPEDITION LAYER (Mingles with entire page) -->
@@ -1102,6 +1132,86 @@
   </div>
 
   <script>
+    // =========================================================================
+    // AFFILIATE PARTNERS CONFIG — Replace the `url` values with your affiliate links
+    // =========================================================================
+    const AFFILIATE_PARTNERS = [
+      {
+        badge: "24K Coins &amp; Bars",
+        title: "Amazon 24K 999.9 Gold Coins",
+        desc: "MMTC-PAMP, Malabar &amp; Joyalukkas certified 24K coins and bars with insured delivery.",
+        cta: "Check Coin Prices",
+        url: "https://www.amazon.in/s?k=24k+gold+coin+999.9", // Paste your Amazon Associates / EarnKaro link here
+        accent: "amber",
+        icon: "coins",
+      },
+      {
+        badge: "22K 916 Hallmarked",
+        title: "CaratLane / Tanishq Jewellery",
+        desc: "BIS 916 HUID hallmarked rings, chains &amp; everyday jewellery with transparent making charges.",
+        cta: "Browse 22K Designs",
+        url: "https://www.caratlane.com/", // Paste your CueLinks / Impact / Admitad affiliate link here
+        accent: "emerald",
+        icon: "sparkles",
+      },
+      {
+        badge: "Staggered SIP",
+        title: "Gullak / SafeGold 24K Digital Gold",
+        desc: "Start with ₹100+ and accumulate 24K 99.9% pure gold in small parts whenever dips hit.",
+        cta: "Start Digital Gold",
+        url: "https://www.gullak.money/", // Paste your referral / affiliate link here
+        accent: "sky",
+        icon: "piggy-bank",
+      },
+    ];
+
+    function renderAffiliatePartners() {
+      const grid = document.getElementById("affiliate-cards-grid");
+      if (!grid) return;
+
+      const themes = {
+        amber: {
+          border: "border-amber-500/30 hover:border-amber-400/60",
+          badge: "bg-amber-500/15 text-amber-300 border-amber-500/25",
+          btn: "bg-amber-500 hover:bg-amber-400 text-slate-950",
+          icon: "text-amber-400",
+        },
+        emerald: {
+          border: "border-emerald-500/30 hover:border-emerald-400/60",
+          badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
+          btn: "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/35",
+          icon: "text-emerald-400",
+        },
+        sky: {
+          border: "border-sky-500/30 hover:border-sky-400/60",
+          badge: "bg-sky-500/15 text-sky-300 border-sky-500/25",
+          btn: "bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/35",
+          icon: "text-sky-400",
+        },
+      };
+
+      grid.innerHTML = AFFILIATE_PARTNERS.map((p) => {
+        const th = themes[p.accent] || themes.amber;
+        return `
+          <div class="rounded-xl bg-slate-900/80 border ${th.border} p-4 flex flex-col justify-between gap-3 transition-colors">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold border ${th.badge}">${p.badge}</span>
+                <i data-lucide="${p.icon}" class="w-4 h-4 ${th.icon}"></i>
+              </div>
+              <h3 class="text-sm font-bold text-white">${p.title}</h3>
+              <p class="text-xs text-slate-400 mt-1 leading-relaxed">${p.desc}</p>
+            </div>
+            <a href="${p.url}" target="_blank" rel="noopener noreferrer sponsored"
+               class="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-xs font-semibold transition-all ${th.btn}">
+              <span>${p.cta}</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+        `;
+      }).join("");
+    }
+
     const DEFAULT_SUPABASE_URL = "https://qcwangaymlurglvamjsq.supabase.co";
     const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2FuZ2F5bWx1cmdsdmFtanNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzkyMTEsImV4cCI6MjA5Nzc1NTIxMX0.Q8JeHm0H4ZqdO7sN48DxPQS8kTpyX-LS7sjs7n8dIbU";
     const STORAGE_URL_KEY = "goldbuddy_supabase_url";
@@ -1127,6 +1237,15 @@
       stats22K: null,
       stats24K: null,
     };
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
 
     function formatINR(value, decimals = 2) {
       if (value === null || value === undefined || isNaN(Number(value))) return "—";
@@ -1158,8 +1277,8 @@
 
       el.className = `pointer-events-auto rounded-xl border ${borderClass} p-3.5 shadow-xl backdrop-blur-md transition-all`;
       el.innerHTML = `
-        <div class="text-xs font-semibold text-white">${title}</div>
-        <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${body}</div>
+        <div class="text-xs font-semibold text-white">${escapeHtml(title)}</div>
+        <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${escapeHtml(body)}</div>
       `;
       container.appendChild(el);
       setTimeout(() => {
@@ -2175,6 +2294,7 @@
       renderChart(activeRows);
       renderTranches(activeRows);
       renderAlerts();
+      renderAffiliatePartners();
       updateRefreshCooldownUI();
       try {
         if (window.lucide) window.lucide.createIcons();
@@ -2672,8 +2792,8 @@
             <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
               <span class="w-5 h-5 rounded-full ${badgeColors[idx % 4]} text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
               <div>
-                <div class="text-xs font-semibold text-white">${d.title}</div>
-                <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${d.detail}</p>
+                <div class="text-xs font-semibold text-white">${escapeHtml(d.title)}</div>
+                <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(d.detail)}</p>
               </div>
             </div>
           `)
@@ -3051,7 +3171,7 @@
               <div>
                 <div class="flex items-center justify-between gap-1 mb-2">
                   <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400 text-slate-950">
-                    ₹${t.karat}
+                    ₹${escapeHtml(t.karat)}
                   </span>
                   <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border ${st.cls}">
                     <i data-lucide="${st.icon}" class="w-2.5 h-2.5"></i>
@@ -3065,8 +3185,8 @@
                       <i data-lucide="${theme.iconName}" class="w-3.5 h-3.5"></i>
                     </span>
                     <div class="min-w-0">
-                      <div class="text-xs font-bold text-white truncate">${cardTitle}</div>
-                      <div class="text-[10px] text-slate-400 truncate">${cardSubtitle}</div>
+                      <div class="text-xs font-bold text-white truncate">${escapeHtml(cardTitle)}</div>
+                      <div class="text-[10px] text-slate-400 truncate">${escapeHtml(cardSubtitle)}</div>
                     </div>
                   </div>
 
@@ -3147,10 +3267,10 @@
         .map((a) => `
           <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3">
             <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
-              <span>${a.karat} PRICE DROP REACHED</span>
+              <span>${escapeHtml(a.karat)} PRICE DROP REACHED</span>
               <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
             </div>
-            <p class="text-xs text-slate-200 leading-relaxed">${a.message}</p>
+            <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(a.message)}</p>
           </div>
         `)
         .join("");

@@ -1474,8 +1474,8 @@
 
         if (currentUser) {
           const [tranchesRes, alertsRes] = await Promise.all([
-            supabaseClient.from("buy_tranches").select("*").order("target_rate_gram", { ascending: false }),
-            supabaseClient.from("alert_logs").select("*").order("created_at", { ascending: false }).limit(15),
+            supabaseClient.from("buy_tranches").select("*").eq("user_id", currentUser.id).order("target_rate_gram", { ascending: false }),
+            supabaseClient.from("alert_logs").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false }).limit(15),
           ]);
           if (tranchesRes.error) throw tranchesRes.error;
           if (alertsRes.error) throw alertsRes.error;

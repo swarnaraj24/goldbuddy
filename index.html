@@ -94,23 +94,7 @@
       animation: budgetTargetBurstFlash 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
-    /* Gold Expedition Animation */
-    @keyframes scanSweep {
-      0% { transform: translateX(-20%); opacity: 0; }
-      15% { opacity: 1; }
-      85% { opacity: 1; }
-      100% { transform: translateX(520%); opacity: 0; }
-    }
-    @keyframes veinPulse {
-      0%, 100% { opacity: 0.35; filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.4)); }
-      50% { opacity: 1; filter: drop-shadow(0 0 12px rgba(253, 224, 71, 0.95)); }
-    }
-    @keyframes coinMintSpin {
-      0% { transform: scale(0.3) rotateY(0deg); opacity: 0; }
-      25% { transform: scale(1.12) rotateY(180deg); opacity: 1; }
-      65% { transform: scale(1) rotateY(540deg); opacity: 1; }
-      100% { transform: scale(0.6) rotateY(720deg); opacity: 0; }
-    }
+    /* Gold Expedition & Reveal Animations */
     @keyframes cardRevealFlash {
       0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7), inset 0 0 24px rgba(251, 191, 36, 0.28); border-color: #FDE047; }
       100% { box-shadow: 0 0 32px -10px rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.3); }
@@ -119,39 +103,12 @@
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    .expedition-scan-beam {
-      animation: scanSweep 1.6s ease-in-out infinite;
-    }
-    .expedition-vein {
-      animation: veinPulse 1.4s ease-in-out infinite;
-    }
-    .expedition-coin-spin {
-      animation: coinMintSpin 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
     .card-reveal-flash {
       animation: cardRevealFlash 1.1s ease-out forwards;
     }
     .driver-stagger {
       opacity: 0;
       animation: driverFadeIn 0.4s ease-out forwards;
-    }
-
-    @keyframes pickaxeSwing {
-      0%, 100% { transform: rotate(0deg); }
-      35% { transform: rotate(-28deg); }
-      60% { transform: rotate(18deg); }
-    }
-    @keyframes crystalGlow {
-      0%, 100% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.5)); transform: scale(1); }
-      50% { filter: drop-shadow(0 0 22px rgba(253, 224, 71, 0.95)); transform: scale(1.06); }
-    }
-    .pickaxe-swing {
-      transform-origin: 78% 72%;
-      animation: pickaxeSwing 0.85s ease-in-out infinite;
-    }
-    .crystal-pulse {
-      transform-origin: center;
-      animation: crystalGlow 1.3s ease-in-out infinite;
     }
 
     /* Golden Hourglass ("Golden time is flowing") */
@@ -164,11 +121,6 @@
       94% { transform: rotate(-10deg); filter: drop-shadow(0 0 6px rgba(253,224,71,0.9)); }
       97% { transform: rotate(7deg); filter: drop-shadow(0 0 4px rgba(251,191,36,0.7)); }
     }
-    @keyframes hourglassFlipUnlock {
-      0% { transform: rotate(0deg) scale(1); }
-      60% { transform: rotate(180deg) scale(1.2); filter: drop-shadow(0 0 10px #FEF08A); }
-      100% { transform: rotate(180deg) scale(1); opacity: 0; }
-    }
     .hg-sand-stream {
       stroke-dasharray: 2 2;
       animation: hourglassSandFall 0.65s linear infinite;
@@ -176,9 +128,6 @@
     .hg-alive {
       animation: hourglassAnticipate 35s ease-in-out infinite;
       transform-origin: center;
-    }
-    .hg-flip-unlock {
-      animation: hourglassFlipUnlock 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
 
     /* Cute Duck Laying Golden Egg on Wait Button */
@@ -244,13 +193,13 @@
         </div>
         <div>
           <h1 class="text-lg font-bold tracking-tight text-white">GoldBuddy</h1>
-          <p class="text-xs text-slate-400 hidden sm:block">Live Indian gold rates, smart buying planner & AI market insights</p>
+          <p class="text-xs text-slate-400 hidden sm:block">Live Indian gold rates, smart buying planner &amp; market insights</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 sm:gap-2.5">
         <div id="status-badge-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 text-slate-300">
-          <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span id="status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           <span id="status-text">Live Rates</span>
         </div>
 
@@ -292,8 +241,6 @@
           <i data-lucide="user" class="w-3.5 h-3.5 text-amber-400"></i>
           <span id="auth-header-label">Sign In</span>
         </button>
-
-
       </div>
     </div>
   </header>
@@ -310,16 +257,15 @@
     </div>
 
     <!-- Connection Banner -->
-    <div id="demo-banner" class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div id="demo-banner" class="hidden rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <p class="text-xs sm:text-sm text-slate-300">
-        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Connect your Supabase account to fetch live Indian gold rates & AI market summaries.
+        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Sign in or connect to view live Indian gold rates.
       </p>
-      
     </div>
 
     <div id="empty-db-banner" class="hidden rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <p class="text-xs sm:text-sm text-slate-200">
-        <span class="font-semibold text-sky-300">Account Connected!</span> Click <strong class="text-white">Update Price</strong> to fetch today's live gold rate.
+        <span class="font-semibold text-sky-300">Connected!</span> Click <strong class="text-white">Update Price</strong> to fetch today's live gold rate.
       </p>
       <button type="button" onclick="handleManualRefresh()" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer">
         Get Today's Price &rarr;
@@ -377,14 +323,11 @@
                   <stop offset="100%" stop-color="#78350F" />
                 </linearGradient>
               </defs>
-              <!-- Soft shadow -->
               <ellipse cx="60" cy="82" rx="38" ry="6" fill="rgba(245,158,11,0.18)" />
-              <!-- Back Coin Stack (Left) -->
               <path d="M22,64 L22,72 C22,76 34,79 48,79 C62,79 74,76 74,72 L74,64 Z" fill="url(#coinEdgeGrad)" />
               <ellipse cx="48" cy="64" rx="26" ry="8" fill="#B45309" stroke="#FDE047" stroke-width="0.8" />
               <path d="M22,55 L22,63 C22,67 34,70 48,70 C62,70 74,67 74,63 L74,55 Z" fill="url(#coinEdgeGrad)" />
               <ellipse cx="48" cy="55" rx="26" ry="8" fill="url(#coinFaceGrad)" stroke="#FEF08A" stroke-width="0.9" />
-              <!-- Upright Front Gold Coin -->
               <circle cx="72" cy="45" r="27" fill="#92400E" />
               <circle cx="70" cy="44" r="27" fill="url(#coinFaceGrad)" stroke="#FEF08A" stroke-width="1.4" />
               <circle cx="70" cy="44" r="22" fill="none" stroke="#92400E" stroke-width="1.2" stroke-dasharray="2.5 2" opacity="0.65" />
@@ -401,7 +344,7 @@
         </div>
       </div>
 
-      <!-- 24K Pure Gold Card with Gold Bars SVG -->
+      <!-- 24K Pure Gold Card with Rounded Cast Gold Biscuit Bar SVG -->
       <div id="card-24k" class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 relative overflow-hidden flex flex-col justify-between">
         <div class="flex items-center justify-between gap-4">
           <div class="space-y-2.5 z-10">
@@ -431,22 +374,15 @@
                   <stop offset="100%" stop-color="#B45309" />
                 </linearGradient>
               </defs>
-              <!-- Soft shadow -->
               <ellipse cx="60" cy="82" rx="30" ry="6" fill="rgba(245,158,11,0.22)" />
-              <!-- Outer rounded 3D cast thickness -->
               <rect x="33" y="13" width="54" height="68" rx="15" fill="#92400E" />
-              <!-- Pillowed rounded gold bar body -->
               <rect x="31" y="10" width="54" height="68" rx="15" fill="url(#biscuitBody)" stroke="#FEF08A" stroke-width="1.3" />
-              <!-- Soft inner pillowed face -->
               <rect x="36" y="15" width="44" height="58" rx="11" fill="url(#biscuitTop)" stroke="#B45309" stroke-width="0.9" opacity="0.9" />
-              <!-- Subtle emblem crest at top -->
               <circle cx="58" cy="28" r="7.5" fill="none" stroke="#78350F" stroke-width="1.4" opacity="0.75" />
               <path d="M54,28 Q58,22 62,28 Q58,31 54,28 Z" fill="#78350F" opacity="0.75" />
-              <!-- Stamped Fine Gold Text -->
               <text x="58" y="44" text-anchor="middle" font-size="8.5" font-family="monospace" font-weight="bold" fill="#78350F">24K</text>
               <text x="58" y="54" text-anchor="middle" font-size="6.5" font-family="monospace" font-weight="bold" fill="#78350F">FINE GOLD</text>
               <text x="58" y="64" text-anchor="middle" font-size="7" font-family="monospace" font-weight="bold" fill="#92400E">999.9</text>
-              <!-- Soft curved specular highlight -->
               <path d="M38,22 Q44,14 58,14" fill="none" stroke="#FFFBEB" stroke-width="2" stroke-linecap="round" opacity="0.75" />
             </svg>
           </div>
@@ -459,7 +395,7 @@
       </div>
     </section>
 
-    <!-- ROW 2: "HOW MUCH GOLD CAN MY MONEY BUY?" + "PRICE ESTIMATE FOR YOUR BUY DATE" -->
+    <!-- ROW 2: "HOW MUCH GOLD CAN MY MONEY BUY?" + "PRICE SCENARIOS FOR YOUR BUY DATE" -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
       <!-- Left 7 Columns: Calculator -->
@@ -471,7 +407,7 @@
             </span>
             <div>
               <h2 class="text-base font-semibold text-white">How Much Gold Can My Money Buy?</h2>
-              <p class="text-xs text-slate-400">Instant budget-to-grams & showroom bill breakdown</p>
+              <p class="text-xs text-slate-400">Instant budget-to-grams &amp; showroom bill breakdown</p>
             </div>
           </div>
 
@@ -486,7 +422,6 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
-          <!-- Left Input Pane -->
           <div class="md:col-span-7 rounded-xl bg-slate-900/70 border border-slate-800/90 p-4 space-y-3.5">
             <div id="calc-budget-wrapper">
               <div class="flex items-center justify-between mb-1.5">
@@ -542,7 +477,6 @@
             </div>
           </div>
 
-          <!-- Right Sleek Receipt Output Pane -->
           <div class="md:col-span-5 rounded-xl bg-gradient-to-b from-amber-500/10 to-slate-900/95 border border-amber-500/30 p-4 flex flex-col justify-between">
             <div>
               <div class="flex items-center justify-between">
@@ -582,7 +516,7 @@
         </div>
       </div>
 
-      <!-- Right 5 Columns: Price Estimate for Your Buy Date -->
+      <!-- Right 5 Columns: Price Scenarios for Your Buy Date -->
       <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2 mb-2">
@@ -598,7 +532,7 @@
           </div>
 
           <p class="text-xs text-slate-400 mb-3.5">
-            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to see the estimated price range:
+            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to view scenario ranges:
           </p>
 
           <div class="grid grid-cols-2 gap-3 mb-3.5">
@@ -641,13 +575,12 @@
 
     </section>
 
-    <!-- ROW 3 (ORIGINAL ALIGNMENT): LEFT 6 COLS AI MARKET SUMMARY + RIGHT 6 COLS STAGGERED BUYING PLAN & ALERTS -->
+    <!-- ROW 3: LEFT 6 COLS AI MARKET SUMMARY + RIGHT 6 COLS STAGGERED BUYING PLAN & ALERTS -->
     <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
 
       <!-- Left 6 Columns: AI Market Summary & 15-Day Outlook -->
       <div class="lg:col-span-6 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between gap-4">
         <div>
-          <!-- AI Summary Heading -->
           <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div class="flex items-center gap-2">
               <span class="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-400 flex items-center justify-center">
@@ -661,7 +594,6 @@
             </span>
           </div>
 
-          <!-- AI SIGNAL SCAN • MARKET DATA & TRENDS Banner -->
           <div class="signal-scan-bg rounded-xl border border-slate-800/90 h-12 px-3 mb-3.5 relative overflow-hidden flex items-center justify-center">
             <svg viewBox="0 0 600 60" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none opacity-80">
               <defs>
@@ -690,7 +622,6 @@
           <p id="plain-english-story" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
 
           <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-            <!-- Key Drivers Today -->
             <div class="md:col-span-7 space-y-2.5">
               <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
                 <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
@@ -699,14 +630,12 @@
               <div id="drivers-list" class="space-y-2.5"></div>
             </div>
 
-            <!-- AI Outlook (Next 15 Days) with Semi-Circular Buy Confidence Gauge -->
             <div class="md:col-span-5 rounded-xl bg-slate-900/90 border border-slate-800 p-3 flex flex-col justify-between space-y-2.5">
               <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
                 <i data-lucide="compass" class="w-3.5 h-3.5"></i>
-                AI Outlook (Next 15 Days)
+                15-Day Scenarios
               </div>
 
-              <!-- Semi-Circular Buy Confidence Gauge Card -->
               <div class="rounded-xl bg-slate-950/75 border border-slate-800/90 p-2.5 text-center">
                 <div class="flex items-center justify-center gap-1 text-[11px] font-semibold text-white mb-0.5">
                   <span>Signal Alignment</span>
@@ -739,31 +668,30 @@
                   <div class="-mt-9 flex flex-col items-center">
                     <div id="outlook-confidence-pct" class="text-xl font-bold font-mono text-white leading-none">78%</div>
                     <span id="outlook-confidence-badge" class="mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                      High Confidence
+                      Favourable Dip Signal
                     </span>
                     <p id="outlook-confidence-caption" class="text-[10px] text-slate-400 mt-1 leading-snug">
-                      Favourable to buy the first part now
+                      Below 5-day average — consider staggered entry
                     </p>
                   </div>
                 </div>
               </div>
 
-              <!-- Compact Outlook Metrics -->
               <div class="space-y-1.5 text-[11px] pt-1 border-t border-slate-800/80">
                 <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
                   <span class="text-slate-400">Trend</span>
                   <span id="outlook-trend-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400">Stable to Mildly Lower</span>
                 </div>
                 <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400">Expected (22K)</span>
+                  <span class="text-slate-400">Trend Band</span>
                   <span id="outlook-expected-band" class="font-mono font-semibold text-amber-300">—</span>
                 </div>
                 <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400">Dip Opportunity</span>
+                  <span class="text-slate-400">Dip Zone</span>
                   <span id="outlook-dip-band" class="font-mono font-semibold text-emerald-400">—</span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-400">Bounce Risk</span>
+                  <span class="text-slate-400">Risk Zone</span>
                   <span id="outlook-bounce-band" class="font-mono font-semibold text-rose-400">—</span>
                 </div>
               </div>
@@ -779,15 +707,14 @@
             <span class="text-xs font-bold text-amber-300">Suggested Strategy</span>
           </div>
           <p id="ai-recommendation-text" class="text-xs text-slate-200 leading-relaxed">
-            Buy your first part now (≈ 30–35% of budget), and keep the rest ready for potential dips below today's average.
+            Consider splitting your planned purchase into 3 parts instead of buying all at once, using alerts to track deeper dips.
           </p>
         </div>
       </div>
 
-      <!-- Right 6 Columns: My Staggered Buying Plan (with 3-column Split Cards) + Price Drop Alerts -->
+      <!-- Right 6 Columns: My Staggered Buying Plan + Price Drop Alerts -->
       <div class="lg:col-span-6 flex flex-col gap-5">
         <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col gap-3.5">
-          <!-- Header -->
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-800/80">
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-500/35 flex items-center justify-center text-amber-400 shrink-0">
@@ -804,7 +731,6 @@
             </button>
           </div>
 
-          <!-- Budget Input Row -->
           <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
             <div class="flex items-center gap-2.5 flex-1">
               <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
@@ -826,10 +752,8 @@
             </button>
           </div>
 
-          <!-- 3-Column Split Cards Grid (fits cleanly inside Right 6 Cols) -->
           <div id="tranches-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
 
-          <!-- Plan Overview Footer Bar -->
           <div id="plan-overview-bar" class="rounded-xl bg-slate-900/90 border border-slate-800 px-3 py-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 items-center">
             <div class="flex items-center gap-2">
               <i data-lucide="layers" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
@@ -865,7 +789,6 @@
           </div>
         </div>
 
-        <!-- Price Drop Alerts (Right below Staggered Plan in Right 6 Cols) -->
         <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col">
           <div class="flex items-center justify-between mb-3">
             <div>
@@ -919,7 +842,7 @@
       </div>
     </section>
 
-    <!-- ROW 5: AFFILIATE PARTNER SECTION (Trusted Places to Buy Gold) -->
+    <!-- ROW 5: AFFILIATE PARTNER SECTION -->
     <section id="affiliate-partners-section" class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
@@ -939,7 +862,7 @@
       <div id="affiliate-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
     </section>
 
-    <!-- Footer with Trust Pages, Methodology & Affiliate Disclosures -->
+    <!-- Footer with Trust Pages, Methodology & Affiliate Disclosures (No emails exposed) -->
     <footer class="pt-4 pb-8 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 font-medium text-slate-300">
@@ -963,7 +886,7 @@
 
   </main>
 
-  <!-- FULL-BLEED ATMOSPHERIC GOLD EXPEDITION LAYER (Mingles with entire page) -->
+  <!-- FULL-BLEED ATMOSPHERIC GOLD EXPEDITION LAYER -->
   <div id="expedition-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#060911]/65 backdrop-blur-[6px] transition-opacity duration-700 pointer-events-auto">
     <canvas id="expedition-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
     <div class="relative z-10 flex flex-col items-center text-center px-6 pointer-events-none select-none">
@@ -977,7 +900,7 @@
     </div>
   </div>
 
-  <!-- MODAL 0: Multi-User Sign In & Account Creation (Supabase Auth) -->
+  <!-- MODAL 0: Multi-User Sign In & Account Creation -->
   <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
     <div class="w-full max-w-md rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between">
@@ -988,7 +911,6 @@
         <button type="button" onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
       </div>
 
-      <!-- Mode Switcher: Sign In vs Create Account -->
       <div class="grid grid-cols-2 rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs">
         <button type="button" id="auth-tab-signin" onclick="switchAuthTab('signin')" class="py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer">
           Sign In
@@ -1091,86 +1013,14 @@
     </div>
   </div>
 
-  <!-- MODAL 2: Settings & Developer Scenario Tester -->
-  <div id="settings-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full max-w-lg rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-base font-bold text-white">GoldBuddy Settings</h3>
-          <p class="text-xs text-slate-400">Saved privately on this device</p>
-        </div>
-        <button type="button" onclick="closeSettingsModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
-      </div>
-
-      <div class="space-y-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Project URL</label>
-          <input type="url" id="cfg-supabase-url" placeholder="https://xyzcompany.supabase.co"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Supabase Public Key (anon)</label>
-          <input type="password" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-        </div>
-      </div>
-
-      <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
-        <div class="text-xs font-semibold text-amber-300">Match Local Jewellery Shop Rate (One-Time)</div>
-        <p class="text-xs text-slate-400">
-          Enter today's 24K rate from your local shop (without GST) so GoldBuddy matches local taxes automatically:
-        </p>
-        <div class="flex items-center gap-2">
-          <input type="number" step="0.01" id="calibrate-24k-input" placeholder="e.g., 13326"
-            class="flex-1 rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-          <button type="button" onclick="calibrateMultiplierFromLocal24k()" class="px-3 py-2 rounded-lg text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 cursor-pointer">
-            Match Rate
-          </button>
-        </div>
-      </div>
-
-      <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 space-y-2.5">
-        <div class="text-xs font-semibold text-purple-300">Preview Market Scenarios (Testing Only)</div>
-        <p class="text-xs text-slate-400">
-          Simulate how the dashboard responds when prices are dropping vs. increasing:
-        </p>
-        <div class="grid grid-cols-3 gap-2">
-          <button type="button" onclick="setScenarioOverride('actual'); closeSettingsModal();" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 cursor-pointer">
-            Live Data
-          </button>
-          <button type="button" onclick="setScenarioOverride('drop'); closeSettingsModal();" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 cursor-pointer">
-            Test Drop
-          </button>
-          <button type="button" onclick="setScenarioOverride('rise'); closeSettingsModal();" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 cursor-pointer">
-            Test Increase
-          </button>
-        </div>
-      </div>
-
-      <div class="pt-1 flex flex-wrap items-center justify-between gap-2">
-        <button type="button" onclick="resetToDemoMode()" class="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white border border-slate-700 hover:bg-slate-800 cursor-pointer">
-          Use Sample Mode
-        </button>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">Cancel</button>
-          <button type="button" onclick="saveSupabaseSettings()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer">Save & Connect</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // =========================================================================
-    // AFFILIATE PARTNERS CONFIG — Replace the `url` values with your affiliate links
-    // =========================================================================
     const AFFILIATE_PARTNERS = [
       {
         badge: "24K Coins &amp; Bars",
         title: "Amazon 24K 999.9 Gold Coins",
         desc: "MMTC-PAMP, Malabar &amp; Joyalukkas certified 24K coins and bars with insured delivery.",
         cta: "Check Coin Prices",
-        url: "https://www.amazon.in/s?k=24k+gold+coin+999.9", // Paste your Amazon Associates / EarnKaro link here
+        url: "https://www.amazon.in/s?k=24k+gold+coin+999.9",
         accent: "amber",
         icon: "coins",
       },
@@ -1179,7 +1029,7 @@
         title: "CaratLane / Tanishq Jewellery",
         desc: "BIS 916 HUID hallmarked rings, chains &amp; everyday jewellery with transparent making charges.",
         cta: "Browse 22K Designs",
-        url: "https://www.caratlane.com/", // Paste your CueLinks / Impact / Admitad affiliate link here
+        url: "https://www.caratlane.com/",
         accent: "emerald",
         icon: "sparkles",
       },
@@ -1188,7 +1038,7 @@
         title: "Gullak / SafeGold 24K Digital Gold",
         desc: "Start with ₹100+ and accumulate 24K 99.9% pure gold in small parts whenever dips hit.",
         cta: "Start Digital Gold",
-        url: "https://www.gullak.money/", // Paste your referral / affiliate link here
+        url: "https://www.gullak.money/",
         accent: "sky",
         icon: "piggy-bank",
       },
@@ -1243,10 +1093,12 @@
 
     const DEFAULT_SUPABASE_URL = "https://qcwangaymlurglvamjsq.supabase.co";
     const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2FuZ2F5bWx1cmdsdmFtanNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzkyMTEsImV4cCI6MjA5Nzc1NTIxMX0.Q8JeHm0H4ZqdO7sN48DxPQS8kTpyX-LS7sjs7n8dIbU";
+    const TURNSTILE_SITE_KEY = "0x4AAAAAAGJv9sHfNNOuuvKP";
     const STORAGE_URL_KEY = "goldbuddy_supabase_url";
     const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
-    const TROY_OZ_TO_GRAMS = 31.1034768;
     const MAX_FORECAST_DAYS = 15;
+    const FETCH_COOLDOWN_MS = 30 * 60 * 1000;
+    const MAX_DAILY_MANUAL_FETCHES = 5;
 
     let supabaseClient = null;
     let pollingFallbackInterval = null;
@@ -1258,6 +1110,10 @@
     let scenarioOverride = "actual";
     let chartInstance = null;
     let currentUser = null;
+    let authMode = "signin";
+    let turnstileToken = "";
+    let turnstileWidgetId = null;
+    let wasInCooldown = false;
 
     let appState = {
       history: [],
@@ -1349,17 +1205,11 @@
       scenarioOverride = mode;
       const banner = document.getElementById("scenario-banner");
       const bannerText = document.getElementById("scenario-banner-text");
-
-      if (mode === "actual") {
-        banner.classList.add("hidden");
-      } else if (mode === "drop") {
+      if (mode === "actual") banner.classList.add("hidden");
+      else {
         banner.classList.remove("hidden");
-        bannerText.textContent = "Scenario Preview: Simulating a falling market so you can test dip-buying guidance.";
-      } else if (mode === "rise") {
-        banner.classList.remove("hidden");
-        bannerText.textContent = "Scenario Preview: Simulating an increasing market so you can test rally explanations and upward forecasts.";
+        bannerText.textContent = mode === "drop" ? "Scenario Preview: Falling market" : "Scenario Preview: Rising market";
       }
-
       recomputeAndRender();
     }
 
@@ -1367,18 +1217,13 @@
       const baseRows = appState.history;
       if (!baseRows || baseRows.length === 0) return [];
       if (scenarioOverride === "actual") return baseRows;
-
       const anchor24 = Number(baseRows[0].rate_24k_gram) || 13326.00;
       const now = Date.now();
       const simRows = [];
-      const count = 24;
-
-      for (let i = count - 1; i >= 0; i--) {
+      for (let i = 23; i >= 0; i--) {
         const ts = new Date(now - i * 4 * 60 * 60 * 1000).toISOString();
-        const progress = (count - 1 - i) / (count - 1);
-        const factor = scenarioOverride === "drop"
-          ? 1.018 - 0.018 * progress
-          : 0.981 + 0.019 * progress;
+        const progress = (23 - i) / 23;
+        const factor = scenarioOverride === "drop" ? 1.018 - 0.018 * progress : 0.981 + 0.019 * progress;
         const r24 = Number((anchor24 * factor).toFixed(2));
         const r22 = Number((r24 * (22 / 24)).toFixed(2));
         simRows.push({
@@ -1392,20 +1237,16 @@
           fetched_at: ts,
         });
       }
-
       return simRows.reverse();
     }
 
     function buildDemoDataset() {
       const now = Date.now();
       const rows = [];
-      const start24k = 13604;
-      const end24k = 13326;
-
       for (let i = 47; i >= 0; i--) {
         const ts = new Date(now - i * 2.5 * 60 * 60 * 1000).toISOString();
         const progress = (47 - i) / 47;
-        const trendPrice = start24k + (end24k - start24k) * progress;
+        const trendPrice = 13604 + (13326 - 13604) * progress;
         const wave = i === 0 ? 0 : Math.sin(i / 3.5) * 24;
         const r24 = Number((trendPrice + wave).toFixed(2));
         const r22 = Number((r24 * (22 / 24)).toFixed(2));
@@ -1421,7 +1262,6 @@
           fetched_at: ts,
         });
       }
-
       return {
         history: [...rows].reverse(),
         tranches: [
@@ -1435,143 +1275,27 @@
 
     function calculatePriceStats(historyRows, karat = "22K") {
       if (!historyRows || historyRows.length === 0) return null;
-
-      const field =
-        karat === "24K"
-          ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
-          : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
-
+      const field = karat === "24K" ? (includeGst ? "rate_24k_with_gst" : "rate_24k_gram") : (includeGst ? "rate_22k_with_gst" : "rate_22k_gram");
       const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
       const recent = historyRows.filter((r) => new Date(r.fetched_at).getTime() >= fiveDaysAgo);
       const sample = recent.length > 0 ? recent : historyRows;
-
       const prices = sample.map((r) => Number(r[field]));
       const latestPrice = Number(historyRows[0][field]);
       const oldestPrice = Number(sample[sample.length - 1][field]);
       const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
-
       const bargainPrice = Number(Math.min(minPrice, avgPrice * 0.992).toFixed(2));
       const highPrice = Number(Math.max(maxPrice, avgPrice * 1.008).toFixed(2));
       const pctVsAvg = Number((((latestPrice - avgPrice) / avgPrice) * 100).toFixed(2));
       const trendPct = oldestPrice > 0 ? Number((((latestPrice - oldestPrice) / oldestPrice) * 100).toFixed(2)) : 0;
-
-      return {
-        karat,
-        latestPrice,
-        avgPrice: Number(avgPrice.toFixed(2)),
-        bargainPrice,
-        highPrice,
-        pctVsAvg,
-        trendPct,
-        isRising: trendPct > 0.25 || pctVsAvg > 0.25,
-      };
+      return { karat, latestPrice, avgPrice: Number(avgPrice.toFixed(2)), bargainPrice, highPrice, pctVsAvg, trendPct, isRising: trendPct > 0.25 || pctVsAvg > 0.25 };
     }
 
     function cleanSupabaseUrl(rawUrl) {
       if (!rawUrl) return "";
       return rawUrl.trim().replace(/\/+$/, "").replace(/\/(rest|functions|auth|realtime)\/v1.*$/i, "");
     }
-
-    async function fetchDashboardData() {
-      if (isDemoMode || !supabaseClient) {
-        if (appState.history.length === 0) {
-          const demo = buildDemoDataset();
-          appState.history = demo.history;
-          appState.tranches = demo.tranches;
-          appState.alerts = demo.alerts;
-        }
-        recomputeAndRender();
-        return;
-      }
-
-      try {
-        const { data: sessionData } = await supabaseClient.auth.getSession();
-        currentUser = sessionData?.session?.user ?? null;
-        updateAuthHeaderUI();
-
-        const ratesRes = await supabaseClient
-          .from("gold_rates_history")
-          .select("*")
-          .order("fetched_at", { ascending: false })
-          .limit(350);
-        if (ratesRes.error) throw ratesRes.error;
-        appState.history = ratesRes.data ?? [];
-
-        if (currentUser) {
-          const [tranchesRes, alertsRes] = await Promise.all([
-            supabaseClient.from("buy_tranches").select("*").eq("user_id", currentUser.id).order("target_rate_gram", { ascending: false }),
-            supabaseClient.from("alert_logs").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false }).limit(15),
-          ]);
-          if (tranchesRes.error) throw tranchesRes.error;
-          if (alertsRes.error) throw alertsRes.error;
-          appState.tranches = tranchesRes.data ?? [];
-          appState.alerts = alertsRes.data ?? [];
-
-          // Sync server-side daily fetch count so 0/5 -> 1/5 stays accurate across reloads
-          try {
-            const startOfDay = new Date();
-            startOfDay.setUTCHours(0, 0, 0, 0);
-            const { count: serverCount, error: cntErr } = await supabaseClient
-              .from("user_fetch_logs")
-              .select("*", { count: "exact", head: true })
-              .eq("user_id", currentUser.id)
-              .gte("created_at", startOfDay.toISOString());
-            if (!cntErr && typeof serverCount === "number") {
-              localStorage.setItem(getDailyFetchKey(), String(Math.max(serverCount, getDailyFetchCount())));
-            }
-          } catch (_e) {}
-        } else {
-          // Guest viewing shared live rates: keep personal plan local in browser
-          try {
-            appState.tranches = JSON.parse(localStorage.getItem("goldbuddy_guest_tranches") || "[]");
-          } catch (_e) {
-            appState.tranches = [];
-          }
-          appState.alerts = [];
-        }
-
-        recomputeAndRender();
-
-        if (!syncInitialized) {
-          syncInitialized = true;
-          setupBackgroundSync();
-        }
-      } catch (err) {
-        console.error("Supabase fetch error:", err);
-        showToast("Connection Issue", err.message || "Please check your Supabase settings.", "error");
-      }
-    }
-
-    function setupBackgroundSync() {
-      if (!supabaseClient) return;
-      try {
-        supabaseClient
-          .channel("goldbuddy-live")
-          .on("postgres_changes", { event: "INSERT", schema: "public", table: "gold_rates_history" }, () => fetchDashboardData())
-          .on("postgres_changes", { event: "INSERT", schema: "public", table: "alert_logs" }, (payload) => {
-            if (payload.new?.message) showToast("Price Drop Alert!", payload.new.message, "alert");
-            fetchDashboardData();
-      setInterval(updateRefreshCooldownUI, 30000);
-          })
-          .subscribe((status) => {
-            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") startPollingFallback();
-          });
-      } catch (_err) {
-        startPollingFallback();
-      }
-    }
-
-    function startPollingFallback() {
-      if (pollingFallbackInterval) return;
-      pollingFallbackInterval = setInterval(() => {
-        if (!isDemoMode && supabaseClient) fetchDashboardData();
-      }, 60000);
-    }
-
-    const FETCH_COOLDOWN_MS = 30 * 60 * 1000;
-    const MAX_DAILY_MANUAL_FETCHES = 5;
 
     function getDailyFetchKey() {
       const uid = currentUser?.id || "guest";
@@ -1601,23 +1325,17 @@
       return Math.max(1, Math.ceil((FETCH_COOLDOWN_MS - elapsed) / 60000));
     }
 
-    let wasInCooldown = false;
-
     function renderDuckPushingEggIcon(minsLeft) {
       const progress = Math.min(1, Math.max(0.05, (30 - minsLeft) / 30));
       const almostReady = minsLeft <= 5;
-      // Egg starts tucked right against duck tail (x=12.5) and emerges smoothly to x=8.0
       const eggX = (12.5 - progress * 4.5).toFixed(1);
       const eggColor = almostReady ? "#FEF08A" : "#FDE047";
-
       return `
         <svg viewBox="0 0 32 22" class="w-6 h-4 overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Golden Egg emerging directly from behind duck tail -->
           <g class="egg-peek">
             <ellipse cx="${eggX}" cy="15.2" rx="3.8" ry="2.9" fill="${eggColor}" stroke="#78350F" stroke-width="1.1"/>
             <path d="M${(Number(eggX)-1.5).toFixed(1)} 14.1 Q${eggX} 13.1 ${(Number(eggX)+1.5).toFixed(1)} 14.1" stroke="#FFFBEB" stroke-width="0.9" stroke-linecap="round"/>
           </g>
-          <!-- Cute Duck tightly aligned next to the emerging egg -->
           <g class="duck-strain">
             <path d="M16.5 18 L15 20.5 M20.5 18 L22 20.5" stroke="#78350F" stroke-width="1.5" stroke-linecap="round"/>
             <path d="M12.5 11.5 L15.5 13.5 L15.5 16.5 C13.5 16.5 12.5 14.5 12.5 11.5 Z" fill="#1E293B"/>
@@ -1638,6 +1356,7 @@
       if (!btn || !label) return;
       const dailyUsed = (!isDemoMode && currentUser) ? getDailyFetchCount() : 0;
       const minsLeft = getRemainingCooldownMins();
+      btn.removeAttribute("title");
 
       if (!isDemoMode && currentUser && dailyUsed >= MAX_DAILY_MANUAL_FETCHES) {
         btn.disabled = true;
@@ -1652,7 +1371,6 @@
         if (spinner) spinner.innerHTML = renderDuckPushingEggIcon(minsLeft);
         wasInCooldown = true;
       } else {
-        // Unlock moment: flip hourglass + brief golden spark when transitioning from cooldown -> 0
         if (wasInCooldown && spinner) {
           wasInCooldown = false;
           spinner.innerHTML = `
@@ -1678,7 +1396,6 @@
         try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
       }
 
-      // Update custom hover tooltip + large Golden Hourglass preview
       const hgStage = document.getElementById("tooltip-hourglass-stage");
       const hgSvg = document.getElementById("tooltip-hourglass-svg");
       const hgSub = document.getElementById("tooltip-hourglass-sub");
@@ -1727,18 +1444,101 @@
           const remaining = Math.max(0, MAX_DAILY_MANUAL_FETCHES - dailyUsed);
           pill.textContent = `${dailyUsed} / ${MAX_DAILY_MANUAL_FETCHES} used`;
           bar.style.width = `${Math.min(100, (dailyUsed / MAX_DAILY_MANUAL_FETCHES) * 100)}%`;
-          bar.className = remaining === 0
-            ? "h-full bg-rose-400 transition-all duration-300"
-            : "h-full bg-amber-400 transition-all duration-300";
-          if (remaining === 0) {
-            msg.textContent = "0 remaining today. Live rates still auto-update every 30 mins.";
-          } else if (minsLeft > 0) {
-            msg.textContent = `${remaining} left today • Cooldown: ${minsLeft}m (golden time flowing).`;
-          } else {
-            msg.textContent = `${remaining} of ${MAX_DAILY_MANUAL_FETCHES} manual updates remaining today.`;
-          }
+          bar.className = remaining === 0 ? "h-full bg-rose-400 transition-all duration-300" : "h-full bg-amber-400 transition-all duration-300";
+          if (remaining === 0) msg.textContent = "0 remaining today. Live rates still auto-update every 30 mins.";
+          else if (minsLeft > 0) msg.textContent = `${remaining} left today • Cooldown: ${minsLeft}m.`;
+          else msg.textContent = `${remaining} of ${MAX_DAILY_MANUAL_FETCHES} manual updates remaining today.`;
         }
       }
+    }
+
+    async function fetchDashboardData() {
+      if (isDemoMode || !supabaseClient) {
+        if (appState.history.length === 0) {
+          const demo = buildDemoDataset();
+          appState.history = demo.history;
+          appState.tranches = demo.tranches;
+          appState.alerts = demo.alerts;
+        }
+        recomputeAndRender();
+        return;
+      }
+
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        currentUser = sessionData?.session?.user ?? null;
+        updateAuthHeaderUI();
+
+        const ratesRes = await supabaseClient.from("gold_rates_history").select("*").order("fetched_at", { ascending: false }).limit(350);
+        if (ratesRes.error) throw ratesRes.error;
+        appState.history = ratesRes.data ?? [];
+
+        if (currentUser) {
+          const [tranchesRes, alertsRes] = await Promise.all([
+            supabaseClient.from("buy_tranches").select("*").eq("user_id", currentUser.id).order("target_rate_gram", { ascending: false }),
+            supabaseClient.from("alert_logs").select("*").eq("user_id", currentUser.id).order("created_at", { ascending: false }).limit(15),
+          ]);
+          if (tranchesRes.error) throw tranchesRes.error;
+          if (alertsRes.error) throw alertsRes.error;
+          appState.tranches = tranchesRes.data ?? [];
+          appState.alerts = alertsRes.data ?? [];
+
+          try {
+            const startOfDay = new Date();
+            startOfDay.setUTCHours(0, 0, 0, 0);
+            const { count: serverCount, error: cntErr } = await supabaseClient
+              .from("user_fetch_logs")
+              .select("*", { count: "exact", head: true })
+              .eq("user_id", currentUser.id)
+              .gte("created_at", startOfDay.toISOString());
+            if (!cntErr && typeof serverCount === "number") {
+              localStorage.setItem(getDailyFetchKey(), String(Math.max(serverCount, getDailyFetchCount())));
+            }
+          } catch (_e) {}
+        } else {
+          try {
+            appState.tranches = JSON.parse(localStorage.getItem("goldbuddy_guest_tranches") || "[]");
+          } catch (_e) {
+            appState.tranches = [];
+          }
+          appState.alerts = [];
+        }
+
+        recomputeAndRender();
+
+        if (!syncInitialized) {
+          syncInitialized = true;
+          setupBackgroundSync();
+        }
+      } catch (err) {
+        console.error("Supabase fetch error:", err);
+        showToast("Connection Issue", err.message || "Please check your connection.", "error");
+      }
+    }
+
+    function setupBackgroundSync() {
+      if (!supabaseClient) return;
+      try {
+        supabaseClient
+          .channel("goldbuddy-live")
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "gold_rates_history" }, () => fetchDashboardData())
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "alert_logs" }, (payload) => {
+            if (payload.new?.message) showToast("Price Drop Alert!", payload.new.message, "alert");
+            fetchDashboardData();
+          })
+          .subscribe((status) => {
+            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") startPollingFallback();
+          });
+      } catch (_err) {
+        startPollingFallback();
+      }
+    }
+
+    function startPollingFallback() {
+      if (pollingFallbackInterval) return;
+      pollingFallbackInterval = setInterval(() => {
+        if (!isDemoMode && supabaseClient) fetchDashboardData();
+      }, 60000);
     }
 
     function setRefreshLoading(isLoading) {
@@ -1784,10 +1584,7 @@
       const canvas = document.getElementById("expedition-canvas");
       const statusText = document.getElementById("expedition-status-text");
       const subText = document.getElementById("expedition-sub-text");
-
-      if (!overlay || !canvas) {
-        return await fetchPromise;
-      }
+      if (!overlay || !canvas) return await fetchPromise;
 
       overlay.classList.remove("hidden", "opacity-0");
       overlay.classList.add("flex");
@@ -1813,7 +1610,6 @@
       const startTs = performance.now();
       let phase3Start = 0;
       let phase4Start = 0;
-
       const cx = W * 0.5;
       const baseMtnY = H * 0.68;
       const scale = Math.max(0.65, Math.min(1.25, W / 640));
@@ -1821,391 +1617,170 @@
       const sparks = [];
       function spawnSparks(sx, sy, count) {
         for (let i = 0; i < count; i++) {
-          sparks.push({
-            x: sx,
-            y: sy,
-            vx: (Math.random() - 0.5) * 4.6,
-            vy: -2.0 - Math.random() * 3.4,
-            alpha: 1,
-            size: 1.8 + Math.random() * 2.6,
-          });
+          sparks.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 4.6, vy: -2.0 - Math.random() * 3.4, alpha: 1, size: 1.8 + Math.random() * 2.6 });
         }
       }
 
-      // Larger, more detailed miner with golden safety helmet, headlamp beam & pickaxe
       function drawMiner(mx, my, dir, swingPhase) {
         ctx.save();
         ctx.translate(mx, my);
         ctx.scale(dir * scale * 1.45, scale * 1.45);
-
-        // Headlamp light cone onto the rock
         const coneGrad = ctx.createRadialGradient(4, -25, 1, 22, -22, 36);
         coneGrad.addColorStop(0, "rgba(254, 240, 138, 0.45)");
         coneGrad.addColorStop(1, "rgba(254, 240, 138, 0)");
         ctx.fillStyle = coneGrad;
         ctx.beginPath();
-        ctx.moveTo(4, -25);
-        ctx.lineTo(42, -36);
-        ctx.lineTo(42, -10);
-        ctx.closePath();
-        ctx.fill();
-
-        // Legs
-        ctx.strokeStyle = "#334155";
-        ctx.lineWidth = 4.5;
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(-4, 0); ctx.lineTo(-8, 17);
-        ctx.moveTo(4, 0); ctx.lineTo(9, 17);
-        ctx.stroke();
-
-        // Torso (vest)
-        ctx.fillStyle = "#1E293B";
-        ctx.strokeStyle = "#64748B";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.roundRect(-7, -19, 14, 20, 4);
-        ctx.fill();
-        ctx.stroke();
-
-        // Head & Golden Safety Helmet
-        ctx.fillStyle = "#475569";
-        ctx.beginPath();
-        ctx.arc(0, -24, 5.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "#FBBF24";
-        ctx.beginPath();
-        ctx.arc(0, -25.5, 6.2, Math.PI, 0);
-        ctx.fill();
-
-        // Headlamp
-        ctx.fillStyle = "#FFFBEB";
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#FEF08A";
-        ctx.beginPath();
-        ctx.arc(5, -26, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // Swinging Pickaxe
+        ctx.moveTo(4, -25); ctx.lineTo(42, -36); ctx.lineTo(42, -10); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = "#334155"; ctx.lineWidth = 4.5; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(-8, 17); ctx.moveTo(4, 0); ctx.lineTo(9, 17); ctx.stroke();
+        ctx.fillStyle = "#1E293B"; ctx.strokeStyle = "#64748B"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(-7, -19, 14, 20, 4); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#475569"; ctx.beginPath(); ctx.arc(0, -24, 5.5, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#FBBF24"; ctx.beginPath(); ctx.arc(0, -25.5, 6.2, Math.PI, 0); ctx.fill();
+        ctx.fillStyle = "#FFFBEB"; ctx.shadowBlur = 10; ctx.shadowColor = "#FEF08A";
+        ctx.beginPath(); ctx.arc(5, -26, 2.2, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
         const armAngle = -0.85 + Math.sin(swingPhase) * 0.95;
-        ctx.save();
-        ctx.translate(3, -14);
-        ctx.rotate(armAngle);
-        ctx.strokeStyle = "#CBD5E1";
-        ctx.lineWidth = 2.8;
-        ctx.beginPath();
-        ctx.moveTo(0, 0); ctx.lineTo(20, -7);
-        ctx.stroke();
-        ctx.strokeStyle = "#FDE047";
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(20, -7, 10, -0.95, 0.95);
-        ctx.stroke();
+        ctx.save(); ctx.translate(3, -14); ctx.rotate(armAngle);
+        ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2.8; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(20, -7); ctx.stroke();
+        ctx.strokeStyle = "#FDE047"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(20, -7, 10, -0.95, 0.95); ctx.stroke();
         ctx.restore();
-
         ctx.restore();
       }
 
       function drawMintedCoin(x, y, s) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(s, s);
+        ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
         const grad = ctx.createRadialGradient(-6, -6, 2, 0, 0, 25);
-        grad.addColorStop(0, "#FEF9C3");
-        grad.addColorStop(0.55, "#FBBF24");
-        grad.addColorStop(1, "#B45309");
-        ctx.shadowBlur = 24;
-        ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(0, 0, 25, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = "#FEF08A";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.fillStyle = "#78350F";
-        ctx.font = "bold 10px monospace";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("22K", 0, 1);
-        ctx.restore();
+        grad.addColorStop(0, "#FEF9C3"); grad.addColorStop(0.55, "#FBBF24"); grad.addColorStop(1, "#B45309");
+        ctx.shadowBlur = 24; ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
+        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#FEF08A"; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = "#78350F"; ctx.font = "bold 10px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText("22K", 0, 1); ctx.restore();
       }
 
-      // Rounded Cast Gold Biscuit / Bar (no sharp edges)
       function drawMintedBar(x, y, s) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.scale(s, s);
-        ctx.shadowBlur = 24;
-        ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
-
-        // Outer 3D cast thickness
-        ctx.fillStyle = "#92400E";
-        ctx.beginPath();
-        ctx.roundRect(-21, -27, 44, 56, 12);
-        ctx.fill();
-
-        // Main rounded gold biscuit body
+        ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+        ctx.shadowBlur = 24; ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
+        ctx.fillStyle = "#92400E"; ctx.beginPath(); ctx.roundRect(-21, -27, 44, 56, 12); ctx.fill();
         const bodyGrad = ctx.createLinearGradient(-22, -28, 22, 28);
-        bodyGrad.addColorStop(0, "#FEF9C3");
-        bodyGrad.addColorStop(0.3, "#FACC15");
-        bodyGrad.addColorStop(0.75, "#D97706");
-        bodyGrad.addColorStop(1, "#92400E");
-        ctx.fillStyle = bodyGrad;
-        ctx.beginPath();
-        ctx.roundRect(-22, -29, 44, 56, 12);
-        ctx.fill();
-        ctx.strokeStyle = "#FEF08A";
-        ctx.lineWidth = 1.4;
-        ctx.stroke();
-
-        // Inner pillowed face
-        ctx.fillStyle = "rgba(251, 191, 36, 0.45)";
-        ctx.beginPath();
-        ctx.roundRect(-17, -24, 34, 46, 9);
-        ctx.fill();
-
-        // Stamped 24K / FINE GOLD / 999.9
-        ctx.fillStyle = "#78350F";
-        ctx.textAlign = "center";
-        ctx.font = "bold 9px monospace";
-        ctx.fillText("24K", 0, -7);
-        ctx.font = "bold 6px monospace";
-        ctx.fillText("FINE GOLD", 0, 3);
-        ctx.fillText("999.9", 0, 12);
-
+        bodyGrad.addColorStop(0, "#FEF9C3"); bodyGrad.addColorStop(0.3, "#FACC15"); bodyGrad.addColorStop(0.75, "#D97706"); bodyGrad.addColorStop(1, "#92400E");
+        ctx.fillStyle = bodyGrad; ctx.beginPath(); ctx.roundRect(-22, -29, 44, 56, 12); ctx.fill();
+        ctx.strokeStyle = "#FEF08A"; ctx.lineWidth = 1.4; ctx.stroke();
+        ctx.fillStyle = "rgba(251, 191, 36, 0.45)"; ctx.beginPath(); ctx.roundRect(-17, -24, 34, 46, 9); ctx.fill();
+        ctx.fillStyle = "#78350F"; ctx.textAlign = "center";
+        ctx.font = "bold 9px monospace"; ctx.fillText("24K", 0, -7);
+        ctx.font = "bold 6px monospace"; ctx.fillText("FINE GOLD", 0, 3); ctx.fillText("999.9", 0, 12);
         ctx.restore();
       }
 
       let lastSparkBeat = 0;
-
       function renderScene(now) {
         if (!running) return;
         const t = (now - startTs) / 1000;
         ctx.clearRect(0, 0, W, H);
-
         const mtnAlpha = phase === 4 ? Math.max(0, 1 - (now - phase4Start) / 650) : 1;
-        ctx.save();
-        ctx.globalAlpha = mtnAlpha;
-
-        // Warm golden horizon glow behind mountains
+        ctx.save(); ctx.globalAlpha = mtnAlpha;
         const horizonGlow = ctx.createRadialGradient(cx, baseMtnY - 80 * scale, 10, cx, baseMtnY - 40 * scale, 340 * scale);
-        horizonGlow.addColorStop(0, "rgba(245, 158, 11, 0.28)");
-        horizonGlow.addColorStop(1, "rgba(15, 23, 42, 0)");
-        ctx.fillStyle = horizonGlow;
-        ctx.fillRect(0, 0, W, H);
+        horizonGlow.addColorStop(0, "rgba(245, 158, 11, 0.28)"); horizonGlow.addColorStop(1, "rgba(15, 23, 42, 0)");
+        ctx.fillStyle = horizonGlow; ctx.fillRect(0, 0, W, H);
 
-        // Far Mountain Ridge (lighter slate-indigo so clearly visible)
         const farGrad = ctx.createLinearGradient(0, baseMtnY - 170 * scale, 0, H);
-        farGrad.addColorStop(0, "#475569");
-        farGrad.addColorStop(0.55, "#1E293B");
-        farGrad.addColorStop(1, "#0B0F17");
+        farGrad.addColorStop(0, "#475569"); farGrad.addColorStop(0.55, "#1E293B"); farGrad.addColorStop(1, "#0B0F17");
         ctx.fillStyle = farGrad;
-        ctx.beginPath();
-        ctx.moveTo(0, H);
-        ctx.lineTo(0, baseMtnY - 20);
-        ctx.lineTo(cx - 320 * scale, baseMtnY - 95 * scale);
-        ctx.lineTo(cx - 170 * scale, baseMtnY - 30 * scale);
-        ctx.lineTo(cx - 20 * scale, baseMtnY - 155 * scale);
-        ctx.lineTo(cx + 150 * scale, baseMtnY - 50 * scale);
-        ctx.lineTo(cx + 310 * scale, baseMtnY - 115 * scale);
-        ctx.lineTo(W, baseMtnY - 25);
-        ctx.lineTo(W, H);
-        ctx.closePath();
-        ctx.fill();
+        ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(0, baseMtnY - 20);
+        ctx.lineTo(cx - 320 * scale, baseMtnY - 95 * scale); ctx.lineTo(cx - 170 * scale, baseMtnY - 30 * scale);
+        ctx.lineTo(cx - 20 * scale, baseMtnY - 155 * scale); ctx.lineTo(cx + 150 * scale, baseMtnY - 50 * scale);
+        ctx.lineTo(cx + 310 * scale, baseMtnY - 115 * scale); ctx.lineTo(W, baseMtnY - 25); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
 
-        // Hero Central Mountain Peak (brighter moonlit facet + sunlit right edge)
         const heroGrad = ctx.createLinearGradient(cx - 180 * scale, baseMtnY - 150 * scale, cx + 180 * scale, baseMtnY + 40);
-        heroGrad.addColorStop(0, "#64748B");
-        heroGrad.addColorStop(0.5, "#334155");
-        heroGrad.addColorStop(1, "#1E293B");
+        heroGrad.addColorStop(0, "#64748B"); heroGrad.addColorStop(0.5, "#334155"); heroGrad.addColorStop(1, "#1E293B");
         ctx.fillStyle = heroGrad;
-        ctx.beginPath();
-        ctx.moveTo(cx - 240 * scale, H);
-        ctx.lineTo(cx - 140 * scale, baseMtnY - 40 * scale);
-        ctx.lineTo(cx, baseMtnY - 155 * scale);
-        ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale);
-        ctx.lineTo(cx + 250 * scale, H);
-        ctx.closePath();
-        ctx.fill();
+        ctx.beginPath(); ctx.moveTo(cx - 240 * scale, H); ctx.lineTo(cx - 140 * scale, baseMtnY - 40 * scale);
+        ctx.lineTo(cx, baseMtnY - 155 * scale); ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale); ctx.lineTo(cx + 250 * scale, H); ctx.closePath(); ctx.fill();
 
-        // Crisp Moonlit Ridge Highlight on Hero Peak
-        ctx.strokeStyle = "rgba(226, 232, 240, 0.45)";
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.moveTo(cx - 140 * scale, baseMtnY - 40 * scale);
-        ctx.lineTo(cx, baseMtnY - 155 * scale);
-        ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale);
-        ctx.stroke();
+        ctx.strokeStyle = "rgba(226, 232, 240, 0.45)"; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(cx - 140 * scale, baseMtnY - 40 * scale); ctx.lineTo(cx, baseMtnY - 155 * scale); ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale); ctx.stroke();
 
-        // Large, Bold, Glowing Gold Veins across the Hero Peak
         const veinGlow = 0.65 + 0.35 * Math.sin(t * 3.5);
-        ctx.strokeStyle = `rgba(253, 224, 71, ${veinGlow})`;
-        ctx.lineWidth = 4.2;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = "rgba(251, 191, 36, 0.95)";
-        ctx.beginPath();
-        ctx.moveTo(cx, baseMtnY - 150 * scale);
-        ctx.lineTo(cx - 26 * scale, baseMtnY - 92 * scale);
-        ctx.lineTo(cx + 18 * scale, baseMtnY - 42 * scale);
-        ctx.lineTo(cx - 32 * scale, baseMtnY + 18 * scale);
-        ctx.stroke();
-
+        ctx.strokeStyle = `rgba(253, 224, 71, ${veinGlow})`; ctx.lineWidth = 4.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
+        ctx.shadowBlur = 18; ctx.shadowColor = "rgba(251, 191, 36, 0.95)";
+        ctx.beginPath(); ctx.moveTo(cx, baseMtnY - 150 * scale); ctx.lineTo(cx - 26 * scale, baseMtnY - 92 * scale);
+        ctx.lineTo(cx + 18 * scale, baseMtnY - 42 * scale); ctx.lineTo(cx - 32 * scale, baseMtnY + 18 * scale); ctx.stroke();
         ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(cx - 26 * scale, baseMtnY - 92 * scale);
-        ctx.lineTo(cx - 86 * scale, baseMtnY - 46 * scale);
-        ctx.lineTo(cx - 115 * scale, baseMtnY - 12 * scale);
-        ctx.moveTo(cx + 18 * scale, baseMtnY - 42 * scale);
-        ctx.lineTo(cx + 84 * scale, baseMtnY - 8 * scale);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cx - 26 * scale, baseMtnY - 92 * scale); ctx.lineTo(cx - 86 * scale, baseMtnY - 46 * scale);
+        ctx.lineTo(cx - 115 * scale, baseMtnY - 12 * scale); ctx.moveTo(cx + 18 * scale, baseMtnY - 42 * scale); ctx.lineTo(cx + 84 * scale, baseMtnY - 8 * scale); ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Phase 2+: Larger Miners Working on Mountain Ledges
         if (phase >= 2) {
-          const swingA = t * 4.8;
-          const swingB = t * 4.8 + 2.0;
+          const swingA = t * 4.8; const swingB = t * 4.8 + 2.0;
           drawMiner(cx - 64 * scale, baseMtnY - 46 * scale, 1, swingA);
           drawMiner(cx + 58 * scale, baseMtnY - 36 * scale, -1, swingB);
-
           if (Math.sin(swingA) > 0.9 && now - lastSparkBeat > 320) {
             lastSparkBeat = now;
             spawnSparks(cx - 22 * scale, baseMtnY - 62 * scale, 11);
             spawnSparks(cx + 18 * scale, baseMtnY - 48 * scale, 9);
           }
-
           for (let i = sparks.length - 1; i >= 0; i--) {
             const sp = sparks[i];
-            sp.x += sp.vx;
-            sp.y += sp.vy;
-            sp.vy += 0.08;
-            sp.alpha -= 0.025;
+            sp.x += sp.vx; sp.y += sp.vy; sp.vy += 0.08; sp.alpha -= 0.025;
             if (sp.alpha <= 0) { sparks.splice(i, 1); continue; }
-            ctx.fillStyle = `rgba(254, 240, 138, ${sp.alpha})`;
-            ctx.beginPath();
-            ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fillStyle = `rgba(254, 240, 138, ${sp.alpha})`; ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2); ctx.fill();
           }
         }
         ctx.restore();
 
-        // Phase 3: Making / Molding Coin (left) & Rounded Cast Bar (right)
-        const moldLeftX = cx - 82 * scale;
-        const moldRightX = cx + 82 * scale;
-        const moldY = baseMtnY + 62 * scale;
-
+        const moldLeftX = cx - 82 * scale; const moldRightX = cx + 82 * scale; const moldY = baseMtnY + 62 * scale;
         if (phase === 3) {
           const p3 = Math.min(1, (now - phase3Start) / 2000);
           const pulse = 0.97 + 0.03 * Math.sin(t * 5);
-
-          ctx.save();
-          ctx.strokeStyle = "rgba(251, 191, 36, 0.8)";
-          ctx.lineWidth = 2.6;
-          ctx.setLineDash([6, 6]);
-          ctx.lineDashOffset = -t * 50;
+          ctx.save(); ctx.strokeStyle = "rgba(251, 191, 36, 0.8)"; ctx.lineWidth = 2.6; ctx.setLineDash([6, 6]); ctx.lineDashOffset = -t * 50;
           ctx.beginPath();
-          ctx.moveTo(cx - 18 * scale, baseMtnY - 12 * scale);
-          ctx.quadraticCurveTo(moldLeftX, baseMtnY + 18 * scale, moldLeftX, moldY - 24);
-          ctx.moveTo(cx + 18 * scale, baseMtnY - 12 * scale);
-          ctx.quadraticCurveTo(moldRightX, baseMtnY + 18 * scale, moldRightX, moldY - 24);
-          ctx.stroke();
-          ctx.restore();
-
+          ctx.moveTo(cx - 18 * scale, baseMtnY - 12 * scale); ctx.quadraticCurveTo(moldLeftX, baseMtnY + 18 * scale, moldLeftX, moldY - 24);
+          ctx.moveTo(cx + 18 * scale, baseMtnY - 12 * scale); ctx.quadraticCurveTo(moldRightX, baseMtnY + 18 * scale, moldRightX, moldY - 24);
+          ctx.stroke(); ctx.restore();
           drawMintedCoin(moldLeftX, moldY, (0.35 + p3 * 0.65) * pulse);
           drawMintedBar(moldRightX, moldY, (0.35 + p3 * 0.65) * pulse);
         }
-
-        // Phase 4: Populating directly into 22K Coin & 24K Rounded Bar on the cards
         if (phase === 4) {
           const p4 = Math.min(1, (now - phase4Start) / 1350);
           const ease = 1 - Math.pow(1 - p4, 3);
-          const curCoinX = moldLeftX + (targetCoin.x - moldLeftX) * ease;
-          const curCoinY = moldY + (targetCoin.y - moldY) * ease;
-          const curBarX = moldRightX + (targetBar.x - moldRightX) * ease;
-          const curBarY = moldY + (targetBar.y - moldY) * ease;
-
-          drawMintedCoin(curCoinX, curCoinY, 1 + Math.sin(ease * Math.PI) * 0.25);
-          drawMintedBar(curBarX, curBarY, 1 + Math.sin(ease * Math.PI) * 0.25);
+          drawMintedCoin(moldLeftX + (targetCoin.x - moldLeftX) * ease, moldY + (targetCoin.y - moldY) * ease, 1 + Math.sin(ease * Math.PI) * 0.25);
+          drawMintedBar(moldRightX + (targetBar.x - moldRightX) * ease, moldY + (targetBar.y - moldY) * ease, 1 + Math.sin(ease * Math.PI) * 0.25);
         }
-
         requestAnimationFrame(renderScene);
       }
-
       requestAnimationFrame(renderScene);
 
-      const timeoutGuard = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Market server took too long to respond.")), 25000)
-      );
-      const safeFetch = Promise.race([fetchPromise, timeoutGuard]).then((res) => {
-        fetchDone = true;
-        return res;
-      });
+      const timeoutGuard = new Promise((_, reject) => setTimeout(() => reject(new Error("Market server took too long to respond.")), 25000));
+      const safeFetch = Promise.race([fetchPromise, timeoutGuard]).then((res) => { fetchDone = true; return res; });
 
-      // Step 1: Mountains & Bold Gold Veins
-      statusText.textContent = "Discovering gold veins in the mountains...";
-      subText.textContent = "Scanning Global Bullion Markets";
+      statusText.textContent = "Discovering gold veins in the mountains..."; subText.textContent = "Scanning Global Bullion Markets";
       await sleep(1500);
-
-      // Step 2: Miners Working
-      phase = 2;
-      statusText.textContent = "Miners extracting gold from the vein...";
-      subText.textContent = "Gathering Live Market Data";
+      phase = 2; statusText.textContent = "Miners extracting gold from the vein..."; subText.textContent = "Gathering Live Market Data";
       await sleep(1700);
-
-      // Step 3: Making / Molding Coin & Rounded Bar (waits here if slow)
-      phase = 3;
-      phase3Start = performance.now();
-      statusText.textContent = "Molding 22K Coin & 24K Fine Gold Bar...";
-      subText.textContent = "Refining Indian Retail Rates";
-
-      const slowTimer = setTimeout(() => {
-        if (!fetchDone && running) {
-          statusText.textContent = "Still refining your 22K Coin & 24K Bar...";
-          subText.textContent = "Waiting for Live Market Feed";
-        }
-      }, 3000);
-
+      phase = 3; phase3Start = performance.now(); statusText.textContent = "Molding 22K Coin & 24K Fine Gold Bar..."; subText.textContent = "Refining Indian Retail Rates";
+      const slowTimer = setTimeout(() => { if (!fetchDone && running) { statusText.textContent = "Still refining your 22K Coin & 24K Bar..."; subText.textContent = "Waiting for Live Market Feed"; } }, 3000);
       const [fetchResult] = await Promise.all([safeFetch, sleep(2200)]);
       clearTimeout(slowTimer);
-
-      // Step 4: Populate Cards
-      phase = 4;
-      phase4Start = performance.now();
-      statusText.textContent = "Populating your live gold board...";
-      subText.textContent = "22K Coin & 24K Bar Ready";
+      phase = 4; phase4Start = performance.now(); statusText.textContent = "Populating your live gold board..."; subText.textContent = "22K Coin & 24K Bar Ready";
       await sleep(1400);
-
-      overlay.classList.add("opacity-0");
-      await sleep(450);
-      running = false;
-      overlay.classList.add("hidden");
-      overlay.classList.remove("flex", "opacity-0");
-
+      overlay.classList.add("opacity-0"); await sleep(450); running = false; overlay.classList.add("hidden"); overlay.classList.remove("flex", "opacity-0");
       return fetchResult;
     }
 
     async function handleManualRefresh() {
       const btn = document.getElementById("refresh-btn");
       if (btn && btn.disabled) return;
-
-      // Require sign-in to trigger live rate fetch when connected to Supabase
       if (!isDemoMode && supabaseClient && !currentUser) {
         showToast("Sign In Required", "Please sign in or create an account to fetch fresh live rates.", "info");
         openAuthModal();
         return;
       }
-
-      // Enforce 5 manual fetches/day per user
       if (!isDemoMode && supabaseClient && currentUser && getDailyFetchCount() >= MAX_DAILY_MANUAL_FETCHES) {
         updateRefreshCooldownUI();
         showToast("Daily Limit Reached (5/5)", "You've used all 5 manual updates today. Live rates still auto-update every 30 mins!", "info");
         return;
       }
-
-      // Enforce 30-minute cooldown before starting expedition animation
       const minsLeft = getRemainingCooldownMins();
       if (minsLeft > 0) {
         updateRefreshCooldownUI();
@@ -2215,7 +1790,6 @@
 
       setRefreshLoading(true);
       const safetyTimer = setTimeout(() => setRefreshLoading(false), 26000);
-
       try {
         const fetchTask = (async () => {
           if (isDemoMode || !supabaseClient) {
@@ -2223,39 +1797,14 @@
             const deltaPct = (Math.random() - 0.52) * 0.006;
             const new24 = Number((Number(prev.rate_24k_gram) * (1 + deltaPct)).toFixed(2));
             const new22 = Number((new24 * (22 / 24)).toFixed(2));
-            appState.history.unshift({
-              id: prev.id + 1,
-              xau_usd: prev.xau_usd,
-              usd_inr: prev.usd_inr,
-              rate_24k_gram: new24,
-              rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)),
-              rate_22k_gram: new22,
-              rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)),
-              ai_analysis: null,
-              fetched_at: new Date().toISOString(),
-            });
+            appState.history.unshift({ id: prev.id + 1, xau_usd: prev.xau_usd, usd_inr: prev.usd_inr, rate_24k_gram: new24, rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)), rate_22k_gram: new22, rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)), ai_analysis: null, fetched_at: new Date().toISOString() });
             return { mode: "demo", new22, new24 };
           } else {
-            const COOLDOWN_MS = 30 * 60 * 1000;
-            const latestRow = appState.history?.[0];
-            const lastDbTs = latestRow?.fetched_at ? new Date(latestRow.fetched_at).getTime() : 0;
-            const lastLocalTs = Number(localStorage.getItem("goldbuddy_last_fetch_ts") || 0);
-            const newestTs = Math.max(lastDbTs, lastLocalTs);
-            const elapsedMs = Date.now() - newestTs;
-
-            if (newestTs > 0 && elapsedMs < COOLDOWN_MS) {
-              const minsLeft = Math.max(1, Math.ceil((COOLDOWN_MS - elapsedMs) / 60000));
-              await fetchDashboardData();
-              return { mode: "cached", minsLeft };
-            }
-
             incrementDailyFetchCount();
             updateRefreshCooldownUI();
             const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
             localStorage.setItem("goldbuddy_last_fetch_ts", String(Date.now()));
-            if (error) {
-              console.warn("Edge function invoke fallback to cached DB:", error.message);
-            }
+            if (error) console.warn("Edge function invoke fallback to cached DB:", error.message);
             await fetchDashboardData();
             return { mode: "live" };
           }
@@ -2263,46 +1812,20 @@
 
         const res = await runGoldExpedition(fetchTask);
         recomputeAndRender();
-
-        // Roll digits & flash cards on reveal
-        const activeRows = getActiveHistoryRows();
-        const latest = activeRows?.[0];
+        const latest = getActiveHistoryRows()?.[0];
         if (latest) {
-          const val22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
-          const val24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
-          animatePriceRoll("price-22k", val22);
-          animatePriceRoll("price-24k", val24);
+          animatePriceRoll("price-22k", includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram);
+          animatePriceRoll("price-24k", includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram);
         }
-
         ["card-22k", "card-24k"].forEach((id) => {
           const card = document.getElementById(id);
-          if (card) {
-            card.classList.remove("card-reveal-flash");
-            void card.offsetWidth;
-            card.classList.add("card-reveal-flash");
-          }
+          if (card) { card.classList.remove("card-reveal-flash"); void card.offsetWidth; card.classList.add("card-reveal-flash"); }
         });
-
-        // Stagger fade-in for Key Drivers Today
-        document.querySelectorAll("#drivers-list > div").forEach((el, idx) => {
-          el.classList.add("driver-stagger");
-          el.style.animationDelay = `${idx * 110}ms`;
-        });
-
-        if (res?.mode === "demo") {
-          showToast("Sample Price Updated", `22K: ${formatINR(res.new22)}/g | 24K: ${formatINR(res.new24)}/g`, "info");
-        } else if (res?.mode === "cached") {
-          showToast("Rate Already Up to Date", `Loaded latest cached rate. Next live fetch in ~${res.minsLeft}m (30-min limit).`, "info");
-        } else {
-          showToast("Gold Price Updated", "Fetched today's latest rate & AI market summary.", "info");
-        }
+        document.querySelectorAll("#drivers-list > div").forEach((el, idx) => { el.classList.add("driver-stagger"); el.style.animationDelay = `${idx * 110}ms`; });
+        showToast("Gold Price Updated", res?.mode === "demo" ? `22K: ${formatINR(res.new22)}/g` : "Fetched today's latest rate & market summary.", "info");
       } catch (err) {
-        console.error("Refresh failed:", err);
         const overlay = document.getElementById("expedition-overlay");
-        if (overlay) {
-          overlay.classList.add("hidden");
-          overlay.classList.remove("flex", "opacity-0");
-        }
+        if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("flex", "opacity-0"); }
         showToast("Update Failed", err.message || "Could not fetch latest price.", "error");
       } finally {
         clearTimeout(safetyTimer);
@@ -2314,7 +1837,6 @@
       const activeRows = getActiveHistoryRows();
       appState.stats22K = calculatePriceStats(activeRows, "22K");
       appState.stats24K = calculatePriceStats(activeRows, "24K");
-
       renderConnectionBadge();
       renderTopCards(activeRows);
       recalculateGoldWorth();
@@ -2325,9 +1847,7 @@
       renderAlerts();
       renderAffiliatePartners();
       updateRefreshCooldownUI();
-      try {
-        if (window.lucide) window.lucide.createIcons();
-      } catch (_e) {}
+      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
     }
 
     function renderConnectionBadge() {
@@ -2335,39 +1855,23 @@
       const text = document.getElementById("status-text");
       const demoBanner = document.getElementById("demo-banner");
       const emptyBanner = document.getElementById("empty-db-banner");
-
       if (isDemoMode) {
-        dot.className = "w-2 h-2 rounded-full bg-amber-400";
-        text.textContent = "Sample Mode";
-        demoBanner.classList.remove("hidden");
-        emptyBanner.classList.add("hidden");
+        dot.className = "w-2 h-2 rounded-full bg-amber-400"; text.textContent = "Sample Mode";
+        demoBanner.classList.remove("hidden"); emptyBanner.classList.add("hidden");
       } else {
-        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse";
-        text.textContent = "Live Rates";
-        demoBanner.classList.add("hidden");
-        emptyBanner.classList.toggle("hidden", appState.history.length > 0);
+        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse"; text.textContent = "Live Rates";
+        demoBanner.classList.add("hidden"); emptyBanner.classList.toggle("hidden", appState.history.length > 0);
       }
     }
 
     function renderTopCards(activeRows) {
-      const latest = activeRows?.[0];
-      const s22 = appState.stats22K;
-      const s24 = appState.stats24K;
-
-      document.getElementById("board-date-badge").textContent = new Date().toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
-
+      const latest = activeRows?.[0]; const s22 = appState.stats22K; const s24 = appState.stats24K;
+      document.getElementById("board-date-badge").textContent = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" });
       if (!latest || !s22 || !s24) return;
-
       document.getElementById("board-usd").textContent = `₹${Number(latest.usd_inr || 93.49).toFixed(2)}`;
       document.getElementById("board-xau").textContent = `$${Number(latest.xau_usd || 3774).toLocaleString("en-US")}/oz`;
-      document.getElementById("updated-time-badge").textContent =
-        scenarioOverride !== "actual" ? "Preview Mode" : timeAgo(latest.fetched_at);
+      document.getElementById("updated-time-badge").textContent = scenarioOverride !== "actual" ? "Preview Mode" : timeAgo(latest.fetched_at);
 
-      // 22K Card
       const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
       const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
       const diff22 = Number((main22 - s22.avgPrice).toFixed(0));
@@ -2377,7 +1881,6 @@
       document.getElementById("subprice-22k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
       document.getElementById("pavan-22k").textContent = formatINR(main22 * 8, 0);
 
-      // 24K Card
       const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
       const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
       const diff24 = Number((main24 - s24.avgPrice).toFixed(0));
@@ -2390,65 +1893,43 @@
 
     function switchCalcMode(mode) {
       calcMode = mode;
-      const btnBudget = document.getElementById("mode-budget-btn");
-      const btnGrams = document.getElementById("mode-grams-btn");
-      const budgetWrap = document.getElementById("calc-budget-wrapper");
-      const gramsWrap = document.getElementById("calc-grams-wrapper");
-
+      const btnBudget = document.getElementById("mode-budget-btn"); const btnGrams = document.getElementById("mode-grams-btn");
+      const budgetWrap = document.getElementById("calc-budget-wrapper"); const gramsWrap = document.getElementById("calc-grams-wrapper");
       if (mode === "budget") {
         btnBudget.className = "px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
         btnGrams.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        budgetWrap.classList.remove("hidden");
-        gramsWrap.classList.add("hidden");
+        budgetWrap.classList.remove("hidden"); gramsWrap.classList.add("hidden");
       } else {
         btnGrams.className = "px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
         btnBudget.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        gramsWrap.classList.remove("hidden");
-        budgetWrap.classList.add("hidden");
+        gramsWrap.classList.remove("hidden"); budgetWrap.classList.add("hidden");
       }
-
       recalculateGoldWorth();
     }
 
     function recalculateGoldWorth() {
-      const activeRows = getActiveHistoryRows();
-      const latest = activeRows?.[0];
+      const latest = getActiveHistoryRows()?.[0];
       if (!latest) return;
-
       const karat = document.getElementById("calc-karat").value;
       const makingPct = Math.max(0, Number(document.getElementById("calc-making").value) || 0);
       const ratePerGram = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
       const effectiveCostPerGram = ratePerGram * (1 + makingPct / 100) * 1.03;
-
-      let goldVal = 0;
-      let makingVal = 0;
-      let gstVal = 0;
-      let totalAmt = 0;
-
+      let goldVal = 0, makingVal = 0, gstVal = 0, totalAmt = 0;
       if (calcMode === "budget") {
         totalAmt = Math.max(0, Number(document.getElementById("calc-budget-inr").value) || 0);
         const buyableGrams = effectiveCostPerGram > 0 ? totalAmt / effectiveCostPerGram : 0;
-        goldVal = buyableGrams * ratePerGram;
-        makingVal = goldVal * (makingPct / 100);
-        gstVal = (goldVal + makingVal) * 0.03;
-
+        goldVal = buyableGrams * ratePerGram; makingVal = goldVal * (makingPct / 100); gstVal = (goldVal + makingVal) * 0.03;
         document.getElementById("res-primary-label").textContent = `Gold You Can Buy (${karat})`;
         document.getElementById("res-primary-val").textContent = `${buyableGrams.toFixed(3)} g`;
       } else {
         const grams = Math.max(0.1, Number(document.getElementById("calc-grams").value) || 0);
-        goldVal = ratePerGram * grams;
-        makingVal = goldVal * (makingPct / 100);
-        gstVal = (goldVal + makingVal) * 0.03;
-        totalAmt = goldVal + makingVal + gstVal;
-
+        goldVal = ratePerGram * grams; makingVal = goldVal * (makingPct / 100); gstVal = (goldVal + makingVal) * 0.03; totalAmt = goldVal + makingVal + gstVal;
         document.getElementById("res-primary-label").textContent = `Final Showroom Bill (${karat})`;
         document.getElementById("res-primary-val").textContent = formatINR(totalAmt, 0);
       }
-
       document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
       document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
       document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
-
       if (totalAmt > 0) {
         const goldPct = Math.max(5, Math.round((goldVal / totalAmt) * 100));
         const makingBarPct = Math.max(0, Math.round((makingVal / totalAmt) * 100));
@@ -2459,347 +1940,124 @@
       }
     }
 
-    // =========================================================================
-    // ROCKET FLIGHT & GOLDEN CRACKER BURST ANIMATION
-    // =========================================================================
     const fxCanvas = document.getElementById("fx-canvas");
     const fxCtx = fxCanvas.getContext("2d");
-    let fxParticles = [];
-    let fxAnimId = null;
-    let isRocketLaunching = false;
-
-    function resizeFxCanvas() {
-      if (!fxCanvas) return;
-      fxCanvas.width = window.innerWidth;
-      fxCanvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeFxCanvas);
-    resizeFxCanvas();
+    let fxParticles = []; let fxAnimId = null; let isRocketLaunching = false;
+    function resizeFxCanvas() { if (!fxCanvas) return; fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight; }
+    window.addEventListener("resize", resizeFxCanvas); resizeFxCanvas();
 
     class GoldSpark {
       constructor(x, y, vx, vy, color, size, decay, gravity = 0.065, isStreak = false) {
-        this.x = x;
-        this.y = y;
-        this.prevX = x;
-        this.prevY = y;
-        this.vx = vx;
-        this.vy = vy;
-        this.color = color;
-        this.size = size;
-        this.alpha = 1;
-        this.decay = decay;
-        this.gravity = gravity;
-        this.isStreak = isStreak;
+        this.x = x; this.y = y; this.prevX = x; this.prevY = y; this.vx = vx; this.vy = vy;
+        this.color = color; this.size = size; this.alpha = 1; this.decay = decay; this.gravity = gravity; this.isStreak = isStreak;
       }
-
-      update() {
-        this.prevX = this.x;
-        this.prevY = this.y;
-        this.vx *= 0.97;
-        this.vy = this.vy * 0.97 + this.gravity;
-        this.x += this.vx;
-        this.y += this.vy;
-        this.alpha -= this.decay;
-      }
-
+      update() { this.prevX = this.x; this.prevY = this.y; this.vx *= 0.97; this.vy = this.vy * 0.97 + this.gravity; this.x += this.vx; this.y += this.vy; this.alpha -= this.decay; }
       draw(ctx) {
         if (this.alpha <= 0) return;
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, this.alpha);
-        ctx.strokeStyle = this.color;
-        ctx.fillStyle = this.color;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "#FBBF24";
-
-        if (this.isStreak) {
-          ctx.lineWidth = this.size;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(this.prevX, this.prevY);
-          ctx.lineTo(this.x, this.y);
-          ctx.stroke();
-        } else {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.save(); ctx.globalAlpha = Math.max(0, this.alpha); ctx.strokeStyle = this.color; ctx.fillStyle = this.color; ctx.shadowBlur = 10; ctx.shadowColor = "#FBBF24";
+        if (this.isStreak) { ctx.lineWidth = this.size; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(this.prevX, this.prevY); ctx.lineTo(this.x, this.y); ctx.stroke(); }
+        else { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
         ctx.restore();
       }
     }
-
     function stepFxLoop() {
       fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
       fxParticles = fxParticles.filter((p) => p.alpha > 0);
-      for (const p of fxParticles) {
-        p.update();
-        p.draw(fxCtx);
-      }
-      if (fxParticles.length > 0) {
-        fxAnimId = requestAnimationFrame(stepFxLoop);
-      } else {
-        fxAnimId = null;
-      }
+      for (const p of fxParticles) { p.update(); p.draw(fxCtx); }
+      fxAnimId = fxParticles.length > 0 ? requestAnimationFrame(stepFxLoop) : null;
     }
-
-    function startFxLoop() {
-      if (!fxAnimId) {
-        fxAnimId = requestAnimationFrame(stepFxLoop);
-      }
-    }
-
+    function startFxLoop() { if (!fxAnimId) fxAnimId = requestAnimationFrame(stepFxLoop); }
     function burstGoldenCrackers(cx, cy) {
       const palette = ["#FFFBEB", "#FEF08A", "#FDE047", "#FBBF24", "#F59E0B", "#FB923C"];
-
-      const rayCount = 48;
-      for (let i = 0; i < rayCount; i++) {
-        const angle = (Math.PI * 2 * i) / rayCount + (Math.random() - 0.5) * 0.08;
-        const speed = 4.5 + Math.random() * 6.5;
-        const color = palette[Math.floor(Math.random() * palette.length)];
-        fxParticles.push(
-          new GoldSpark(
-            cx,
-            cy,
-            Math.cos(angle) * speed,
-            Math.sin(angle) * speed,
-            color,
-            2.1 + Math.random() * 1.4,
-            0.016 + Math.random() * 0.01,
-            0.075,
-            true
-          )
-        );
+      for (let i = 0; i < 48; i++) {
+        const angle = (Math.PI * 2 * i) / 48 + (Math.random() - 0.5) * 0.08; const speed = 4.5 + Math.random() * 6.5;
+        fxParticles.push(new GoldSpark(cx, cy, Math.cos(angle) * speed, Math.sin(angle) * speed, palette[Math.floor(Math.random() * palette.length)], 2.1 + Math.random() * 1.4, 0.016 + Math.random() * 0.01, 0.075, true));
       }
-
-      for (let i = 0; i < 100; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 1.2 + Math.random() * 8.5;
-        const color = palette[Math.floor(Math.random() * palette.length)];
-        fxParticles.push(
-          new GoldSpark(
-            cx,
-            cy,
-            Math.cos(angle) * speed,
-            Math.sin(angle) * speed,
-            color,
-            1.2 + Math.random() * 2.0,
-            0.018 + Math.random() * 0.018,
-            0.055,
-            false
-          )
-        );
+      for (let i = 0; i < 90; i++) {
+        const angle = Math.random() * Math.PI * 2; const speed = 1.2 + Math.random() * 8.5;
+        fxParticles.push(new GoldSpark(cx, cy, Math.cos(angle) * speed, Math.sin(angle) * speed, palette[Math.floor(Math.random() * palette.length)], 1.2 + Math.random() * 2.0, 0.018 + Math.random() * 0.018, 0.055, false));
       }
-
-      for (let i = 0; i < 18; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 0.5 + Math.random() * 2.2;
-        fxParticles.push(
-          new GoldSpark(
-            cx,
-            cy,
-            Math.cos(angle) * speed,
-            Math.sin(angle) * speed,
-            "#FFFFFF",
-            2.6,
-            0.045,
-            0.01,
-            false
-          )
-        );
-      }
-
       startFxLoop();
     }
 
     function syncCalculatorToPlan(evt) {
-      let amt = 0;
-      if (calcMode === "budget") {
-        amt = Math.round(Number(document.getElementById("calc-budget-inr").value) || 0);
-      } else {
-        const text = document.getElementById("res-primary-val").textContent.replace(/[₹,]/g, "");
-        amt = Math.round(Number(text) || 0);
-      }
-
-      if (amt < 1000) {
-        showToast("Enter Higher Amount", "Please enter at least ₹1,000.", "error");
-        return;
-      }
-
+      let amt = calcMode === "budget" ? Math.round(Number(document.getElementById("calc-budget-inr").value) || 0) : Math.round(Number(document.getElementById("res-primary-val").textContent.replace(/[₹,]/g, "")) || 0);
+      if (amt < 1000) { showToast("Enter Higher Amount", "Please enter at least ₹1,000.", "error"); return; }
       if (isRocketLaunching) return;
-
       const sourceBtn = (evt && evt.currentTarget) || document.getElementById("use-in-plan-btn");
       const targetInput = document.getElementById("auto-budget-inr");
       const rocketEl = document.getElementById("budget-rocket");
-
       const initialTargetRect = targetInput.getBoundingClientRect();
-      if (initialTargetRect.top < 80 || initialTargetRect.bottom > window.innerHeight - 60) {
-        targetInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-
-      isRocketLaunching = true;
-      rocketEl.style.display = "block";
-
-      const duration = 880;
+      if (initialTargetRect.top < 80 || initialTargetRect.bottom > window.innerHeight - 60) targetInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      isRocketLaunching = true; rocketEl.style.display = "block";
       const startTime = performance.now();
-
       function animateRocket(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(1, elapsed / duration);
+        const t = Math.min(1, (now - startTime) / 880);
         const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-        // Read live DOM positions every frame so smooth scrolling never offsets the origin or target
-        const startRect = sourceBtn.getBoundingClientRect();
-        const startX = startRect.left + startRect.width / 2;
-        const startY = startRect.top + startRect.height / 2;
-
-        const endRect = targetInput.getBoundingClientRect();
-        const endX = endRect.left + Math.min(95, endRect.width * 0.45);
-        const endY = endRect.top + endRect.height / 2;
-
-        const ctrlX = (startX + endX) / 2 + 90;
-        const ctrlY = Math.min(startY, endY) - 95;
-
-        const invT = 1 - ease;
+        const startRect = sourceBtn.getBoundingClientRect(); const startX = startRect.left + startRect.width / 2; const startY = startRect.top + startRect.height / 2;
+        const endRect = targetInput.getBoundingClientRect(); const endX = endRect.left + Math.min(95, endRect.width * 0.45); const endY = endRect.top + endRect.height / 2;
+        const ctrlX = (startX + endX) / 2 + 90; const ctrlY = Math.min(startY, endY) - 95; const invT = 1 - ease;
         const curX = invT * invT * startX + 2 * invT * ease * ctrlX + ease * ease * endX;
         const curY = invT * invT * startY + 2 * invT * ease * ctrlY + ease * ease * endY;
-
-        const dx = 2 * invT * (ctrlX - startX) + 2 * ease * (endX - ctrlX);
-        const dy = 2 * invT * (ctrlY - startY) + 2 * ease * (endY - ctrlY);
-        const angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI + 45;
-
-        rocketEl.style.left = `${curX - 21}px`;
-        rocketEl.style.top = `${curY - 21}px`;
-        rocketEl.style.transform = `rotate(${angleDeg}deg) scale(${1 + Math.sin(t * Math.PI) * 0.25})`;
-
-        for (let i = 0; i < 3; i++) {
-          fxParticles.push(
-            new GoldSpark(
-              curX - dx * 0.035 + (Math.random() - 0.5) * 6,
-              curY - dy * 0.035 + (Math.random() - 0.5) * 6,
-              -dx * 0.014 + (Math.random() - 0.5) * 1.4,
-              -dy * 0.014 + (Math.random() - 0.5) * 1.4,
-              Math.random() > 0.35 ? "#FBBF24" : "#FEF08A",
-              1.6 + Math.random() * 1.4,
-              0.045,
-              0.02,
-              false
-            )
-          );
-        }
+        const dx = 2 * invT * (ctrlX - startX) + 2 * ease * (endX - ctrlX); const dy = 2 * invT * (ctrlY - startY) + 2 * ease * (endY - ctrlY);
+        rocketEl.style.left = `${curX - 21}px`; rocketEl.style.top = `${curY - 21}px`;
+        rocketEl.style.transform = `rotate(${(Math.atan2(dy, dx) * 180) / Math.PI + 45}deg) scale(${1 + Math.sin(t * Math.PI) * 0.25})`;
+        for (let i = 0; i < 3; i++) fxParticles.push(new GoldSpark(curX - dx * 0.035, curY - dy * 0.035, -dx * 0.014, -dy * 0.014, "#FBBF24", 1.8, 0.045, 0.02, false));
         startFxLoop();
-
-        if (t < 1) {
-          requestAnimationFrame(animateRocket);
-        } else {
-          rocketEl.style.display = "none";
-          isRocketLaunching = false;
-
-          targetInput.value = amt;
-
-          targetInput.classList.remove("budget-burst-flash");
-          void targetInput.offsetWidth;
-          targetInput.classList.add("budget-burst-flash");
-
+        if (t < 1) requestAnimationFrame(animateRocket);
+        else {
+          rocketEl.style.display = "none"; isRocketLaunching = false; targetInput.value = amt;
+          targetInput.classList.remove("budget-burst-flash"); void targetInput.offsetWidth; targetInput.classList.add("budget-burst-flash");
           burstGoldenCrackers(endX, endY);
         }
       }
-
       requestAnimationFrame(animateRocket);
     }
 
     function updateBuyConfidenceGauge(pct, badgeText, captionText, tone) {
       const clampedPct = Math.max(5, Math.min(98, pct));
       const angle = Math.PI * (1 - clampedPct / 100);
-      const cx = 110 + 84 * Math.cos(angle);
-      const cy = 104 - 84 * Math.sin(angle);
-
-      const dot = document.getElementById("confidence-dot");
-      const halo = document.getElementById("confidence-dot-halo");
-      const pctEl = document.getElementById("outlook-confidence-pct");
-      const badgeEl = document.getElementById("outlook-confidence-badge");
-      const capEl = document.getElementById("outlook-confidence-caption");
-
-      if (dot && halo) {
-        dot.setAttribute("cx", cx.toFixed(1));
-        dot.setAttribute("cy", cy.toFixed(1));
-        halo.setAttribute("cx", cx.toFixed(1));
-        halo.setAttribute("cy", cy.toFixed(1));
-      }
-
-      if (pctEl) pctEl.textContent = `${clampedPct}%`;
-      if (capEl) capEl.textContent = captionText;
-
+      const cx = 110 + 84 * Math.cos(angle); const cy = 104 - 84 * Math.sin(angle);
+      const dot = document.getElementById("confidence-dot"); const halo = document.getElementById("confidence-dot-halo");
+      const pctEl = document.getElementById("outlook-confidence-pct"); const badgeEl = document.getElementById("outlook-confidence-badge"); const capEl = document.getElementById("outlook-confidence-caption");
+      if (dot && halo) { dot.setAttribute("cx", cx.toFixed(1)); dot.setAttribute("cy", cy.toFixed(1)); halo.setAttribute("cx", cx.toFixed(1)); halo.setAttribute("cy", cy.toFixed(1)); }
+      if (pctEl) pctEl.textContent = `${clampedPct}%`; if (capEl) capEl.textContent = captionText;
       if (tone === "high") {
-        if (dot) dot.setAttribute("stroke", "#10B981");
-        if (halo) halo.setAttribute("fill", "rgba(16, 185, 129, 0.35)");
-        if (badgeEl) {
-          badgeEl.textContent = badgeText;
-          badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
-        }
-      } else if (tone === "low") {
-        if (dot) dot.setAttribute("stroke", "#EF4444");
-        if (halo) halo.setAttribute("fill", "rgba(239, 68, 68, 0.35)");
-        if (badgeEl) {
-          badgeEl.textContent = badgeText;
-          badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
-        }
+        if (dot) dot.setAttribute("stroke", "#10B981"); if (halo) halo.setAttribute("fill", "rgba(16, 185, 129, 0.35)");
+        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"; }
       } else {
-        if (dot) dot.setAttribute("stroke", "#F59E0B");
-        if (halo) halo.setAttribute("fill", "rgba(245, 158, 11, 0.35)");
-        if (badgeEl) {
-          badgeEl.textContent = badgeText;
-          badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30";
-        }
+        if (dot) dot.setAttribute("stroke", "#EF4444"); if (halo) halo.setAttribute("fill", "rgba(239, 68, 68, 0.35)");
+        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30"; }
       }
     }
 
     function renderMarketStory(activeRows) {
-      const s22 = appState.stats22K;
-      const latest = activeRows?.[0];
-      const pill = document.getElementById("trend-pill");
-      const headlineEl = document.getElementById("verdict-headline");
-      const story = document.getElementById("plain-english-story");
-      const driversEl = document.getElementById("drivers-list");
-      const aiBadge = document.getElementById("ai-badge");
-      const recText = document.getElementById("ai-recommendation-text");
-
-      const outlookTrend = document.getElementById("outlook-trend-badge");
-      const outlookExpected = document.getElementById("outlook-expected-band");
-      const outlookDip = document.getElementById("outlook-dip-band");
-      const outlookBounce = document.getElementById("outlook-bounce-band");
-
+      const s22 = appState.stats22K; const latest = activeRows?.[0];
+      const pill = document.getElementById("trend-pill"); const headlineEl = document.getElementById("verdict-headline");
+      const story = document.getElementById("plain-english-story"); const driversEl = document.getElementById("drivers-list");
+      const aiBadge = document.getElementById("ai-badge"); const recText = document.getElementById("ai-recommendation-text");
+      const outlookTrend = document.getElementById("outlook-trend-badge"); const outlookExpected = document.getElementById("outlook-expected-band");
+      const outlookDip = document.getElementById("outlook-dip-band"); const outlookBounce = document.getElementById("outlook-bounce-band");
       if (!s22) return;
 
       const base22 = s22.latestPrice;
-      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988));
-      const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
-      const dipLow = Math.round(s22.avgPrice * 0.975);
-      const dipHigh = Math.round(s22.avgPrice * 0.985);
-      const bounceLow = Math.round(s22.avgPrice * 1.012);
-      const bounceHigh = Math.round(s22.avgPrice * 1.024);
+      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988)); const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
+      const dipLow = Math.round(s22.avgPrice * 0.975); const dipHigh = Math.round(s22.avgPrice * 0.985);
+      const bounceLow = Math.round(s22.avgPrice * 1.012); const bounceHigh = Math.round(s22.avgPrice * 1.024);
 
       outlookExpected.textContent = `${formatINR(expLow, 0)} – ${formatINR(expHigh, 0)} / g`;
       outlookDip.textContent = `${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)} / g`;
       outlookBounce.textContent = `${formatINR(bounceLow, 0)} – ${formatINR(bounceHigh, 0)} / g`;
 
       if (s22.isRising) {
-        outlookTrend.textContent = "Mildly Higher";
-        outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
-        const riseConf = Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8)));
-        updateBuyConfidenceGauge(riseConf, "Elevated Price Signal", "Prices elevated — wait for a dip", "low");
+        outlookTrend.textContent = "Mildly Higher"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
+        updateBuyConfidenceGauge(Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8))), "Elevated Price Signal", "Above 5-day average — avoid chasing spikes", "low");
       } else {
-        outlookTrend.textContent = "Stable to Mildly Lower";
-        outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
-        const dipConf = Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6)));
-        updateBuyConfidenceGauge(dipConf, "Favourable Dip Signal", "Favourable to buy the first part now", "high");
+        outlookTrend.textContent = "Stable to Mildly Lower"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
+        updateBuyConfidenceGauge(Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6))), "Favourable Dip Signal", "Below 5-day average — consider staggered entry", "high");
       }
 
-      const badgeColors = [
-        "bg-amber-500/15 text-amber-400",
-        "bg-sky-500/15 text-sky-400",
-        "bg-emerald-500/15 text-emerald-400",
-        "bg-purple-500/15 text-purple-300",
-      ];
-
+      const badgeColors = ["bg-amber-500/15 text-amber-400", "bg-sky-500/15 text-sky-400", "bg-emerald-500/15 text-emerald-400", "bg-purple-500/15 text-purple-300"];
       if (latest?.ai_analysis?.drivers && scenarioOverride === "actual") {
         aiBadge.classList.remove("hidden");
         pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : `Prices Rising (+${s22.pctVsAvg}%)`;
@@ -2807,109 +2065,44 @@
         headlineEl.textContent = latest.ai_analysis.headline;
         headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
         story.textContent = latest.ai_analysis.story;
-
         const drivers = [...latest.ai_analysis.drivers];
-        if (drivers.length < 4) {
-          drivers.push({
-            title: "Buy in parts (recommended)",
-            detail: "Start with 30–35% of your budget and add more if prices dip further.",
-          });
-        }
-
-        driversEl.innerHTML = drivers
-          .map((d, idx) => `
-            <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-              <span class="w-5 h-5 rounded-full ${badgeColors[idx % 4]} text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
-              <div>
-                <div class="text-xs font-semibold text-white">${escapeHtml(d.title)}</div>
-                <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(d.detail)}</p>
-              </div>
+        if (drivers.length < 4) drivers.push({ title: "Buy in parts (recommended)", detail: "Consider splitting your budget into 3 parts rather than buying 100% on one day." });
+        driversEl.innerHTML = drivers.map((d, idx) => `
+          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full ${badgeColors[idx % 4]} text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
+            <div>
+              <div class="text-xs font-semibold text-white">${escapeHtml(d.title)}</div>
+              <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(d.detail)}</p>
             </div>
-          `)
-          .join("");
-
+          </div>
+        `).join("");
         recText.textContent = s22.pctVsAvg <= 0
-          ? `Buy your first part now (≈ 30–35% of budget), and keep the rest ready for potential dips near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
-          : `Hold off on bulk buying today; set alerts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g to catch the next pullback.`;
+          ? `Prices are slightly below the 5-day average. If buying for a long-term need, consider a staggered first part and watch ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
+          : `Prices are above the 5-day average. Consider waiting or setting staggered alerts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
         return;
       }
 
       aiBadge.classList.add("hidden");
-      if (s22.isRising) {
-        pill.textContent = `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)`;
-        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30";
-        headlineEl.textContent = "Prices Rising — Wait for a Dip Before Buying Heavy";
-        headlineEl.className = "text-sm sm:text-base font-bold text-rose-400 mb-1.5";
-        story.textContent = `22K gold has moved ${s22.pctVsAvg}% above its 5-day average (${formatINR(s22.avgPrice)}/g). Rather than chasing a rally, split your purchase and let prices cool down:`;
-        driversEl.innerHTML = `
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-rose-500/15 text-rose-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Central Banks & ETFs Buying</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">Steady institutional gold purchases are absorbing supply and lifting prices.</p>
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Wedding Season Restocking</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">Strong domestic jewellery demand keeps local retail discounts narrow.</p>
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Rupee & Safe-Haven Demand</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">Global uncertainty and currency moves make imported bullion costlier.</p>
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Buy in parts (recommended)</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">Avoid buying 100% during a spike; set alerts for the next pullback.</p>
-            </div>
-          </div>
-        `;
-        recText.textContent = `Prices are elevated today—wait for a dip toward ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g before deploying your main budget.`;
-      } else {
-        pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady";
-        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30";
-        headlineEl.textContent = "Prices Stay Steady — Buy Your First Part";
-        headlineEl.className = "text-sm sm:text-base font-bold text-emerald-400 mb-1.5";
-        story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% below its 5-day average (${formatINR(s22.avgPrice)}/g), making today a favourable window to start accumulating in parts:`;
-        driversEl.innerHTML = `
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Global prices cooled slightly</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">Firm US interest rates and a stronger Dollar eased global spot prices.</p>
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Indian Rupee holding steady</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">Stable USD/INR exchange rates allow global dips to reach local buyers.</p>
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Limited downside for now</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">With physical demand active, prices have strong support near ${formatINR(dipLow, 0)}/g.</p>
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full bg-purple-500/15 text-purple-300 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
-            <div>
-              <div class="text-xs font-semibold text-white">Buy in parts (recommended)</div>
-              <p class="text-[11px] text-slate-400 mt-0.5">Start with a small purchase (≈ 1/3 of your budget) and add more if prices dip further.</p>
-            </div>
-          </div>
-        `;
-        recText.textContent = `Buy your first part now (≈ 30–35% of budget), and keep the rest ready for potential dips near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
-      }
+      pill.textContent = s22.isRising ? `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)` : (s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady");
+      pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s22.isRising ? "bg-rose-500/15 text-rose-400 border-rose-500/30" : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"}`;
+      headlineEl.textContent = s22.isRising ? "Elevated Momentum — Watch for Pullbacks" : "Below 5-Day Average — Staggered Entry Window";
+      headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.isRising ? "text-rose-400" : "text-emerald-400"}`;
+      story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% ${s22.isRising ? "above" : "below"} its 5-day average (${formatINR(s22.avgPrice)}/g). These signals describe recent movement and do not guarantee future prices:`;
+      driversEl.innerHTML = `
+        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <div><div class="text-xs font-semibold text-white">Global bullion &amp; USD rates</div><p class="text-[11px] text-slate-400 mt-0.5">International spot XAU/USD and US interest expectations influence daily Indian rates.</p></div>
+        </div>
+        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <div><div class="text-xs font-semibold text-white">USD/INR exchange movement</div><p class="text-[11px] text-slate-400 mt-0.5">Rupee strength or weakness directly affects landed gold prices in India.</p></div>
+        </div>
+        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <div><div class="text-xs font-semibold text-white">Staggered buying reduces timing risk</div><p class="text-[11px] text-slate-400 mt-0.5">Splitting purchases across 3 levels helps average out short-term volatility.</p></div>
+        </div>
+      `;
+      recText.textContent = `If you are buying for a planned occasion, consider splitting your budget into 3 parts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g rather than relying on a single day's rate.`;
     }
 
     function renderDateForecast() {
@@ -2917,34 +2110,13 @@
       const karat = document.getElementById("forecast-karat").value;
       const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
       if (!stats || !daysSelect) return;
-
       const daysAhead = Math.min(MAX_FORECAST_DAYS, Math.max(1, Number(daysSelect.value || 5)));
       const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0035;
       const clampedDailyRate = Math.max(-0.0045, Math.min(0.0045, rawDailyRate));
-
-      const supportFloor = stats.avgPrice * 0.965;
-      const rallyCeiling = stats.avgPrice * 1.035;
-
-      const rawProjected = stats.latestPrice * (1 + clampedDailyRate * Math.sqrt(daysAhead));
-      const expectedPrice = Math.min(rallyCeiling, Math.max(supportFloor, rawProjected));
-
+      const supportFloor = stats.avgPrice * 0.965; const rallyCeiling = stats.avgPrice * 1.035;
+      const expectedPrice = Math.min(rallyCeiling, Math.max(supportFloor, stats.latestPrice * (1 + clampedDailyRate * Math.sqrt(daysAhead))));
       const lowestPrice = Math.max(supportFloor * 0.992, Math.min(stats.latestPrice, expectedPrice) * (1 - 0.003 * Math.sqrt(daysAhead)));
       const highestPrice = Math.min(rallyCeiling * 1.008, Math.max(stats.latestPrice, expectedPrice) * (1 + 0.004 * Math.sqrt(daysAhead)));
-
-      const baseLabel = document.getElementById("forecast-base-label");
-      const floorLabel = document.getElementById("forecast-floor-label");
-      const ceilLabel = document.getElementById("forecast-ceil-label");
-
-      if (expectedPrice > stats.latestPrice * 1.001) {
-        floorLabel.textContent = "Optimistic Scenario (If Prices Cool):";
-        baseLabel.textContent = "Trend Scenario (If Rise Continues):";
-        ceilLabel.textContent = "Risk Scenario (If Rally Speeds Up):";
-      } else {
-        floorLabel.textContent = "Optimistic Scenario (If Dip Continues):";
-        baseLabel.textContent = "Trend Scenario (If Dip Continues):";
-        ceilLabel.textContent = "Risk Scenario (If Market Bounces):";
-      }
-
       document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice)} / g`;
       document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice)} / g`;
       document.getElementById("forecast-ceil-price").textContent = `${formatINR(highestPrice)} / g`;
@@ -2955,151 +2127,56 @@
       const karat = document.getElementById("forecast-karat").value;
       const activeRows = getActiveHistoryRows();
       const latest = activeRows?.[0];
-
-      if (!totalBudget || totalBudget < 1000) {
-        showToast("Enter Budget", "Please enter at least ₹1,000.", "error");
-        return;
-      }
-      if (!latest) {
-        showToast("No Price Yet", "Click Update Price first so we have today's rate.", "error");
-        return;
-      }
-
+      if (!totalBudget || totalBudget < 1000) { showToast("Enter Budget", "Please enter at least ₹1,000.", "error"); return; }
+      if (!latest) { showToast("No Price Yet", "Click Update Price first.", "error"); return; }
       const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
-      const p1Rate = Number((currentBase * 0.998).toFixed(2));
-      const p2Rate = Number((currentBase * 0.988).toFixed(2));
-      const p3Rate = Number((currentBase * 0.976).toFixed(2));
-
       const plan = [
-        { label: `Part 1 (30%) — Buy Today on Dip`, karat, target_rate_gram: p1Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
-        { label: `Part 2 (40%) — Buy on Small Drop`, karat, target_rate_gram: p2Rate, allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
-        { label: `Part 3 (30%) — Buy on Bigger Dip`, karat, target_rate_gram: p3Rate, allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+        { label: `Part 1 (30%) — Buy Today on Dip`, karat, target_rate_gram: Number((currentBase * 0.998).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+        { label: `Part 2 (40%) — Buy on Small Drop`, karat, target_rate_gram: Number((currentBase * 0.988).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
+        { label: `Part 3 (30%) — Buy on Bigger Dip`, karat, target_rate_gram: Number((currentBase * 0.976).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
       ];
-
       if (isDemoMode || !supabaseClient || !currentUser) {
         appState.tranches = plan.map((t, idx) => ({ id: `part-${Date.now()}-${idx}`, ...t }));
         if (!isDemoMode && supabaseClient && !currentUser) {
           localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
           showToast("Plan Saved Locally", "Sign in to sync your 3-part plan & receive cloud alerts.", "info");
-        } else {
-          showToast("3-Part Plan Ready!", `Split ${formatINR(totalBudget, 0)} into 3 safe buying steps.`, "info");
-        }
-        renderTranches(activeRows);
-        return;
+        } else showToast("3-Part Plan Ready!", `Split ${formatINR(totalBudget, 0)} into 3 steps.`, "info");
+        renderTranches(activeRows); return;
       }
-
       try {
-        const rowsWithUser = plan.map((row) => ({ ...row, user_id: currentUser.id }));
-        const { error } = await supabaseClient.from("buy_tranches").insert(rowsWithUser);
+        const { error } = await supabaseClient.from("buy_tranches").insert(plan.map((r) => ({ ...r, user_id: currentUser.id })));
         if (error) throw error;
         await fetchDashboardData();
         showToast("3-Part Plan Saved!", `We will alert you as ${karat} gold drops to each target.`, "info");
-      } catch (err) {
-        showToast("Could Not Save Plan", err.message, "error");
-      }
+      } catch (err) { showToast("Could Not Save Plan", err.message, "error"); }
     }
 
     function renderChart(activeRows) {
       const stats = activeChartKarat === "24K" ? appState.stats24K : appState.stats22K;
       if (!stats || !activeRows || activeRows.length === 0 || typeof Chart === "undefined") return;
-
       document.getElementById("band-lower").textContent = formatINR(stats.bargainPrice);
       document.getElementById("band-mean").textContent = formatINR(stats.avgPrice);
       document.getElementById("band-upper").textContent = formatINR(stats.highPrice);
-
-      const field =
-        activeChartKarat === "24K"
-          ? includeGst ? "rate_24k_with_gst" : "rate_24k_gram"
-          : includeGst ? "rate_22k_with_gst" : "rate_22k_gram";
-
-      const chrono = [...activeRows]
-        .slice(0, 60)
-        .sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
-
-      const labels = chrono.map((r) => {
-        const d = new Date(r.fetched_at);
-        return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " +
-               d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
-      });
-
-      const prices = chrono.map((r) => Number(r[field]));
-      const avgSeries = chrono.map(() => stats.avgPrice);
-      const bargainSeries = chrono.map(() => stats.bargainPrice);
-
-      const canvas = document.getElementById("goldChart");
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (chartInstance) chartInstance.destroy();
-
-      const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-      gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)");
-      gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
-
+      const field = activeChartKarat === "24K" ? (includeGst ? "rate_24k_with_gst" : "rate_24k_gram") : (includeGst ? "rate_22k_with_gst" : "rate_22k_gram");
+      const chrono = [...activeRows].slice(0, 60).sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
+      const labels = chrono.map((r) => { const d = new Date(r.fetched_at); return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }); });
+      const canvas = document.getElementById("goldChart"); if (!canvas) return;
+      const ctx = canvas.getContext("2d"); if (chartInstance) chartInstance.destroy();
+      const gradient = ctx.createLinearGradient(0, 0, 0, 260); gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)"); gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
       chartInstance = new Chart(ctx, {
         type: "line",
         data: {
           labels,
           datasets: [
-            {
-              label: `${activeChartKarat} Gold Price (₹/g)`,
-              data: prices,
-              borderColor: "#FBBF24",
-              backgroundColor: gradient,
-              borderWidth: 2.5,
-              pointRadius: chrono.length > 30 ? 1 : 4,
-              pointBackgroundColor: "#FBBF24",
-              fill: true,
-              tension: 0.25,
-            },
-            {
-              label: "5-Day Average",
-              data: avgSeries,
-              borderColor: "rgba(148, 163, 184, 0.55)",
-              borderWidth: 1.5,
-              borderDash: [4, 4],
-              pointRadius: 0,
-              fill: false,
-            },
-            {
-              label: "Good Bargain Price",
-              data: bargainSeries,
-              borderColor: "rgba(16, 185, 129, 0.75)",
-              borderWidth: 1.5,
-              borderDash: [4, 4],
-              pointRadius: 0,
-              fill: false,
-            },
+            { label: `${activeChartKarat} Gold Price (₹/g)`, data: chrono.map((r) => Number(r[field])), borderColor: "#FBBF24", backgroundColor: gradient, borderWidth: 2.5, pointRadius: chrono.length > 30 ? 1 : 4, pointBackgroundColor: "#FBBF24", fill: true, tension: 0.25 },
+            { label: "5-Day Average", data: chrono.map(() => stats.avgPrice), borderColor: "rgba(148, 163, 184, 0.55)", borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: false },
+            { label: "Good Bargain Price", data: chrono.map(() => stats.bargainPrice), borderColor: "rgba(16, 185, 129, 0.75)", borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: false },
           ],
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode: "index", intersect: false },
-          plugins: {
-            legend: { labels: { color: "#94A3B8", font: { size: 11, family: "Inter" }, boxWidth: 12 } },
-            tooltip: {
-              backgroundColor: "#0F172A",
-              titleColor: "#F8FAFC",
-              bodyColor: "#CBD5E1",
-              borderColor: "#334155",
-              borderWidth: 1,
-              callbacks: { label: (ctx) => `${ctx.dataset.label}: ${formatINR(ctx.parsed.y)}` },
-            },
-          },
-          scales: {
-            x: {
-              grid: { color: "rgba(30, 41, 59, 0.4)" },
-              ticks: { color: "#64748B", font: { size: 10 }, maxTicksLimit: 6 },
-            },
-            y: {
-              grid: { color: "rgba(30, 41, 59, 0.4)" },
-              ticks: {
-                color: "#94A3B8",
-                font: { size: 11, family: "JetBrains Mono" },
-                callback: (val) => "₹" + Number(val).toLocaleString("en-IN"),
-              },
-            },
-          },
+          responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+          plugins: { legend: { labels: { color: "#94A3B8", font: { size: 11, family: "Inter" }, boxWidth: 12 } }, tooltip: { backgroundColor: "#0F172A", titleColor: "#F8FAFC", bodyColor: "#CBD5E1", borderColor: "#334155", borderWidth: 1, callbacks: { label: (c) => `${c.dataset.label}: ${formatINR(c.parsed.y)}` } } },
+          scales: { x: { grid: { color: "rgba(30, 41, 59, 0.4)" }, ticks: { color: "#64748B", font: { size: 10 }, maxTicksLimit: 6 } }, y: { grid: { color: "rgba(30, 41, 59, 0.4)" }, ticks: { color: "#94A3B8", font: { size: 11, family: "JetBrains Mono" }, callback: (v) => "₹" + Number(v).toLocaleString("en-IN") } } },
         },
       });
     }
@@ -3108,22 +2185,13 @@
       const container = document.getElementById("tranches-list");
       const latest = activeRows?.[0];
       if (!container) return;
-
       const tranches = appState.tranches || [];
       const totalBudget = tranches.reduce((sum, t) => sum + (Number(t.allocation_inr) || 0), 0);
-
-      // Update Plan Overview bar
-      const totalGrams = tranches.reduce((sum, t) => {
-        const targetBase = Number(t.target_rate_gram) || 0;
-        const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
-        return sum + (displayTarget > 0 ? (Number(t.allocation_inr) || 0) / displayTarget : 0);
-      }, 0);
-      const avgTargetPrice = totalGrams > 0 ? totalBudget / totalGrams : 0;
-
+      const totalGrams = tranches.reduce((sum, t) => { const tb = Number(t.target_rate_gram) || 0; const dt = includeGst ? tb * 1.03 : tb; return sum + (dt > 0 ? (Number(t.allocation_inr) || 0) / dt : 0); }, 0);
       document.getElementById("overview-parts").textContent = String(tranches.length);
       document.getElementById("overview-budget").textContent = formatINR(totalBudget, 0);
       document.getElementById("overview-grams").textContent = `≈ ${totalGrams.toFixed(2)} g`;
-      document.getElementById("overview-avg-price").textContent = avgTargetPrice > 0 ? `${formatINR(avgTargetPrice)} / g` : "—";
+      document.getElementById("overview-avg-price").textContent = totalGrams > 0 ? `${formatINR(totalBudget / totalGrams)} / g` : "—";
 
       if (tranches.length === 0) {
         container.innerHTML = `<div class="sm:col-span-3 rounded-xl border border-dashed border-slate-800 p-6 text-center text-xs text-slate-400">Enter your total gold budget above and click <strong class="text-amber-400">Split Into 3 Smart Parts</strong> to create your plan.</div>`;
@@ -3131,154 +2199,87 @@
       }
 
       const themes = [
-        {
-          border: "border-emerald-500/35",
-          bg: "from-emerald-500/12 via-slate-900/95 to-slate-950",
-          ringStroke: "#10B981",
-          waveStroke: "rgba(16, 185, 129, 0.35)",
-          iconName: "sprout",
-          iconColor: "text-emerald-400",
-          bellColor: "text-emerald-400",
-        },
-        {
-          border: "border-sky-500/35",
-          bg: "from-sky-500/12 via-slate-900/95 to-slate-950",
-          ringStroke: "#38BDF8",
-          waveStroke: "rgba(56, 189, 248, 0.35)",
-          iconName: "zap",
-          iconColor: "text-sky-400",
-          bellColor: "text-sky-400",
-        },
-        {
-          border: "border-amber-500/35",
-          bg: "from-amber-500/12 via-slate-900/95 to-slate-950",
-          ringStroke: "#FBBF24",
-          waveStroke: "rgba(251, 191, 36, 0.35)",
-          iconName: "crown",
-          iconColor: "text-amber-400",
-          bellColor: "text-amber-400",
-        },
+        { border: "border-emerald-500/35", bg: "from-emerald-500/12 via-slate-900/95 to-slate-950", ringStroke: "#10B981", waveStroke: "rgba(16, 185, 129, 0.35)", iconName: "sprout", iconColor: "text-emerald-400", bellColor: "text-emerald-400" },
+        { border: "border-sky-500/35", bg: "from-sky-500/12 via-slate-900/95 to-slate-950", ringStroke: "#38BDF8", waveStroke: "rgba(56, 189, 248, 0.35)", iconName: "zap", iconColor: "text-sky-400", bellColor: "text-sky-400" },
+        { border: "border-amber-500/35", bg: "from-amber-500/12 via-slate-900/95 to-slate-950", ringStroke: "#FBBF24", waveStroke: "rgba(251, 191, 36, 0.35)", iconName: "crown", iconColor: "text-amber-400", bellColor: "text-amber-400" },
       ];
+      const radius = 15; const circumference = 2 * Math.PI * radius;
 
-      const radius = 15;
-      const circumference = 2 * Math.PI * radius;
+      container.innerHTML = tranches.map((t, idx) => {
+        const theme = themes[idx % 3];
+        const baseSpot = latest ? (t.karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) : null;
+        const targetBase = Number(t.target_rate_gram);
+        const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
+        const displaySpot = baseSpot ? (includeGst ? baseSpot * 1.03 : baseSpot) : null;
+        const allocPct = totalBudget > 0 ? Math.round((Number(t.allocation_inr) / totalBudget) * 100) : Math.round(100 / tranches.length);
+        const dashOffset = circumference * (1 - Math.min(100, Math.max(0, allocPct)) / 100);
+        const parts = String(t.label || "").split("—").map((s) => s.trim());
+        const cardTitle = parts[0] ? parts[0].replace(/\s*\(\d+%\)\s*/g, "").trim() : `Part ${idx + 1}`;
+        const cardSubtitle = parts[1] || "Custom Alert";
+        let distanceHtml = `<span class="text-slate-400">Waiting for rate</span>`;
+        if (displaySpot) {
+          const diff = displaySpot - displayTarget;
+          distanceHtml = diff <= 0 ? `<span class="text-emerald-400 font-semibold">Target Hit!</span>` : `<span class="text-slate-300">Drop <strong class="font-mono text-amber-300">${formatINR(diff, 0)}/g</strong> more</span>`;
+        }
+        const statusLabels = {
+          active: { text: "Watching", icon: "eye", cls: "bg-sky-500/15 text-sky-300 border-sky-500/35" },
+          triggered: { text: "Ready!", icon: "check-circle-2", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/35" },
+          executed: { text: "Bought", icon: "check", cls: "bg-purple-500/15 text-purple-300 border-purple-500/35" },
+          paused: { text: "Paused", icon: "pause-circle", cls: "bg-slate-800 text-slate-400 border-slate-700" },
+        };
+        const st = statusLabels[t.status] || statusLabels.active;
+        const estGrams = displayTarget > 0 ? (Number(t.allocation_inr) / displayTarget).toFixed(2) : "0.00";
+        const safeId = escapeHtml(t.id);
 
-      container.innerHTML = tranches
-        .map((t, idx) => {
-          const theme = themes[idx % 3];
-          const baseSpot = latest ? (t.karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) : null;
-          const targetBase = Number(t.target_rate_gram);
-          const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
-          const displaySpot = baseSpot ? (includeGst ? baseSpot * 1.03 : baseSpot) : null;
-
-          const allocPct = totalBudget > 0 ? Math.round((Number(t.allocation_inr) / totalBudget) * 100) : Math.round(100 / tranches.length);
-          const dashOffset = circumference * (1 - Math.min(100, Math.max(0, allocPct)) / 100);
-
-          const parts = String(t.label || "").split("—").map((s) => s.trim());
-          const cardTitle = parts[0] ? parts[0].replace(/\s*\(\d+%\)\s*/g, "").trim() : `Part ${idx + 1}`;
-          const cardSubtitle = parts[1] || "Custom Alert";
-
-          let distanceHtml = `<span class="text-slate-400">Waiting for rate</span>`;
-          if (displaySpot) {
-            const diff = displaySpot - displayTarget;
-            distanceHtml = diff <= 0
-              ? `<span class="text-emerald-400 font-semibold">Target Hit!</span>`
-              : `<span class="text-slate-300">Drop <strong class="font-mono text-amber-300">${formatINR(diff, 0)}/g</strong> more</span>`;
-          }
-
-          const statusLabels = {
-            active: { text: "Watching", icon: "eye", cls: "bg-sky-500/15 text-sky-300 border-sky-500/35" },
-            triggered: { text: "Ready!", icon: "check-circle-2", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/35" },
-            executed: { text: "Bought", icon: "check", cls: "bg-purple-500/15 text-purple-300 border-purple-500/35" },
-            paused: { text: "Paused", icon: "pause-circle", cls: "bg-slate-800 text-slate-400 border-slate-700" },
-          };
-          const st = statusLabels[t.status] || statusLabels.active;
-          const estGrams = displayTarget > 0 ? (Number(t.allocation_inr) / displayTarget).toFixed(2) : "0.00";
-
-          return `
-            <div class="rounded-xl bg-gradient-to-b ${theme.bg} border ${theme.border} p-3 flex flex-col justify-between relative overflow-hidden">
-              <div>
-                <div class="flex items-center justify-between gap-1 mb-2">
-                  <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400 text-slate-950">
-                    ₹${escapeHtml(t.karat)}
-                  </span>
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border ${st.cls}">
-                    <i data-lucide="${st.icon}" class="w-2.5 h-2.5"></i>
-                    ${st.text}
-                  </span>
-                </div>
-
-                <div class="flex items-center justify-between gap-1.5">
-                  <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="w-6 h-6 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-center ${theme.iconColor} shrink-0">
-                      <i data-lucide="${theme.iconName}" class="w-3.5 h-3.5"></i>
-                    </span>
-                    <div class="min-w-0">
-                      <div class="text-xs font-bold text-white truncate">${escapeHtml(cardTitle)}</div>
-                      <div class="text-[10px] text-slate-400 truncate">${escapeHtml(cardSubtitle)}</div>
-                    </div>
-                  </div>
-
-                  <!-- Compact Circular Percentage Ring -->
-                  <div class="relative w-9 h-9 shrink-0 flex items-center justify-center">
-                    <svg class="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
-                      <circle cx="18" cy="18" r="${radius}" fill="none" stroke="rgba(30,41,59,0.9)" stroke-width="3.5" />
-                      <circle cx="18" cy="18" r="${radius}" fill="none" stroke="${theme.ringStroke}" stroke-width="3.5" stroke-linecap="round"
-                        stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${dashOffset.toFixed(2)}" />
-                    </svg>
-                    <span class="absolute text-[9px] font-mono font-bold text-white">${allocPct}%</span>
+        return `
+          <div class="rounded-xl bg-gradient-to-b ${theme.bg} border ${theme.border} p-3 flex flex-col justify-between relative overflow-hidden">
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-2">
+                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400 text-slate-950">₹${escapeHtml(t.karat)}</span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border ${st.cls}">
+                  <i data-lucide="${st.icon}" class="w-2.5 h-2.5"></i>
+                  ${st.text}
+                </span>
+              </div>
+              <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="w-6 h-6 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-center ${theme.iconColor} shrink-0"><i data-lucide="${theme.iconName}" class="w-3.5 h-3.5"></i></span>
+                  <div class="min-w-0">
+                    <div class="text-xs font-bold text-white truncate">${escapeHtml(cardTitle)}</div>
+                    <div class="text-[10px] text-slate-400 truncate">${escapeHtml(cardSubtitle)}</div>
                   </div>
                 </div>
-
-                <!-- Subtle Wave Divider -->
-                <svg viewBox="0 0 200 14" preserveAspectRatio="none" class="w-full h-3 my-1.5 opacity-80">
-                  <path d="M0,8 Q35,1 70,8 T140,7 T200,8" fill="none" stroke="${theme.waveStroke}" stroke-width="1.3" />
-                </svg>
-
-                <!-- Price & Budget -->
-                <div class="space-y-1 text-[11px]">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-slate-400">Buy at</span>
-                    <span class="font-mono font-bold text-amber-300">${formatINR(displayTarget, 0)}<span class="text-[9px] text-slate-400">/g</span></span>
-                  </div>
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-slate-400">Budget</span>
-                    <span class="font-mono font-semibold text-white">${formatINR(t.allocation_inr, 0)}</span>
-                  </div>
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="text-slate-400">Est. Qty</span>
-                    <span class="font-mono text-slate-300">≈ ${estGrams} g</span>
-                  </div>
+                <div class="relative w-9 h-9 shrink-0 flex items-center justify-center">
+                  <svg class="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="${radius}" fill="none" stroke="rgba(30,41,59,0.9)" stroke-width="3.5" />
+                    <circle cx="18" cy="18" r="${radius}" fill="none" stroke="${theme.ringStroke}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${dashOffset.toFixed(2)}" />
+                  </svg>
+                  <span class="absolute text-[9px] font-mono font-bold text-white">${allocPct}%</span>
                 </div>
               </div>
-
-              <!-- Bottom Trigger & Controls -->
-              <div class="mt-2.5 rounded-lg bg-slate-950/85 border border-slate-800/90 px-2 py-1.5 flex items-center justify-between gap-1.5">
-                <div class="flex items-center gap-1 min-w-0">
-                  <i data-lucide="bell" class="w-3 h-3 ${theme.bellColor} shrink-0"></i>
-                  <div class="text-[10px] truncate">${distanceHtml}</div>
-                </div>
-
-                <div class="flex items-center gap-1 shrink-0">
-                  ${t.status === "triggered" ? `<button type="button" onclick="updateTrancheStatus('${t.id}', 'executed')" title="Mark Bought" class="w-5 h-5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 flex items-center justify-center cursor-pointer"><i data-lucide="check" class="w-3 h-3"></i></button>` : ""}
-                  ${t.status === "active"
-                    ? `<button type="button" onclick="updateTrancheStatus('${t.id}', 'paused')" title="Pause" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center cursor-pointer"><i data-lucide="pause" class="w-2.5 h-2.5"></i></button>`
-                    : (t.status === "paused" || t.status === "triggered")
-                      ? `<button type="button" onclick="updateTrancheStatus('${t.id}', 'active')" title="Watch Again" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-300 flex items-center justify-center cursor-pointer"><i data-lucide="play" class="w-2.5 h-2.5"></i></button>`
-                      : ""}
-                  <button type="button" onclick="deleteTranche('${t.id}')" title="Delete" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center cursor-pointer">
-                    <i data-lucide="trash-2" class="w-2.5 h-2.5"></i>
-                  </button>
-                </div>
+              <svg viewBox="0 0 200 14" preserveAspectRatio="none" class="w-full h-3 my-1.5 opacity-80"><path d="M0,8 Q35,1 70,8 T140,7 T200,8" fill="none" stroke="${theme.waveStroke}" stroke-width="1.3" /></svg>
+              <div class="space-y-1 text-[11px]">
+                <div class="flex items-center justify-between gap-1"><span class="text-slate-400">Buy at</span><span class="font-mono font-bold text-amber-300">${formatINR(displayTarget, 0)}<span class="text-[9px] text-slate-400">/g</span></span></div>
+                <div class="flex items-center justify-between gap-1"><span class="text-slate-400">Budget</span><span class="font-mono font-semibold text-white">${formatINR(t.allocation_inr, 0)}</span></div>
+                <div class="flex items-center justify-between gap-1"><span class="text-slate-400">Est. Qty</span><span class="font-mono text-slate-300">≈ ${estGrams} g</span></div>
               </div>
             </div>
-          `;
-        })
-        .join("");
-
-      try {
-        if (window.lucide) window.lucide.createIcons();
-      } catch (_e) {}
+            <div class="mt-2.5 rounded-lg bg-slate-950/85 border border-slate-800/90 px-2 py-1.5 flex items-center justify-between gap-1.5">
+              <div class="flex items-center gap-1 min-w-0"><i data-lucide="bell" class="w-3 h-3 ${theme.bellColor} shrink-0"></i><div class="text-[10px] truncate">${distanceHtml}</div></div>
+              <div class="flex items-center gap-1 shrink-0">
+                ${t.status === "triggered" ? `<button type="button" onclick="updateTrancheStatus('${safeId}', 'executed')" title="Mark Bought" class="w-5 h-5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 flex items-center justify-center cursor-pointer"><i data-lucide="check" class="w-3 h-3"></i></button>` : ""}
+                ${t.status === "active"
+                  ? `<button type="button" onclick="updateTrancheStatus('${safeId}', 'paused')" title="Pause" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center cursor-pointer"><i data-lucide="pause" class="w-2.5 h-2.5"></i></button>`
+                  : (t.status === "paused" || t.status === "triggered")
+                    ? `<button type="button" onclick="updateTrancheStatus('${safeId}', 'active')" title="Watch Again" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-300 flex items-center justify-center cursor-pointer"><i data-lucide="play" class="w-2.5 h-2.5"></i></button>`
+                    : ""}
+                <button type="button" onclick="deleteTranche('${safeId}')" title="Delete" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center cursor-pointer"><i data-lucide="trash-2" class="w-2.5 h-2.5"></i></button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
     }
 
     function renderAlerts() {
@@ -3286,23 +2287,19 @@
       const badge = document.getElementById("alert-count-badge");
       if (!container) return;
       if (badge) badge.textContent = appState.alerts.length;
-
       if (!appState.alerts || appState.alerts.length === 0) {
         container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-6 text-center text-xs text-slate-400">No price alerts triggered yet. When gold drops to your target prices, alerts appear here automatically.</div>`;
         return;
       }
-
-      container.innerHTML = appState.alerts
-        .map((a) => `
-          <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3">
-            <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
-              <span>${escapeHtml(a.karat)} PRICE DROP REACHED</span>
-              <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
-            </div>
-            <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(a.message)}</p>
+      container.innerHTML = appState.alerts.map((a) => `
+        <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3">
+          <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
+            <span>${escapeHtml(a.karat)} PRICE DROP REACHED</span>
+            <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
           </div>
-        `)
-        .join("");
+          <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(a.message)}</p>
+        </div>
+      `).join("");
     }
 
     function toggleGst() {
@@ -3313,35 +2310,17 @@
 
     function switchChartKarat(karat) {
       activeChartKarat = karat;
-      const btn22 = document.getElementById("tab-22k");
-      const btn24 = document.getElementById("tab-24k");
-      if (karat === "22K") {
-        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer";
-        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer";
-      } else {
-        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer";
-        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer";
-      }
+      const btn22 = document.getElementById("tab-22k"); const btn24 = document.getElementById("tab-24k");
+      if (karat === "22K") { btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer"; btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer"; }
+      else { btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer"; btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer"; }
       renderChart(getActiveHistoryRows());
     }
 
-    function openTrancheModal() {
-      prefillSuggestedTarget();
-      document.getElementById("tranche-modal").classList.remove("hidden");
-      document.getElementById("tranche-modal").classList.add("flex");
-    }
-
-    function closeTrancheModal() {
-      document.getElementById("tranche-modal").classList.add("hidden");
-      document.getElementById("tranche-modal").classList.remove("flex");
-    }
-
+    function openTrancheModal() { prefillSuggestedTarget(); document.getElementById("tranche-modal").classList.remove("hidden"); document.getElementById("tranche-modal").classList.add("flex"); }
+    function closeTrancheModal() { document.getElementById("tranche-modal").classList.add("hidden"); document.getElementById("tranche-modal").classList.remove("flex"); }
     function prefillSuggestedTarget() {
-      const karat = document.getElementById("tranche-karat").value;
-      const latest = getActiveHistoryRows()?.[0];
-      if (!latest) return;
-      const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
-      document.getElementById("tranche-target").value = (currentBase * 0.99).toFixed(2);
+      const karat = document.getElementById("tranche-karat").value; const latest = getActiveHistoryRows()?.[0]; if (!latest) return;
+      document.getElementById("tranche-target").value = ((karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) * 0.99).toFixed(2);
     }
 
     async function handleCreateTranche(e) {
@@ -3350,165 +2329,82 @@
       const karat = document.getElementById("tranche-karat").value;
       const target_rate_gram = Number(document.getElementById("tranche-target").value);
       const allocation_inr = Number(document.getElementById("tranche-allocation").value);
-
       if (isDemoMode || !supabaseClient || !currentUser) {
         appState.tranches.unshift({ id: "demo-" + Date.now(), label, karat, target_rate_gram, allocation_inr, status: "active" });
-        if (!isDemoMode && supabaseClient && !currentUser) {
-          localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
-        }
-        closeTrancheModal();
-        document.getElementById("tranche-form").reset();
-        renderTranches(getActiveHistoryRows());
-        return;
+        if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
+        closeTrancheModal(); document.getElementById("tranche-form").reset(); renderTranches(getActiveHistoryRows()); return;
       }
-
       try {
         const { error } = await supabaseClient.from("buy_tranches").insert({ label, karat, target_rate_gram, allocation_inr, status: "active", user_id: currentUser.id });
         if (error) throw error;
-        closeTrancheModal();
-        document.getElementById("tranche-form").reset();
-        await fetchDashboardData();
+        closeTrancheModal(); document.getElementById("tranche-form").reset(); await fetchDashboardData();
         showToast("Alert Saved", `We will alert you when ${karat} gold hits ${formatINR(target_rate_gram)}/g.`, "info");
-      } catch (err) {
-        showToast("Could Not Save", err.message, "error");
-      }
+      } catch (err) { showToast("Could Not Save", err.message, "error"); }
     }
 
     async function updateTrancheStatus(id, newStatus) {
       if (isDemoMode || !supabaseClient || !currentUser) {
-        const item = appState.tranches.find((t) => t.id === id);
-        if (item) item.status = newStatus;
+        const item = appState.tranches.find((t) => t.id === id); if (item) item.status = newStatus;
         if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
-        renderTranches(getActiveHistoryRows());
-        return;
+        renderTranches(getActiveHistoryRows()); return;
       }
-      try {
-        const { error } = await supabaseClient.from("buy_tranches").update({ status: newStatus }).eq("id", id);
-        if (error) throw error;
-        await fetchDashboardData();
-      } catch (err) {
-        showToast("Update Failed", err.message, "error");
-      }
+      try { const { error } = await supabaseClient.from("buy_tranches").update({ status: newStatus }).eq("id", id); if (error) throw error; await fetchDashboardData(); }
+      catch (err) { showToast("Update Failed", err.message, "error"); }
     }
 
     async function deleteTranche(id) {
       if (isDemoMode || !supabaseClient || !currentUser) {
         appState.tranches = appState.tranches.filter((t) => t.id !== id);
         if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
-        renderTranches(getActiveHistoryRows());
-        return;
+        renderTranches(getActiveHistoryRows()); return;
       }
-      try {
-        const { error } = await supabaseClient.from("buy_tranches").delete().eq("id", id);
-        if (error) throw error;
-        await fetchDashboardData();
-      } catch (err) {
-        showToast("Delete Failed", err.message, "error");
-      }
+      try { const { error } = await supabaseClient.from("buy_tranches").delete().eq("id", id); if (error) throw error; await fetchDashboardData(); }
+      catch (err) { showToast("Delete Failed", err.message, "error"); }
     }
 
     function updateAuthHeaderUI() {
-      const btn = document.getElementById("auth-header-btn");
-      const label = document.getElementById("auth-header-label");
+      const btn = document.getElementById("auth-header-btn"); const label = document.getElementById("auth-header-label");
       if (!btn || !label) return;
-      btn.classList.remove("hidden");
-      btn.classList.add("flex");
-      if (currentUser) {
-        const shortName = (currentUser.email || "Signed In").split("@")[0];
-        label.textContent = `${shortName} (Sign Out)`;
-      } else {
-        label.textContent = "Sign In";
-      }
+      btn.classList.remove("hidden"); btn.classList.add("flex");
+      label.textContent = currentUser ? `${(currentUser.email || "Signed In").split("@")[0]} (Sign Out)` : "Sign In";
     }
 
     async function handleAuthHeaderClick() {
       if (currentUser && supabaseClient) {
-        await supabaseClient.auth.signOut();
-        currentUser = null;
-        updateAuthHeaderUI();
-        await fetchDashboardData();
+        await supabaseClient.auth.signOut(); currentUser = null; updateAuthHeaderUI(); await fetchDashboardData();
         showToast("Signed Out", "Switched to guest view.", "info");
-      } else {
-        openAuthModal();
-      }
-    }
-
-    const TURNSTILE_SITE_KEY = "0x4AAAAAAGJv9sHfNNOuuvKP";
-    let turnstileToken = "";
-    let turnstileWidgetId = null;
-
-    function renderTurnstileWidget() {
-      const container = document.getElementById("turnstile-widget-container");
-      if (!container || typeof window.turnstile === "undefined") return;
-      turnstileToken = "";
-      if (turnstileWidgetId !== null) {
-        try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {}
-        return;
-      }
-      turnstileWidgetId = window.turnstile.render("#turnstile-widget-container", {
-        sitekey: TURNSTILE_SITE_KEY,
-        theme: "dark",
-        callback: (token) => { turnstileToken = token; },
-        "expired-callback": () => { turnstileToken = ""; },
-        "error-callback": () => { turnstileToken = ""; },
-      });
+      } else openAuthModal();
     }
 
     const POLICY_CONTENT = {
       about: {
         title: "About GoldBuddy",
-        body: `
-          <p><strong>GoldBuddy</strong> is an independent Indian gold price tracking and purchase-planning tool designed to help families estimate showroom costs (including making charges and 3% GST) and plan staggered gold purchases.</p>
-          <p>Instead of encouraging lump-sum speculation, GoldBuddy helps buyers split planned purchases into multiple parts and track price levels calmly over time.</p>
-        `,
+        body: `<p><strong>GoldBuddy</strong> is an independent Indian gold price tracking and purchase-planning tool designed to help families estimate showroom costs (including making charges and 3% GST) and plan staggered gold purchases.</p><p>Instead of encouraging lump-sum speculation, GoldBuddy helps buyers split planned purchases into multiple parts and track price levels calmly over time.</p>`,
       },
       methodology: {
         title: "Data Sources &amp; Methodology",
-        body: `
-          <p><strong>1. Live Rates:</strong> Indian retail 22K and 24K rates are sourced from public Indian bullion retail boards with a spot-parity fallback calculated from global XAU/USD and USD/INR exchange rates.</p>
-          <p><strong>2. Signal Alignment:</strong> The Signal Alignment gauge compares the latest 22K price against its trailing 5-day moving average and short-term direction. It is a descriptive market-signal indicator, not a predictive guarantee.</p>
-          <p><strong>3. 15-Day Scenarios:</strong> Optimistic, Trend, and Risk scenarios extrapolate a clamped 5-day momentum factor using square-root time scaling within ±3.5% support/resistance bands. Actual retail prices can differ based on global events, RBI/Fed policy, and local jeweller premiums.</p>
-        `,
+        body: `<p><strong>1. Live Rates:</strong> Indian retail 22K and 24K rates are sourced from public Indian bullion retail boards with a spot-parity fallback calculated from global XAU/USD and USD/INR exchange rates.</p><p><strong>2. Signal Alignment:</strong> The Signal Alignment gauge compares the latest 22K price against its trailing 5-day moving average and short-term direction. It is a descriptive market-signal indicator, not a predictive guarantee.</p><p><strong>3. 15-Day Scenarios:</strong> Optimistic, Trend, and Risk scenarios extrapolate a clamped 5-day momentum factor using square-root time scaling within ±3.5% support/resistance bands. Actual retail prices can differ based on global events and local jeweller premiums.</p>`,
       },
       disclaimer: {
         title: "Financial Disclaimer",
-        body: `
-          <p>All gold prices, calculators, trend summaries, and 15-day scenarios on GoldBuddy are provided strictly for <strong>informational and educational purposes</strong>.</p>
-          <ul class="list-disc pl-5 space-y-1.5 text-slate-300">
-            <li>GoldBuddy does not provide personalized investment, tax, or financial advice.</li>
-            <li>Retail showroom bills vary by jeweller based on making charges, wastage, hallmarking fees, stone charges, and 3% GST.</li>
-            <li>Past price movements and 5-day averages do not guarantee future price direction.</li>
-            <li>Users should independently verify final rates with their jeweller or platform before making any transaction.</li>
-          </ul>
-        `,
+        body: `<p>All gold prices, calculators, trend summaries, and 15-day scenarios on GoldBuddy are provided strictly for <strong>informational and educational purposes</strong>.</p><ul class="list-disc pl-5 space-y-1.5 text-slate-300"><li>GoldBuddy does not provide personalized investment, tax, or financial advice.</li><li>Retail showroom bills vary by jeweller based on making charges, wastage, hallmarking fees, and 3% GST.</li><li>Past price movements do not guarantee future price direction.</li><li>Always verify final rates with your jeweller before making any transaction.</li></ul>`,
       },
       privacy: {
         title: "Privacy Policy",
-        body: `
-          <p><strong>Data We Collect:</strong> If you choose to create an account, we store your email address (via Supabase Authentication) and any custom buying-plan targets you save so we can display your private plan and send requested price-drop alerts.</p>
-          <p><strong>Local Storage:</strong> Guests who do not sign in have their buying-plan targets stored locally in their own browser (<code>localStorage</code>) and not sent to our database.</p>
-          <p><strong>Third-Party Services:</strong> GoldBuddy uses Supabase (database &amp; authentication), Cloudflare Turnstile (bot protection), and affiliate partner links. As an Amazon Associate, we earn from qualifying purchases.</p>
-        `,
+        body: `<p><strong>Data We Collect:</strong> If you create an account, your authentication details (via Supabase Authentication) and any custom buying-plan targets you save are stored privately under your account so we can display your plan and send requested price-drop alerts.</p><p><strong>Local Storage:</strong> Guests who do not sign in have their buying-plan targets stored locally in their own browser (<code>localStorage</code>).</p><p><strong>Third-Party Services:</strong> GoldBuddy uses Supabase (database &amp; authentication), Cloudflare Turnstile (bot protection), and affiliate partner links. As an Amazon Associate, we earn from qualifying purchases.</p>`,
       },
       terms: {
         title: "Terms of Use",
-        body: `
-          <p>By using GoldBuddy, you agree that all tools and rate estimates are provided &ldquo;as is&rdquo; without warranties of accuracy, completeness, or uninterrupted availability.</p>
-          <p>You agree not to automate scraping, abuse authentication endpoints, or bypass rate limits. We reserve the right to update or discontinue features at any time.</p>
-        `,
+        body: `<p>By using GoldBuddy, you agree that all tools and rate estimates are provided &ldquo;as is&rdquo; without warranties of accuracy, completeness, or uninterrupted availability.</p><p>You agree not to automate scraping, abuse authentication endpoints, or bypass rate limits.</p>`,
       },
       contact: {
         title: "Contact GoldBuddy",
-        body: `
-          <p>Have a question, feedback, or data-correction request?</p>
-          <p>Reach out at: <strong class="text-amber-300">support@goldbuddy.in</strong> (or <strong class="text-amber-300">swarna2497@gmail.com</strong>).</p>
-        `,
+        body: `<p>Have a question, feedback, or data-correction request?</p><p>Please use our official website support page once published on our custom domain.</p>`,
       },
     };
 
     function openPolicyModal(key) {
-      const item = POLICY_CONTENT[key];
-      if (!item) return;
+      const item = POLICY_CONTENT[key]; if (!item) return;
       document.getElementById("policy-modal-title").innerHTML = item.title;
       document.getElementById("policy-modal-body").innerHTML = item.body;
       document.getElementById("policy-modal").classList.remove("hidden");
@@ -3520,214 +2416,90 @@
       document.getElementById("policy-modal").classList.remove("flex");
     }
 
-    function openAuthModal() {
-      const fb = document.getElementById("auth-feedback");
-      if (fb) fb.classList.add("hidden");
+    function renderTurnstileWidget() {
+      const container = document.getElementById("turnstile-widget-container");
+      if (!container || typeof window.turnstile === "undefined") return;
       turnstileToken = "";
-      if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
-      document.getElementById("auth-modal").classList.remove("hidden");
-      document.getElementById("auth-modal").classList.add("flex");
+      if (turnstileWidgetId !== null) { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} return; }
+      turnstileWidgetId = window.turnstile.render("#turnstile-widget-container", {
+        sitekey: TURNSTILE_SITE_KEY, theme: "dark",
+        callback: (token) => { turnstileToken = token; },
+        "expired-callback": () => { turnstileToken = ""; },
+        "error-callback": () => { turnstileToken = ""; },
+      });
+    }
+
+    function openAuthModal() {
+      const fb = document.getElementById("auth-feedback"); if (fb) fb.classList.add("hidden");
+      document.getElementById("auth-modal").classList.remove("hidden"); document.getElementById("auth-modal").classList.add("flex");
       setTimeout(renderTurnstileWidget, 80);
     }
 
     function closeAuthModal() {
-      document.getElementById("auth-modal").classList.add("hidden");
-      document.getElementById("auth-modal").classList.remove("flex");
+      document.getElementById("auth-modal").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("flex");
     }
 
     async function signInWithGoogle() {
-      if (!supabaseClient) { showToast("Connect Supabase First", "Open Settings to add your Supabase URL & Key before signing in.", "error"); return; }
-      const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.href },
-      });
+      if (!supabaseClient) return;
+      const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.href } });
       if (error) showToast("Sign In Failed", error.message, "error");
     }
 
-    let authMode = "signin";
-
     function switchAuthTab(mode) {
       authMode = mode;
-      const tabIn = document.getElementById("auth-tab-signin");
-      const tabUp = document.getElementById("auth-tab-signup");
-      const title = document.getElementById("auth-modal-title");
-      const btn = document.getElementById("auth-submit-btn");
-      const fb = document.getElementById("auth-feedback");
-      if (fb) fb.classList.add("hidden");
-
+      const tabIn = document.getElementById("auth-tab-signin"); const tabUp = document.getElementById("auth-tab-signup");
+      const title = document.getElementById("auth-modal-title"); const btn = document.getElementById("auth-submit-btn");
+      const fb = document.getElementById("auth-feedback"); if (fb) fb.classList.add("hidden");
+      turnstileToken = "";
+      if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
       if (mode === "signup") {
         tabUp.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
         tabIn.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        title.textContent = "Create GoldBuddy Account";
-        btn.textContent = "Create Account";
+        title.textContent = "Create GoldBuddy Account"; btn.textContent = "Create Account";
       } else {
         tabIn.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
         tabUp.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        title.textContent = "Sign In to GoldBuddy";
-        btn.textContent = "Sign In";
+        title.textContent = "Sign In to GoldBuddy"; btn.textContent = "Sign In";
       }
     }
 
     async function handleEmailAuthSubmit(e) {
       e.preventDefault();
-      if (!supabaseClient) {
-        showToast("Connect Supabase First", "Open Settings to add your Supabase URL & Key before signing in.", "error");
-        return;
-      }
+      if (!supabaseClient) return;
       const email = document.getElementById("auth-email-input").value.trim();
       const password = document.getElementById("auth-password-input").value;
-      const fb = document.getElementById("auth-feedback");
-      const btn = document.getElementById("auth-submit-btn");
-
+      const fb = document.getElementById("auth-feedback"); const btn = document.getElementById("auth-submit-btn");
       if (fb) fb.classList.add("hidden");
-      btn.disabled = true;
-      btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
-
       if (!turnstileToken && typeof window.turnstile !== "undefined") {
-        if (fb) {
-          fb.className = "text-xs text-amber-300 text-center bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5";
-          fb.textContent = "Please complete the security check above first.";
-        }
-        btn.disabled = false;
-        btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
+        if (fb) { fb.className = "text-xs text-amber-300 text-center bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5"; fb.textContent = "Please complete the security check above first."; }
         return;
       }
-
+      btn.disabled = true; btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
       try {
         if (authMode === "signup") {
-          const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: window.location.href,
-              captchaToken: turnstileToken || undefined,
-            },
-          });
+          const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href, captchaToken: turnstileToken || undefined } });
           if (error) throw error;
-          if (data?.session) {
-            currentUser = data.user;
-            updateAuthHeaderUI();
-            closeAuthModal();
-            await fetchDashboardData();
-            showToast("Account Created!", "Welcome to GoldBuddy.", "info");
-          } else if (fb) {
-            fb.className = "text-xs text-emerald-300 text-center bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5";
-            fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`;
-          }
+          if (data?.session) { currentUser = data.user; updateAuthHeaderUI(); closeAuthModal(); await fetchDashboardData(); showToast("Account Created!", "Welcome to GoldBuddy.", "info"); }
+          else if (fb) { fb.className = "text-xs text-emerald-300 text-center bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5"; fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`; }
         } else {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email,
-            password,
-            options: { captchaToken: turnstileToken || undefined },
-          });
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password, options: { captchaToken: turnstileToken || undefined } });
           if (error) throw error;
-          currentUser = data.user;
-          updateAuthHeaderUI();
-          closeAuthModal();
-          await fetchDashboardData();
-          showToast("Signed In!", "Your private 3-part plan & alerts are loaded.", "info");
+          currentUser = data.user; updateAuthHeaderUI(); closeAuthModal(); await fetchDashboardData(); showToast("Signed In!", "Your private 3-part plan & alerts are loaded.", "info");
         }
       } catch (err) {
-        const msg = /invalid login credentials/i.test(err.message || "")
-          ? "Incorrect email or password. Please try again."
-          : (err.message || "Authentication failed.");
-        if (fb) {
-          fb.className = "text-xs text-rose-300 text-center bg-rose-500/15 border border-rose-500/35 rounded-lg p-2.5";
-          fb.textContent = msg;
-        }
+        const msg = /invalid login credentials/i.test(err.message || "") ? "Incorrect email or password. Please try again." : (err.message || "Authentication failed.");
+        if (fb) { fb.className = "text-xs text-rose-300 text-center bg-rose-500/15 border border-rose-500/35 rounded-lg p-2.5"; fb.textContent = msg; }
         showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", msg, "error");
       } finally {
         turnstileToken = "";
         if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
-        btn.disabled = false;
-        btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
+        btn.disabled = false; btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
       }
-    }
-
-    function openSettingsModal() {
-      document.getElementById("cfg-supabase-url").value = localStorage.getItem(STORAGE_URL_KEY) || DEFAULT_SUPABASE_URL;
-      document.getElementById("cfg-supabase-key").value = localStorage.getItem(STORAGE_ANON_KEY) || DEFAULT_SUPABASE_ANON_KEY;
-      document.getElementById("settings-modal").classList.remove("hidden");
-      document.getElementById("settings-modal").classList.add("flex");
-    }
-
-    function closeSettingsModal() {
-      document.getElementById("settings-modal").classList.add("hidden");
-      document.getElementById("settings-modal").classList.remove("flex");
-    }
-
-    async function calibrateMultiplierFromLocal24k() {
-      const target24k = Number(document.getElementById("calibrate-24k-input").value);
-      if (!target24k || target24k < 1000) {
-        showToast("Invalid Rate", "Enter today's local 24K rate (e.g., 13326).", "error");
-        return;
-      }
-      if (isDemoMode || !supabaseClient) {
-        showToast("Connect Account First", "Save your Supabase connection first.", "error");
-        return;
-      }
-      const latest = appState.history[0];
-      if (!latest || !latest.xau_usd || !latest.usd_inr) {
-        showToast("Update Price First", "Click Update Price once before matching.", "error");
-        return;
-      }
-
-      const raw24kGram = (Number(latest.xau_usd) * Number(latest.usd_inr)) / TROY_OZ_TO_GRAMS;
-      const newMultiplier = Number((target24k / raw24kGram).toFixed(4));
-
-      try {
-        const { error } = await supabaseClient
-          .from("gold_config")
-          .update({ local_premium_multiplier: newMultiplier, updated_at: new Date().toISOString() })
-          .eq("id", 1);
-        if (error) throw error;
-        closeSettingsModal();
-        showToast("Local Rate Matched", "Refreshing price now...", "info");
-        await handleManualRefresh();
-      } catch (err) {
-        showToast("Could Not Match Rate", err.message, "error");
-      }
-    }
-
-    async function saveSupabaseSettings() {
-      const cleanedUrl = cleanSupabaseUrl(document.getElementById("cfg-supabase-url").value);
-      const anonKey = document.getElementById("cfg-supabase-key").value.trim();
-      if (!cleanedUrl || !anonKey) {
-        showToast("Missing Details", "Enter both Project URL and Public Key.", "error");
-        return;
-      }
-      localStorage.setItem(STORAGE_URL_KEY, cleanedUrl);
-      localStorage.setItem(STORAGE_ANON_KEY, anonKey);
-      supabaseClient = window.supabase.createClient(cleanedUrl, anonKey);
-      isDemoMode = false;
-      syncInitialized = false;
-      closeSettingsModal();
-      await fetchDashboardData();
-      showToast("Connected!", "Your live gold tracker is ready.", "info");
-    }
-
-    function resetToDemoMode() {
-      localStorage.removeItem(STORAGE_URL_KEY);
-      localStorage.removeItem(STORAGE_ANON_KEY);
-      if (pollingFallbackInterval) {
-        clearInterval(pollingFallbackInterval);
-        pollingFallbackInterval = null;
-      }
-      supabaseClient = null;
-      isDemoMode = true;
-      syncInitialized = false;
-      appState.history = [];
-      closeSettingsModal();
-      fetchDashboardData();
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      try {
-        if (window.lucide) window.lucide.createIcons();
-      } catch (_e) {}
-
+      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
       populateForecastDateDropdown();
-
       const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY)) || DEFAULT_SUPABASE_URL;
       const savedKey = localStorage.getItem(STORAGE_ANON_KEY) || DEFAULT_SUPABASE_ANON_KEY;
       if (savedUrl && savedKey && window.supabase) {
@@ -3740,6 +2512,7 @@
         });
       }
       fetchDashboardData();
+      setInterval(updateRefreshCooldownUI, 30000);
     });
   </script>
 </body>

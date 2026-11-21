@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GoldBuddy — Live Indian Gold Rates, Smart Buying Planner & AI Market Insights</title>
+  <title>GoldBuddy — Live Indian Gold Rates, Smart Buying Planner &amp; Market Insights</title>
+  <meta name="description" content="Track live 22K and 24K Indian gold rates, calculate showroom bills with making charges and 3% GST, and plan staggered gold purchases with price-drop alerts." />
+  <meta property="og:title" content="GoldBuddy — Indian Gold Rate Calculator &amp; Buying Planner" />
+  <meta property="og:description" content="Live 22K/24K Indian gold prices, GST &amp; making charge calculator, and 3-part staggered buying planner." />
+  <meta property="og:type" content="website" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -616,22 +620,22 @@
 
           <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
             <div class="flex items-center justify-between">
-              <span id="forecast-floor-label" class="text-xs text-slate-400">Best-Case Low (If Drop Continues):</span>
+              <span id="forecast-floor-label" class="text-xs text-slate-400">Optimistic Scenario (If Dip Continues):</span>
               <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
             </div>
             <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Expected Price (Current Trend):</span>
+              <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Trend Scenario (5-Day Momentum):</span>
               <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
             </div>
             <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span id="forecast-ceil-label" class="text-xs text-slate-400">Worst-Case High (If Price Rises):</span>
+              <span id="forecast-ceil-label" class="text-xs text-slate-400">Risk Scenario (If Rally Resumes):</span>
               <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
             </div>
           </div>
         </div>
 
         <p class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-          <strong class="text-amber-300">Note:</strong> 15-day estimates are rough assumptions—split your budget into 3 parts below instead of buying 100% on one day.
+          <strong class="text-amber-300">Methodology Note:</strong> 15-day scenarios are mathematical projections from recent 5-day price movement—not guaranteed forecasts or financial advice.
         </p>
       </div>
 
@@ -705,8 +709,8 @@
               <!-- Semi-Circular Buy Confidence Gauge Card -->
               <div class="rounded-xl bg-slate-950/75 border border-slate-800/90 p-2.5 text-center">
                 <div class="flex items-center justify-center gap-1 text-[11px] font-semibold text-white mb-0.5">
-                  <span>Buy Confidence</span>
-                  <span title="Calculated from 5-day price trend and current discount vs. weekly average" class="w-3.5 h-3.5 rounded-full bg-slate-800 text-slate-400 text-[9px] inline-flex items-center justify-center cursor-help">i</span>
+                  <span>Signal Alignment</span>
+                  <span title="Measures how today's rate compares to the 5-day average and short-term momentum. Informational only — not investment advice." class="w-3.5 h-3.5 rounded-full bg-slate-800 text-slate-400 text-[9px] inline-flex items-center justify-center cursor-help">i</span>
                 </div>
 
                 <div class="relative w-full max-w-[165px] mx-auto pt-1">
@@ -772,7 +776,7 @@
             <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
               <i data-lucide="target" class="w-3.5 h-3.5"></i>
             </span>
-            <span class="text-xs font-bold text-amber-300">AI Recommendation</span>
+            <span class="text-xs font-bold text-amber-300">Suggested Strategy</span>
           </div>
           <p id="ai-recommendation-text" class="text-xs text-slate-200 leading-relaxed">
             Buy your first part now (≈ 30–35% of budget), and keep the rest ready for potential dips below today's average.
@@ -935,13 +939,25 @@
       <div id="affiliate-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
     </section>
 
-    <!-- Footer with Affiliate & Financial Disclaimers -->
-    <footer class="pt-2 pb-6 border-t border-slate-800/70 text-[11px] text-slate-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-      <p>
-        <strong class="text-slate-400">Affiliate Disclosure:</strong> Some partner links above are affiliate links. If you buy through them, GoldBuddy may earn a small commission at no extra cost to you.
+    <!-- Footer with Trust Pages, Methodology & Affiliate Disclosures -->
+    <footer class="pt-4 pb-8 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 font-medium text-slate-300">
+          <button type="button" onclick="openPolicyModal('about')" class="hover:text-amber-300 transition-colors cursor-pointer">About</button>
+          <button type="button" onclick="openPolicyModal('methodology')" class="hover:text-amber-300 transition-colors cursor-pointer">Data Sources &amp; Methodology</button>
+          <button type="button" onclick="openPolicyModal('disclaimer')" class="hover:text-amber-300 transition-colors cursor-pointer">Financial Disclaimer</button>
+          <button type="button" onclick="openPolicyModal('privacy')" class="hover:text-amber-300 transition-colors cursor-pointer">Privacy Policy</button>
+          <button type="button" onclick="openPolicyModal('terms')" class="hover:text-amber-300 transition-colors cursor-pointer">Terms of Use</button>
+          <button type="button" onclick="openPolicyModal('contact')" class="hover:text-amber-300 transition-colors cursor-pointer">Contact</button>
+        </div>
+        <span class="text-slate-500">&copy; 2026 GoldBuddy &bull; Informational Tools Only</span>
+      </div>
+
+      <p class="text-slate-500 leading-relaxed">
+        <strong class="text-slate-400">Affiliate Disclosure:</strong> As an Amazon Associate I earn from qualifying purchases. Some partner links on this page are affiliate links—if you buy through them, GoldBuddy may earn a commission at no extra cost to you.
       </p>
-      <p class="shrink-0">
-        Rates &amp; 15-day estimates are informational only.
+      <p class="text-slate-500 leading-relaxed">
+        <strong class="text-slate-400">Financial Disclaimer:</strong> Gold rates, GST/making charge calculations, and 15-day trend scenarios are provided for educational and planning purposes only and do not constitute financial or investment advice. Always verify final rates with your jeweller before purchasing.
       </p>
     </footer>
 
@@ -1016,6 +1032,17 @@
       </form>
 
       <p id="auth-feedback" class="hidden text-xs text-emerald-400 text-center bg-emerald-500/10 border border-emerald-500/25 rounded-lg p-2.5"></p>
+    </div>
+  </div>
+
+  <!-- MODAL 4: Trust, Policy & Methodology Reader -->
+  <div id="policy-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <div class="w-full max-w-2xl rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+        <h3 id="policy-modal-title" class="text-base font-bold text-white">Policy</h3>
+        <button type="button" onclick="closePolicyModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
+      </div>
+      <div id="policy-modal-body" class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 overflow-y-auto pr-1"></div>
     </div>
   </div>
 
@@ -2758,12 +2785,12 @@
         outlookTrend.textContent = "Mildly Higher";
         outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
         const riseConf = Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8)));
-        updateBuyConfidenceGauge(riseConf, "Low Confidence", "Prices elevated — wait for a dip", "low");
+        updateBuyConfidenceGauge(riseConf, "Elevated Price Signal", "Prices elevated — wait for a dip", "low");
       } else {
         outlookTrend.textContent = "Stable to Mildly Lower";
         outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
         const dipConf = Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6)));
-        updateBuyConfidenceGauge(dipConf, "High Confidence", "Favourable to buy the first part now", "high");
+        updateBuyConfidenceGauge(dipConf, "Favourable Dip Signal", "Favourable to buy the first part now", "high");
       }
 
       const badgeColors = [
@@ -2909,13 +2936,13 @@
       const ceilLabel = document.getElementById("forecast-ceil-label");
 
       if (expectedPrice > stats.latestPrice * 1.001) {
-        floorLabel.textContent = "Best-Case Low (If Prices Cool Off):";
-        baseLabel.textContent = "Expected Price (If Rise Continues):";
-        ceilLabel.textContent = "Worst-Case High (If Rally Speeds Up):";
+        floorLabel.textContent = "Optimistic Scenario (If Prices Cool):";
+        baseLabel.textContent = "Trend Scenario (If Rise Continues):";
+        ceilLabel.textContent = "Risk Scenario (If Rally Speeds Up):";
       } else {
-        floorLabel.textContent = "Best-Case Low (If Drop Continues):";
-        baseLabel.textContent = "Expected Price (If Drop Continues):";
-        ceilLabel.textContent = "Worst-Case High (If Market Bounces):";
+        floorLabel.textContent = "Optimistic Scenario (If Dip Continues):";
+        baseLabel.textContent = "Trend Scenario (If Dip Continues):";
+        ceilLabel.textContent = "Risk Scenario (If Market Bounces):";
       }
 
       document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice)} / g`;
@@ -3425,6 +3452,72 @@
         "expired-callback": () => { turnstileToken = ""; },
         "error-callback": () => { turnstileToken = ""; },
       });
+    }
+
+    const POLICY_CONTENT = {
+      about: {
+        title: "About GoldBuddy",
+        body: `
+          <p><strong>GoldBuddy</strong> is an independent Indian gold price tracking and purchase-planning tool designed to help families estimate showroom costs (including making charges and 3% GST) and plan staggered gold purchases.</p>
+          <p>Instead of encouraging lump-sum speculation, GoldBuddy helps buyers split planned purchases into multiple parts and track price levels calmly over time.</p>
+        `,
+      },
+      methodology: {
+        title: "Data Sources &amp; Methodology",
+        body: `
+          <p><strong>1. Live Rates:</strong> Indian retail 22K and 24K rates are sourced from public Indian bullion retail boards with a spot-parity fallback calculated from global XAU/USD and USD/INR exchange rates.</p>
+          <p><strong>2. Signal Alignment:</strong> The Signal Alignment gauge compares the latest 22K price against its trailing 5-day moving average and short-term direction. It is a descriptive market-signal indicator, not a predictive guarantee.</p>
+          <p><strong>3. 15-Day Scenarios:</strong> Optimistic, Trend, and Risk scenarios extrapolate a clamped 5-day momentum factor using square-root time scaling within ±3.5% support/resistance bands. Actual retail prices can differ based on global events, RBI/Fed policy, and local jeweller premiums.</p>
+        `,
+      },
+      disclaimer: {
+        title: "Financial Disclaimer",
+        body: `
+          <p>All gold prices, calculators, trend summaries, and 15-day scenarios on GoldBuddy are provided strictly for <strong>informational and educational purposes</strong>.</p>
+          <ul class="list-disc pl-5 space-y-1.5 text-slate-300">
+            <li>GoldBuddy does not provide personalized investment, tax, or financial advice.</li>
+            <li>Retail showroom bills vary by jeweller based on making charges, wastage, hallmarking fees, stone charges, and 3% GST.</li>
+            <li>Past price movements and 5-day averages do not guarantee future price direction.</li>
+            <li>Users should independently verify final rates with their jeweller or platform before making any transaction.</li>
+          </ul>
+        `,
+      },
+      privacy: {
+        title: "Privacy Policy",
+        body: `
+          <p><strong>Data We Collect:</strong> If you choose to create an account, we store your email address (via Supabase Authentication) and any custom buying-plan targets you save so we can display your private plan and send requested price-drop alerts.</p>
+          <p><strong>Local Storage:</strong> Guests who do not sign in have their buying-plan targets stored locally in their own browser (<code>localStorage</code>) and not sent to our database.</p>
+          <p><strong>Third-Party Services:</strong> GoldBuddy uses Supabase (database &amp; authentication), Cloudflare Turnstile (bot protection), and affiliate partner links. As an Amazon Associate, we earn from qualifying purchases.</p>
+        `,
+      },
+      terms: {
+        title: "Terms of Use",
+        body: `
+          <p>By using GoldBuddy, you agree that all tools and rate estimates are provided &ldquo;as is&rdquo; without warranties of accuracy, completeness, or uninterrupted availability.</p>
+          <p>You agree not to automate scraping, abuse authentication endpoints, or bypass rate limits. We reserve the right to update or discontinue features at any time.</p>
+        `,
+      },
+      contact: {
+        title: "Contact GoldBuddy",
+        body: `
+          <p>Have a question, feedback, or data-correction request?</p>
+          <p>Reach out at: <strong class="text-amber-300">support@goldbuddy.in</strong> (or <strong class="text-amber-300">swarna2497@gmail.com</strong>).</p>
+        `,
+      },
+    };
+
+    function openPolicyModal(key) {
+      const item = POLICY_CONTENT[key];
+      if (!item) return;
+      document.getElementById("policy-modal-title").innerHTML = item.title;
+      document.getElementById("policy-modal-body").innerHTML = item.body;
+      document.getElementById("policy-modal").classList.remove("hidden");
+      document.getElementById("policy-modal").classList.add("flex");
+    }
+
+    function closePolicyModal() {
+      document.getElementById("policy-modal").classList.add("hidden");
+      document.getElementById("policy-modal").classList.remove("flex");
     }
 
     function openAuthModal() {

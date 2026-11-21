@@ -1,8 +1,4 @@
 User-agent: *
-
 Allow: /
 
-
-
-Sitemap: https://www.google.com/search?q=https://goldbuddy.in/sitemap.xml
-
+Sitemap: https://swarnaraj24.github.io/goldbuddy/sitemap.xml

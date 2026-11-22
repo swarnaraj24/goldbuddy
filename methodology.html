@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Data Sources &amp; Methodology — GoldBuddy</title>
-  <meta name="description" content="How GoldBuddy calculates 22K/24K Indian gold rates, showroom bills, 5-day moving averages, market positioning signals, and 15-day trend scenarios." />
+  <meta name="description" content="How GoldBuddy fetches 22K/24K Indian gold rates, calculates showroom bills with 3% GST, measures 5-day positioning, and scales 15-day scenarios." />
+  <link rel="canonical" href="https://swarnaraj24.github.io/goldbuddy/methodology.html" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
@@ -30,18 +31,26 @@
       <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/25">Transparency</span>
       <h1 class="text-2xl sm:text-3xl font-bold text-white">Data Sources &amp; Calculation Methodology</h1>
 
-      <h2 class="text-lg font-bold text-white pt-2">1. Gold Rate Data Sources</h2>
+      <h2 class="text-lg font-bold text-white pt-2">1. Gold Rate Data Pipeline &amp; Fallback Logic</h2>
       <p>
-        GoldBuddy aggregates benchmark Indian 22K and 24K retail rates from publicly available Indian bullion boards, cross-checked against international spot gold (<code>XAU/USD</code>) and <code>USD/INR</code> exchange rates converted from troy ounces (<code>31.1034768 g</code>) with standard Indian landed parity adjustments.
+        GoldBuddy retrieves Indian 22K and 24K per-gram retail rates through an automated backend pipeline:
       </p>
+      <ul class="list-disc pl-5 space-y-1.5">
+        <li><strong>Primary Retail Sources:</strong> The backend queries public Indian retail gold rate boards (GoodReturns India retail board, with Groww India retail board as secondary retail source).</li>
+        <li><strong>Spot-Parity Fallback:</strong> Only if both retail boards are temporarily unreachable or time out, GoldBuddy computes a baseline estimate from international spot gold (<code>XAU/USD</code> via gold-api.com) and the <code>USD/INR</code> exchange rate (via Frankfurter), converting troy ounces to grams (<code>&divide; 31.1034768</code>) and applying a configurable Indian landed-parity multiplier (accounting for import duty and local bullion premiums).</li>
+        <li><strong>GST &amp; Update Cadence:</strong> Stored base rates exclude GST; toggling <strong>With 3% GST</strong> multiplies the base rate by <code>1.03</code>. Live fetches are cached and rate-limited to 30-minute intervals to ensure stability.</li>
+      </ul>
 
       <h2 class="text-lg font-bold text-white pt-2">2. Showroom Bill &amp; GST Formula</h2>
-      <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 font-mono text-xs text-amber-300">
-        Net Gold = Weight (g) &times; Rate per gram<br/>
-        Making Fee = Net Gold &times; (Making % &divide; 100)<br/>
-        GST (3%) = (Net Gold + Making Fee) &times; 0.03<br/>
-        Total Estimated Bill = Net Gold + Making Fee + GST
+      <h2 class="text-lg font-bold text-white pt-2">4. 15-Day Scenario Projections (With Example)</h2>
+      <p>
+        The 15-day shopping date estimator projects three mathematical scenarios (<strong>Optimistic</strong>, <strong>Trend</strong>, and <strong>Risk</strong>) by clamping the trailing 5-day daily drift rate between <code>-0.45%</code> and <code>+0.45%</code> per day, scaling by <code>&radic;days</code>, and bounding outputs within <code>&plusmn;3.5%</code> of the 5-day average.
+      </p>
+      <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-4 text-xs text-slate-300 space-y-1">
+        <div class="font-semibold text-amber-300">Illustrative Numerical Example:</div>
+        <p>Suppose 22K gold is currently <strong>₹12,000/g</strong> with a 5-day average of <strong>₹12,100/g</strong> and a recent 5-day change of <strong>-1.0%</strong> (<code>-0.20%/day</code>). For a shopping date <strong>9 days ahead</strong> (<code>&radic;9 = 3</code>), the Trend Scenario scales by <code>-0.20% &times; 3 = -0.60%</code> to approximately <strong>₹11,928/g</strong>, while Optimistic and Risk scenarios frame a wider short-term range around that baseline. This is an illustrative mathematical projection—not a probability-based forecast.</p>
       </div>
+    </div>
 
       <h2 class="text-lg font-bold text-white pt-2">3. Market Positioning &amp; 5-Day Average</h2>
       <p>

@@ -205,7 +205,7 @@
       </div>
 
       <div class="flex items-center gap-2 sm:gap-2.5">
-        <a href="guides.html" class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-amber-300 transition-colors">
+        <a href="guides.html" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-amber-300 transition-colors">
           <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
           <span>Guides</span>
         </a>
@@ -651,7 +651,7 @@
               <div class="rounded-xl bg-slate-950/75 border border-slate-800/90 p-2.5 text-center">
                 <div class="flex items-center justify-center gap-1 text-[11px] font-semibold text-white mb-0.5">
                   <span>Market Positioning</span>
-                  <span title="Measures how today's rate compares to the 5-day average and short-term momentum. Informational only — not investment advice." class="w-3.5 h-3.5 rounded-full bg-slate-800 text-slate-400 text-[9px] inline-flex items-center justify-center cursor-help">i</span>
+                  <span title="Compares today's 22K rate against its 5-day average. Relative price signal only — not investment advice." class="w-3.5 h-3.5 rounded-full bg-slate-800 text-slate-400 text-[9px] inline-flex items-center justify-center cursor-help">i</span>
                 </div>
 
                 <div class="relative w-full max-w-[165px] mx-auto pt-1">
@@ -678,12 +678,12 @@
                   </svg>
 
                   <div class="-mt-3 flex flex-col items-center">
-                    <div id="outlook-confidence-pct" class="text-xs sm:text-sm font-bold font-mono text-white leading-tight">-1.2% vs 5d Avg</div>
+                    <div id="outlook-confidence-pct" class="text-xs sm:text-sm font-bold font-mono text-white leading-tight">Loading...</div>
                     <span id="outlook-confidence-badge" class="mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                      Below 5-Day Avg
+                      Checking 5-Day Avg
                     </span>
                     <p id="outlook-confidence-caption" class="text-[10px] text-slate-400 mt-1.5 leading-snug">
-                      Relative price signal only — not a guarantee of further drops
+                      Comparing today's rate with 5-day average
                     </p>
                   </div>
                 </div>
@@ -705,25 +705,6 @@
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-slate-400 shrink-0">Risk Zone</span>
                   <span id="outlook-bounce-band" class="font-mono font-semibold text-rose-400 whitespace-nowrap">—</span>
-                </div>
-              </div>
-
-              <div class="space-y-1.5 text-[11px] pt-1 border-t border-slate-800/80">
-                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400">Trend</span>
-                  <span id="outlook-trend-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400">Stable to Mildly Lower</span>
-                </div>
-                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400">Trend Band</span>
-                  <span id="outlook-expected-band" class="font-mono font-semibold text-amber-300">—</span>
-                </div>
-                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400">Dip Zone</span>
-                  <span id="outlook-dip-band" class="font-mono font-semibold text-emerald-400">—</span>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-400">Risk Zone</span>
-                  <span id="outlook-bounce-band" class="font-mono font-semibold text-rose-400">—</span>
                 </div>
               </div>
             </div>
@@ -893,7 +874,7 @@
       <div id="affiliate-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
     </section>
 
-    <!-- ROW 6: GOLD KNOWLEDGE HUB DIRECT LINKS -->
+    <!-- ROW 6: INDIAN GOLD BUYING GUIDES & KNOWLEDGE HUB -->
     <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2.5">
@@ -901,39 +882,62 @@
             <i data-lucide="book-open" class="w-4 h-4"></i>
           </span>
           <div>
-            <h2 class="text-base font-semibold text-white">Indian Gold Buying Guides</h2>
-            <p class="text-xs text-slate-400">Learn how showroom pricing, making charges, 3% GST, and BIS HUID hallmarks work</p>
+            <h2 class="text-base font-semibold text-white">Indian Gold Buying Guides &amp; Knowledge Hub</h2>
+            <p class="text-xs text-slate-400">Learn showroom bill math, making charges, 3% GST, BIS HUID checks, and Pavan weight conversions</p>
           </div>
         </div>
-        <a href="guides.html" class="self-start sm:self-center text-xs font-semibold text-amber-400 hover:text-amber-300">
-          View All Guides &rarr;
+        <a href="guides.html" class="self-start sm:self-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 transition-colors">
+          Browse All 12 Guides &rarr;
         </a>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
-        <a href="guides/calculate-gold-jewellery-price.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 transition-colors">
-          <div class="font-semibold text-white">Calculate Gold Jewellery Price</div>
-          <p class="text-[11px] text-slate-400 mt-1">Showroom bill formula with making charges &amp; 3% GST.</p>
+        <a href="guides/calculate-gold-jewellery-price.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 flex flex-col justify-between gap-2 transition-colors">
+          <div>
+            <div class="font-semibold text-white">How to Calculate Gold Jewellery Price</div>
+            <p class="text-[11px] text-slate-400 mt-1">Step-by-step formula covering net weight, making charges, and 3% GST.</p>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-400">Read Guide &rarr;</span>
         </a>
-        <a href="guides/22k-vs-24k-gold.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 transition-colors">
-          <div class="font-semibold text-white">22K vs 24K Gold Comparison</div>
-          <p class="text-[11px] text-slate-400 mt-1">Purity, durability, making fees, and resale differences.</p>
+
+        <a href="guides/22k-vs-24k-gold.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 flex flex-col justify-between gap-2 transition-colors">
+          <div>
+            <div class="font-semibold text-white">22K vs 24K Gold: Which Should You Buy?</div>
+            <p class="text-[11px] text-slate-400 mt-1">Compare purity, durability, making charges, and resale value.</p>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-400">Read Guide &rarr;</span>
         </a>
-        <a href="guides/gold-making-charges.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 transition-colors">
-          <div class="font-semibold text-white">How Making Charges Work</div>
-          <p class="text-[11px] text-slate-400 mt-1">Percentage vs. per-gram fees across jewellery types.</p>
+
+        <a href="guides/gold-making-charges.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 flex flex-col justify-between gap-2 transition-colors">
+          <div>
+            <div class="font-semibold text-white">How Making Charges &amp; Wastage Work</div>
+            <p class="text-[11px] text-slate-400 mt-1">Compare percentage vs. per-gram charges across jewellery types.</p>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-400">Read Guide &rarr;</span>
         </a>
-        <a href="guides/gst-on-gold.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 transition-colors">
-          <div class="font-semibold text-white">3% GST on Gold Explained</div>
-          <p class="text-[11px] text-slate-400 mt-1">How tax applies to new jewellery, coins, and exchanges.</p>
+
+        <a href="guides/gst-on-gold.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 flex flex-col justify-between gap-2 transition-colors">
+          <div>
+            <div class="font-semibold text-white">How 3% GST Is Calculated on Gold</div>
+            <p class="text-[11px] text-slate-400 mt-1">GST rules on new jewellery, making fees, and old-gold exchange.</p>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-400">Read Guide &rarr;</span>
         </a>
-        <a href="guides/bis-huid-hallmark.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 transition-colors">
-          <div class="font-semibold text-white">Check BIS Hallmark &amp; HUID</div>
-          <p class="text-[11px] text-slate-400 mt-1">Verify the 3 stamps and 6-digit HUID code in BIS Care.</p>
+
+        <a href="guides/bis-huid-hallmark.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 flex flex-col justify-between gap-2 transition-colors">
+          <div>
+            <div class="font-semibold text-white">How to Check BIS Hallmark &amp; HUID</div>
+            <p class="text-[11px] text-slate-400 mt-1">Verify the 3 hallmark symbols and 6-digit HUID in the BIS Care app.</p>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-400">Read Guide &rarr;</span>
         </a>
-        <a href="guides/one-pavan-in-grams.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 transition-colors">
-          <div class="font-semibold text-white">1 Pavan (Sovereign) in Grams</div>
-          <p class="text-[11px] text-slate-400 mt-1">Full 8g Pavan conversion table for wedding budgets.</p>
+
+        <a href="guides/one-pavan-in-grams.html" class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/45 p-3.5 flex flex-col justify-between gap-2 transition-colors">
+          <div>
+            <div class="font-semibold text-white">What Is 1 Pavan (Sovereign) in Grams?</div>
+            <p class="text-[11px] text-slate-400 mt-1">1 Pavan = 8 grams conversion table from 1/2 Pavan to 10 Pavan.</p>
+          </div>
+          <span class="text-[11px] font-semibold text-amber-400">Read Guide &rarr;</span>
         </a>
       </div>
     </section>
@@ -1031,17 +1035,6 @@
       </form>
 
       <p id="auth-feedback" class="hidden text-xs text-emerald-400 text-center bg-emerald-500/10 border border-emerald-500/25 rounded-lg p-2.5"></p>
-    </div>
-  </div>
-
-  <!-- MODAL 4: Trust, Policy & Methodology Reader -->
-  <div id="policy-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-    <div class="w-full max-w-2xl rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl max-h-[85vh] flex flex-col">
-      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
-        <h3 id="policy-modal-title" class="text-base font-bold text-white">Policy</h3>
-        <button type="button" onclick="closePolicyModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
-      </div>
-      <div id="policy-modal-body" class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3 overflow-y-auto pr-1"></div>
     </div>
   </div>
 
@@ -1216,52 +1209,52 @@
         maximumFractionDigits: decimals,
       });
     }
-    function updateBuyConfidenceGauge(pct, primaryStatText, badgeText, captionText, tone) {
-      const clampedPct = Math.max(5, Math.min(98, pct));
-      const angle = Math.PI * (1 - clampedPct / 100);
-      const cx = 110 + 84 * Math.cos(angle); const cy = 104 - 84 * Math.sin(angle);
-      const dot = document.getElementById("confidence-dot"); const halo = document.getElementById("confidence-dot-halo");
-      const pctEl = document.getElementById("outlook-confidence-pct"); const badgeEl = document.getElementById("outlook-confidence-badge"); const capEl = document.getElementById("outlook-confidence-caption");
-      if (dot && halo) { dot.setAttribute("cx", cx.toFixed(1)); dot.setAttribute("cy", cy.toFixed(1)); halo.setAttribute("cx", cx.toFixed(1)); halo.setAttribute("cy", cy.toFixed(1)); }
-      if (pctEl) pctEl.textContent = primaryStatText;
-      if (capEl) capEl.textContent = captionText;
-      if (tone === "high") {
-        if (dot) dot.setAttribute("stroke", "#10B981"); if (halo) halo.setAttribute("fill", "rgba(16, 185, 129, 0.35)");
-        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"; }
-      } else {
-        if (dot) dot.setAttribute("stroke", "#EF4444"); if (halo) halo.setAttribute("fill", "rgba(239, 68, 68, 0.35)");
-        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30"; }
-      }
+
+    function timeAgo(isoString) {
+      if (!isoString) return "Just now";
+      const diffSec = Math.max(1, Math.floor((Date.now() - new Date(isoString).getTime()) / 1000));
+      if (diffSec < 60) return "Just now";
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) return `${diffMin}m ago`;
+      const diffHr = Math.floor(diffMin / 60);
+      if (diffHr < 24) return `${diffHr}h ago`;
+      return `${Math.floor(diffHr / 24)}d ago`;
     }
 
-    function renderMarketStory(activeRows) {
-      const s22 = appState.stats22K; const latest = activeRows?.[0];
-      const pill = document.getElementById("trend-pill"); const headlineEl = document.getElementById("verdict-headline");
-      const story = document.getElementById("plain-english-story"); const driversEl = document.getElementById("drivers-list");
-      const aiBadge = document.getElementById("ai-badge"); const recText = document.getElementById("ai-recommendation-text");
-      const outlookTrend = document.getElementById("outlook-trend-badge"); const outlookExpected = document.getElementById("outlook-expected-band");
-      const outlookDip = document.getElementById("outlook-dip-band"); const outlookBounce = document.getElementById("outlook-bounce-band");
-      if (!s22) return;
+    function showToast(title, body, type = "info") {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+      const el = document.createElement("div");
+      const borderClass =
+        type === "alert" ? "border-emerald-500/50 bg-slate-900/95" :
+        type === "error" ? "border-rose-500/50 bg-slate-900/95" :
+        "border-amber-500/40 bg-slate-900/95";
 
-      const base22 = s22.latestPrice;
-      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988));
-      const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
-      const dipLow = Math.round(expLow * 0.975);
-      const dipHigh = Math.round(expLow * 0.992);
-      const bounceLow = Math.round(expHigh * 1.008);
-      const bounceHigh = Math.round(expHigh * 1.024);
+      el.className = `pointer-events-auto rounded-xl border ${borderClass} p-3.5 shadow-xl backdrop-blur-md transition-all`;
+      el.innerHTML = `
+        <div class="text-xs font-semibold text-white">${escapeHtml(title)}</div>
+        <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${escapeHtml(body)}</div>
+      `;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 300);
+      }, 4500);
+    }
 
-      outlookExpected.textContent = `${formatINR(expLow, 0)}–${formatINR(expHigh, 0)}/g`;
-      outlookDip.textContent = `${formatINR(dipLow, 0)}–${formatINR(dipHigh, 0)}/g`;
-      outlookBounce.textContent = `${formatINR(bounceLow, 0)}–${formatINR(bounceHigh, 0)}/g`;
+    function populateForecastDateDropdown() {
+      const select = document.getElementById("forecast-days-select");
+      if (!select) return;
+      const today = new Date();
+      let defaultDays = 5;
+      const optionsHtml = [];
 
-      const signedDiffLabel = `${s22.pctVsAvg > 0 ? "+" : ""}${s22.pctVsAvg}% vs 5d Avg`;
-      if (s22.isRising) {
-        outlookTrend.textContent = "Mildly Higher"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
-        updateBuyConfidenceGauge(Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8))), signedDiffLabel, "Above 5-Day Avg", "Relative price signal only — does not predict future direction", "low");
-      } else {
-        outlookTrend.textContent = "Stable to Mildly Lower"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
-        updateBuyConfidenceGauge(Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6))), signedDiffLabel, "Below 5-Day Avg", "Relative price signal only — not a guarantee of further drops", "high");
+      for (let d = 1; d <= MAX_FORECAST_DAYS; d++) {
+        const dt = new Date(today);
+        dt.setDate(today.getDate() + d);
+        if (dt.getDate() === 23) defaultDays = d;
+        const labelDate = dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+        optionsHtml.push(`<option value="${d}">${labelDate} (In ${d} day${d > 1 ? "s" : ""})</option>`);
       }
 
       select.innerHTML = optionsHtml.join("");
@@ -2091,14 +2084,15 @@
       requestAnimationFrame(animateRocket);
     }
 
-    function updateBuyConfidenceGauge(pct, badgeText, captionText, tone) {
+    function updateBuyConfidenceGauge(pct, primaryHeadline, badgeText, captionText, tone) {
       const clampedPct = Math.max(5, Math.min(98, pct));
       const angle = Math.PI * (1 - clampedPct / 100);
       const cx = 110 + 84 * Math.cos(angle); const cy = 104 - 84 * Math.sin(angle);
       const dot = document.getElementById("confidence-dot"); const halo = document.getElementById("confidence-dot-halo");
       const pctEl = document.getElementById("outlook-confidence-pct"); const badgeEl = document.getElementById("outlook-confidence-badge"); const capEl = document.getElementById("outlook-confidence-caption");
       if (dot && halo) { dot.setAttribute("cx", cx.toFixed(1)); dot.setAttribute("cy", cy.toFixed(1)); halo.setAttribute("cx", cx.toFixed(1)); halo.setAttribute("cy", cy.toFixed(1)); }
-      if (pctEl) pctEl.textContent = tone === "high" ? "Below 5-Day Avg" : "Above 5-Day Avg"; if (capEl) capEl.textContent = captionText;
+      if (pctEl) pctEl.textContent = primaryHeadline;
+      if (capEl) capEl.textContent = captionText;
       if (tone === "high") {
         if (dot) dot.setAttribute("stroke", "#10B981"); if (halo) halo.setAttribute("fill", "rgba(16, 185, 129, 0.35)");
         if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"; }
@@ -2118,20 +2112,40 @@
       if (!s22) return;
 
       const base22 = s22.latestPrice;
-      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988)); const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
-      const dipLow = Math.round(s22.avgPrice * 0.975); const dipHigh = Math.round(s22.avgPrice * 0.985);
-      const bounceLow = Math.round(s22.avgPrice * 1.012); const bounceHigh = Math.round(s22.avgPrice * 1.024);
+      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988));
+      const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
+      const dipLow = Math.round(expLow * 0.975);
+      const dipHigh = Math.round(expLow * 0.992);
+      const bounceLow = Math.round(expHigh * 1.008);
+      const bounceHigh = Math.round(expHigh * 1.024);
 
-      outlookExpected.textContent = `${formatINR(expLow, 0)} – ${formatINR(expHigh, 0)} / g`;
-      outlookDip.textContent = `${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)} / g`;
-      outlookBounce.textContent = `${formatINR(bounceLow, 0)} – ${formatINR(bounceHigh, 0)} / g`;
+      outlookExpected.textContent = `${formatINR(expLow, 0)}–${formatINR(expHigh, 0)}/g`;
+      outlookDip.textContent = `${formatINR(dipLow, 0)}–${formatINR(dipHigh, 0)}/g`;
+      outlookBounce.textContent = `${formatINR(bounceLow, 0)}–${formatINR(bounceHigh, 0)}/g`;
+
+      const rupeeGap = Math.round(Math.abs(s22.latestPrice - s22.avgPrice));
+      const absPct = Math.abs(s22.pctVsAvg);
 
       if (s22.isRising) {
-        outlookTrend.textContent = "Mildly Higher"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
-        updateBuyConfidenceGauge(Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8))), "Above Recent Average", "Relative price signal only — does not predict future direction", "low");
+        outlookTrend.textContent = "Mildly Higher";
+        outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
+        updateBuyConfidenceGauge(
+          Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8))),
+          `₹${rupeeGap} Above Avg`,
+          `+${absPct}% vs ${formatINR(s22.avgPrice, 0)}/g 5d Avg`,
+          "Trading above its 5-day average — consider staggered dip alerts",
+          "low"
+        );
       } else {
-        outlookTrend.textContent = "Stable to Mildly Lower"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
-        updateBuyConfidenceGauge(Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6))), "Below Recent Average", "Relative price signal only — not a guarantee of further drops", "high");
+        outlookTrend.textContent = "Stable to Mildly Lower";
+        outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
+        updateBuyConfidenceGauge(
+          Math.min(92, Math.max(64, Math.round(72 + absPct * 6))),
+          `₹${rupeeGap} Below Avg`,
+          `-${absPct}% vs ${formatINR(s22.avgPrice, 0)}/g 5d Avg`,
+          "Trading below its 5-day average — relative signal, not a guarantee",
+          "high"
+        );
       }
 
       const badgeColors = ["bg-amber-500/15 text-amber-400", "bg-sky-500/15 text-sky-400", "bg-emerald-500/15 text-emerald-400", "bg-purple-500/15 text-purple-300"];
@@ -2154,17 +2168,17 @@
           </div>
         `).join("");
         recText.textContent = s22.pctVsAvg <= 0
-          ? `Prices are slightly below the 5-day average. If buying for a long-term need, consider a staggered first part and watch ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
-          : `Prices are above the 5-day average. Consider waiting or setting staggered alerts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
+          ? `Prices are ${formatINR(rupeeGap, 0)}/g below the 5-day average. If buying for a long-term need, consider a staggered first part and watch ${formatINR(dipLow, 0)}–${formatINR(dipHigh, 0)}/g.`
+          : `Prices are ${formatINR(rupeeGap, 0)}/g above the 5-day average. Consider waiting or setting staggered alerts near ${formatINR(dipLow, 0)}–${formatINR(dipHigh, 0)}/g.`;
         return;
       }
 
       aiBadge.classList.add("hidden");
-      pill.textContent = s22.isRising ? `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)` : (s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady");
+      pill.textContent = s22.isRising ? `Prices Rising (+${absPct}%)` : (s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady");
       pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s22.isRising ? "bg-rose-500/15 text-rose-400 border-rose-500/30" : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"}`;
       headlineEl.textContent = s22.isRising ? "Elevated Momentum — Watch for Pullbacks" : "Below 5-Day Average — Staggered Entry Window";
       headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.isRising ? "text-rose-400" : "text-emerald-400"}`;
-      story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% ${s22.isRising ? "above" : "below"} its 5-day average (${formatINR(s22.avgPrice)}/g). These signals describe recent movement and do not guarantee future prices:`;
+      story.textContent = `22K gold is ${formatINR(rupeeGap, 0)}/g (${absPct}%) ${s22.isRising ? "above" : "below"} its 5-day average (${formatINR(s22.avgPrice)}/g). These signals describe recent movement and do not guarantee future prices:`;
       driversEl.innerHTML = `
         <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
           <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
@@ -2179,7 +2193,7 @@
           <div><div class="text-xs font-semibold text-white">Staggered buying reduces timing risk</div><p class="text-[11px] text-slate-400 mt-0.5">Splitting purchases across 3 levels helps average out short-term volatility.</p></div>
         </div>
       `;
-      recText.textContent = `If you are buying for a planned occasion, consider splitting your budget into 3 parts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g rather than relying on a single day's rate.`;
+      recText.textContent = `If you are buying for a planned occasion, consider splitting your budget into 3 parts near ${formatINR(dipLow, 0)}–${formatINR(dipHigh, 0)}/g rather than relying on a single day's rate.`;
     }
 
     function renderDateForecast() {
@@ -2451,46 +2465,6 @@
         await supabaseClient.auth.signOut(); currentUser = null; updateAuthHeaderUI(); await fetchDashboardData();
         showToast("Signed Out", "Switched to guest view.", "info");
       } else openAuthModal();
-    }
-
-    const POLICY_CONTENT = {
-      about: {
-        title: "About GoldBuddy",
-        body: `<p><strong>GoldBuddy</strong> is an independent Indian gold price tracking and purchase-planning tool designed to help families estimate showroom costs (including making charges and 3% GST) and plan staggered gold purchases.</p><p>Instead of encouraging lump-sum speculation, GoldBuddy helps buyers split planned purchases into multiple parts and track price levels calmly over time.</p>`,
-      },
-      methodology: {
-        title: "Data Sources &amp; Methodology",
-        body: `<p><strong>1. Live Rates:</strong> Indian retail 22K and 24K rates are sourced from public Indian bullion retail boards with a spot-parity fallback calculated from global XAU/USD and USD/INR exchange rates.</p><p><strong>2. Signal Alignment:</strong> The Signal Alignment gauge compares the latest 22K price against its trailing 5-day moving average and short-term direction. It is a descriptive market-signal indicator, not a predictive guarantee.</p><p><strong>3. 15-Day Scenarios:</strong> Optimistic, Trend, and Risk scenarios extrapolate a clamped 5-day momentum factor using square-root time scaling within ±3.5% support/resistance bands. Actual retail prices can differ based on global events and local jeweller premiums.</p>`,
-      },
-      disclaimer: {
-        title: "Financial Disclaimer",
-        body: `<p>All gold prices, calculators, trend summaries, and 15-day scenarios on GoldBuddy are provided strictly for <strong>informational and educational purposes</strong>.</p><ul class="list-disc pl-5 space-y-1.5 text-slate-300"><li>GoldBuddy does not provide personalized investment, tax, or financial advice.</li><li>Retail showroom bills vary by jeweller based on making charges, wastage, hallmarking fees, and 3% GST.</li><li>Past price movements do not guarantee future price direction.</li><li>Always verify final rates with your jeweller before making any transaction.</li></ul>`,
-      },
-      privacy: {
-        title: "Privacy Policy",
-        body: `<p><strong>Data We Collect:</strong> If you create an account, your authentication details (via Supabase Authentication) and any custom buying-plan targets you save are stored privately under your account so we can display your plan and send requested price-drop alerts.</p><p><strong>Local Storage:</strong> Guests who do not sign in have their buying-plan targets stored locally in their own browser (<code>localStorage</code>).</p><p><strong>Third-Party Services:</strong> GoldBuddy uses Supabase (database &amp; authentication), Cloudflare Turnstile (bot protection), and affiliate partner links. As an Amazon Associate, we earn from qualifying purchases.</p>`,
-      },
-      terms: {
-        title: "Terms of Use",
-        body: `<p>By using GoldBuddy, you agree that all tools and rate estimates are provided &ldquo;as is&rdquo; without warranties of accuracy, completeness, or uninterrupted availability.</p><p>You agree not to automate scraping, abuse authentication endpoints, or bypass rate limits.</p>`,
-      },
-      contact: {
-        title: "Contact GoldBuddy",
-        body: `<p>Have a question, feedback, or data-correction request?</p><p>Please use our official website support page once published on our custom domain.</p>`,
-      },
-    };
-
-    function openPolicyModal(key) {
-      const item = POLICY_CONTENT[key]; if (!item) return;
-      document.getElementById("policy-modal-title").innerHTML = item.title;
-      document.getElementById("policy-modal-body").innerHTML = item.body;
-      document.getElementById("policy-modal").classList.remove("hidden");
-      document.getElementById("policy-modal").classList.add("flex");
-    }
-
-    function closePolicyModal() {
-      document.getElementById("policy-modal").classList.add("hidden");
-      document.getElementById("policy-modal").classList.remove("flex");
     }
 
     function renderTurnstileWidget() {

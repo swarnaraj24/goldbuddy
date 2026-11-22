@@ -5,9 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GoldBuddy — Live Indian Gold Rates, Smart Buying Planner &amp; Market Insights</title>
   <meta name="description" content="Track live 22K and 24K Indian gold rates, calculate showroom bills with making charges and 3% GST, and plan staggered gold purchases with price-drop alerts." />
+  <link rel="canonical" href="https://swarnaraj24.github.io/goldbuddy/" />
   <meta property="og:title" content="GoldBuddy — Indian Gold Rate Calculator &amp; Buying Planner" />
   <meta property="og:description" content="Live 22K/24K Indian gold prices, GST &amp; making charge calculator, and 3-part staggered buying planner." />
+  <meta property="og:url" content="https://swarnaraj24.github.io/goldbuddy/" />
   <meta property="og:type" content="website" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "GoldBuddy",
+    "url": "https://swarnaraj24.github.io/goldbuddy/",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "description": "Live 22K and 24K Indian gold rate tracker, GST & making charge calculator, and 3-part staggered gold buying planner."
+  }
+  </script>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -1588,6 +1601,17 @@
 
     function setupBackgroundSync() {
       if (!supabaseClient) return;
+      const isSandboxed = (() => {
+        try {
+          return window.self !== window.top && !window.origin?.startsWith("http");
+        } catch (_e) {
+          return true;
+        }
+      })();
+      if (isSandboxed || typeof WebSocket === "undefined") {
+        startPollingFallback();
+        return;
+      }
       try {
         supabaseClient
           .channel("goldbuddy-live")

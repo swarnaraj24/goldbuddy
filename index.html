@@ -677,15 +677,34 @@
                     <circle id="confidence-dot" cx="169" cy="45" r="6" fill="#FFFFFF" stroke="#10B981" stroke-width="2.5" filter="url(#gaugeDotGlow)" />
                   </svg>
 
-                  <div class="-mt-9 flex flex-col items-center">
-                    <div id="outlook-confidence-pct" class="text-sm sm:text-base font-bold font-mono text-white leading-tight">Below 5d Avg</div>
+                  <div class="-mt-3 flex flex-col items-center">
+                    <div id="outlook-confidence-pct" class="text-xs sm:text-sm font-bold font-mono text-white leading-tight">-1.2% vs 5d Avg</div>
                     <span id="outlook-confidence-badge" class="mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                      Favourable Dip Signal
+                      Below 5-Day Avg
                     </span>
-                    <p id="outlook-confidence-caption" class="text-[10px] text-slate-400 mt-1 leading-snug">
+                    <p id="outlook-confidence-caption" class="text-[10px] text-slate-400 mt-1.5 leading-snug">
                       Relative price signal only — not a guarantee of further drops
                     </p>
                   </div>
+                </div>
+              </div>
+
+              <div class="space-y-1.5 text-[11px] pt-1 border-t border-slate-800/80">
+                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
+                  <span class="text-slate-400 shrink-0">Trend</span>
+                  <span id="outlook-trend-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400">Stable to Mildly Lower</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
+                  <span class="text-slate-400 shrink-0">Trend Band</span>
+                  <span id="outlook-expected-band" class="font-mono font-semibold text-amber-300 whitespace-nowrap">—</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
+                  <span class="text-slate-400 shrink-0">Dip Zone</span>
+                  <span id="outlook-dip-band" class="font-mono font-semibold text-emerald-400 whitespace-nowrap">—</span>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-slate-400 shrink-0">Risk Zone</span>
+                  <span id="outlook-bounce-band" class="font-mono font-semibold text-rose-400 whitespace-nowrap">—</span>
                 </div>
               </div>
 
@@ -1197,52 +1216,52 @@
         maximumFractionDigits: decimals,
       });
     }
-
-    function timeAgo(isoString) {
-      if (!isoString) return "Just now";
-      const diffSec = Math.max(1, Math.floor((Date.now() - new Date(isoString).getTime()) / 1000));
-      if (diffSec < 60) return "Just now";
-      const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) return `${diffMin}m ago`;
-      const diffHr = Math.floor(diffMin / 60);
-      if (diffHr < 24) return `${diffHr}h ago`;
-      return `${Math.floor(diffHr / 24)}d ago`;
+    function updateBuyConfidenceGauge(pct, primaryStatText, badgeText, captionText, tone) {
+      const clampedPct = Math.max(5, Math.min(98, pct));
+      const angle = Math.PI * (1 - clampedPct / 100);
+      const cx = 110 + 84 * Math.cos(angle); const cy = 104 - 84 * Math.sin(angle);
+      const dot = document.getElementById("confidence-dot"); const halo = document.getElementById("confidence-dot-halo");
+      const pctEl = document.getElementById("outlook-confidence-pct"); const badgeEl = document.getElementById("outlook-confidence-badge"); const capEl = document.getElementById("outlook-confidence-caption");
+      if (dot && halo) { dot.setAttribute("cx", cx.toFixed(1)); dot.setAttribute("cy", cy.toFixed(1)); halo.setAttribute("cx", cx.toFixed(1)); halo.setAttribute("cy", cy.toFixed(1)); }
+      if (pctEl) pctEl.textContent = primaryStatText;
+      if (capEl) capEl.textContent = captionText;
+      if (tone === "high") {
+        if (dot) dot.setAttribute("stroke", "#10B981"); if (halo) halo.setAttribute("fill", "rgba(16, 185, 129, 0.35)");
+        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"; }
+      } else {
+        if (dot) dot.setAttribute("stroke", "#EF4444"); if (halo) halo.setAttribute("fill", "rgba(239, 68, 68, 0.35)");
+        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30"; }
+      }
     }
 
-    function showToast(title, body, type = "info") {
-      const container = document.getElementById("toast-container");
-      if (!container) return;
-      const el = document.createElement("div");
-      const borderClass =
-        type === "alert" ? "border-emerald-500/50 bg-slate-900/95" :
-        type === "error" ? "border-rose-500/50 bg-slate-900/95" :
-        "border-amber-500/40 bg-slate-900/95";
+    function renderMarketStory(activeRows) {
+      const s22 = appState.stats22K; const latest = activeRows?.[0];
+      const pill = document.getElementById("trend-pill"); const headlineEl = document.getElementById("verdict-headline");
+      const story = document.getElementById("plain-english-story"); const driversEl = document.getElementById("drivers-list");
+      const aiBadge = document.getElementById("ai-badge"); const recText = document.getElementById("ai-recommendation-text");
+      const outlookTrend = document.getElementById("outlook-trend-badge"); const outlookExpected = document.getElementById("outlook-expected-band");
+      const outlookDip = document.getElementById("outlook-dip-band"); const outlookBounce = document.getElementById("outlook-bounce-band");
+      if (!s22) return;
 
-      el.className = `pointer-events-auto rounded-xl border ${borderClass} p-3.5 shadow-xl backdrop-blur-md transition-all`;
-      el.innerHTML = `
-        <div class="text-xs font-semibold text-white">${escapeHtml(title)}</div>
-        <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${escapeHtml(body)}</div>
-      `;
-      container.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = "0";
-        setTimeout(() => el.remove(), 300);
-      }, 4500);
-    }
+      const base22 = s22.latestPrice;
+      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988));
+      const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
+      const dipLow = Math.round(expLow * 0.975);
+      const dipHigh = Math.round(expLow * 0.992);
+      const bounceLow = Math.round(expHigh * 1.008);
+      const bounceHigh = Math.round(expHigh * 1.024);
 
-    function populateForecastDateDropdown() {
-      const select = document.getElementById("forecast-days-select");
-      if (!select) return;
-      const today = new Date();
-      let defaultDays = 5;
-      const optionsHtml = [];
+      outlookExpected.textContent = `${formatINR(expLow, 0)}–${formatINR(expHigh, 0)}/g`;
+      outlookDip.textContent = `${formatINR(dipLow, 0)}–${formatINR(dipHigh, 0)}/g`;
+      outlookBounce.textContent = `${formatINR(bounceLow, 0)}–${formatINR(bounceHigh, 0)}/g`;
 
-      for (let d = 1; d <= MAX_FORECAST_DAYS; d++) {
-        const dt = new Date(today);
-        dt.setDate(today.getDate() + d);
-        if (dt.getDate() === 23) defaultDays = d;
-        const labelDate = dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
-        optionsHtml.push(`<option value="${d}">${labelDate} (In ${d} day${d > 1 ? "s" : ""})</option>`);
+      const signedDiffLabel = `${s22.pctVsAvg > 0 ? "+" : ""}${s22.pctVsAvg}% vs 5d Avg`;
+      if (s22.isRising) {
+        outlookTrend.textContent = "Mildly Higher"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
+        updateBuyConfidenceGauge(Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8))), signedDiffLabel, "Above 5-Day Avg", "Relative price signal only — does not predict future direction", "low");
+      } else {
+        outlookTrend.textContent = "Stable to Mildly Lower"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
+        updateBuyConfidenceGauge(Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6))), signedDiffLabel, "Below 5-Day Avg", "Relative price signal only — not a guarantee of further drops", "high");
       }
 
       select.innerHTML = optionsHtml.join("");

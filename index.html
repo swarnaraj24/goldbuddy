@@ -2616,11 +2616,15 @@
         isDemoMode = false;
         try {
           const cachedRates = JSON.parse(localStorage.getItem(STORAGE_RATES_CACHE_KEY) || "[]");
-          if (Array.isArray(cachedRates) && cachedRates.length > 0) {
+          if (Array.isArray(cachedRates) && cachedRates.length > 0 && cachedRates[0]?.rate_22k_gram) {
             appState.history = cachedRates;
             recomputeAndRender();
+          } else {
+            localStorage.removeItem(STORAGE_RATES_CACHE_KEY);
           }
-        } catch (_e) {}
+        } catch (_e) {
+          localStorage.removeItem(STORAGE_RATES_CACHE_KEY);
+        }
         supabaseClient.auth.onAuthStateChange((_event, session) => {
           currentUser = session?.user ?? null;
           updateAuthHeaderUI();

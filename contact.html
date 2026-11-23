@@ -56,9 +56,11 @@
               class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
             <button type="button" id="send-otp-btn" onclick="sendGuestEmailOtp()"
               class="px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/35 shrink-0 cursor-pointer">
-              Verify Email
+              Send Verification Link
             </button>
           </div>
+          <p id="email-verify-hint" class="text-[11px] text-slate-400 mt-1">We send a one-click verification link to confirm your inbox exists before submitting.</p>
+        </div>
           <div id="otp-verify-box" class="hidden mt-2.5 p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-2">
             <label for="c-otp" class="block text-[11px] font-medium text-amber-300">Enter the verification code sent to your inbox:</label>
             <div class="flex gap-2">
@@ -189,49 +191,28 @@
       btn.disabled = true;
       btn.textContent = "Sending...";
       try {
+        const redirectUrl = window.location.origin + window.location.pathname;
         const { error } = await sb.auth.signInWithOtp({
           email,
-          options: { shouldCreateUser: true, captchaToken: contactTurnstileToken || undefined }
+          options: {
+            shouldCreateUser: true,
+            emailRedirectTo: redirectUrl,
+            captchaToken: contactTurnstileToken || undefined,
+          }
         });
         if (error) throw error;
-        document.getElementById("otp-verify-box").classList.remove("hidden");
         status.className = "text-xs text-sky-300 bg-sky-500/10 border border-sky-500/30 rounded-xl p-3";
-        status.textContent = `Verification code sent to ${email}. Check your inbox (or spam) and enter the code above.`;
+        status.textContent = `Verification link sent to ${email}! Open your inbox and click "Sign in" — you will return here verified.`;
       } catch (err) {
         status.className = "text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3";
-        status.textContent = err?.message || "Could not send verification code.";
+        status.textContent = err?.message || "Could not send verification link.";
       } finally {
         contactTurnstileToken = "";
         if (contactTurnstileId !== null && typeof window.turnstile !== "undefined") {
           try { window.turnstile.reset(contactTurnstileId); } catch (_e) {}
         }
         btn.disabled = false;
-        btn.textContent = "Resend Code";
-      }
-    }
-
-    async function verifyGuestEmailOtp() {
-      const email = document.getElementById("c-email").value.trim();
-      const token = document.getElementById("c-otp").value.trim();
-      const status = document.getElementById("contact-status");
-      const btn = document.getElementById("confirm-otp-btn");
-
-      if (!token) return;
-      btn.disabled = true;
-      btn.textContent = "Checking...";
-      try {
-        const { data, error } = await sb.auth.verifyOtp({ email, token, type: "email" });
-        if (error) throw error;
-        signedInUser = data?.user ?? data?.session?.user ?? null;
-        syncAuthContactUI(false);
-        status.className = "text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3";
-        status.textContent = "Email verified! You can now click Submit Feedback.";
-      } catch (err) {
-        status.className = "text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3";
-        status.textContent = "Invalid or expired code. Please check your inbox and try again.";
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "Confirm Code";
+        btn.textContent = "Resend Link";
       }
     }
 
@@ -280,7 +261,7 @@
 
       if (!signedInUser) {
         status.className = "text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3";
-        status.textContent = "Please click 'Verify Email' and confirm the code sent to your inbox before submitting.";
+        status.textContent = "Please click 'Send Verification Link' and click the link in your inbox before submitting.";
         return;
       }
 

@@ -61,19 +61,6 @@
           </div>
           <p id="email-verify-hint" class="text-[11px] text-slate-400 mt-1">We send a one-click verification link to confirm your inbox exists before submitting.</p>
         </div>
-          <div id="otp-verify-box" class="hidden mt-2.5 p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-2">
-            <label for="c-otp" class="block text-[11px] font-medium text-amber-300">Enter the verification code sent to your inbox:</label>
-            <div class="flex gap-2">
-              <input type="text" id="c-otp" maxlength="8" inputmode="numeric" placeholder="6-digit code"
-                class="w-36 rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
-              <button type="button" id="confirm-otp-btn" onclick="verifyGuestEmailOtp()"
-                class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 cursor-pointer">
-                Confirm Code
-              </button>
-            </div>
-          </div>
-          <p id="email-verify-hint" class="text-[11px] text-slate-400 mt-1">We send a one-time code to confirm your inbox exists before submitting.</p>
-        </div>
 
         <div>
           <label for="c-topic" class="block text-xs font-medium text-slate-300 mb-1">Topic</label>
@@ -191,7 +178,9 @@
       btn.disabled = true;
       btn.textContent = "Sending...";
       try {
-        const redirectUrl = window.location.origin + window.location.pathname;
+        const redirectUrl = window.location.hostname.includes("github.io")
+          ? "https://swarnaraj24.github.io/goldbuddy/contact.html"
+          : (window.location.origin + window.location.pathname);
         const { error } = await sb.auth.signInWithOtp({
           email,
           options: {

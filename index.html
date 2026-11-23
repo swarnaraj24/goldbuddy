@@ -624,7 +624,7 @@
               <span id="ai-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/25">Live AI</span>
             </div>
             <span id="trend-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              Prices Dropping
+              Checking Trend...
             </span>
           </div>
 
@@ -1351,6 +1351,18 @@
       const sample = recent.length > 0 ? recent : historyRows;
       const prices = sample.map((r) => Number(r[field]));
       const latestPrice = Number(historyRows[0][field]);
+
+      // Find previous distinct rate (prior day or earlier session) to show accurate daily change
+      const latestDateKey = new Date(historyRows[0].fetched_at).toDateString();
+      const priorDayRow = historyRows.find((r) => new Date(r.fetched_at).toDateString() !== latestDateKey && Number(r[field]) !== latestPrice);
+      const prevDistinctRow = priorDayRow || historyRows.find((r, idx) => idx > 0 && Number(r[field]) !== latestPrice);
+      const prevPrice = prevDistinctRow ? Number(prevDistinctRow[field]) : latestPrice;
+      const prevLabel = priorDayRow
+        ? new Date(priorDayRow.fetched_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })
+        : "prev";
+      const dayChange = Number((latestPrice - prevPrice).toFixed(0));
+      const dayChangePct = prevPrice > 0 ? Number((((latestPrice - prevPrice) / prevPrice) * 100).toFixed(2)) : 0;
+
       const oldestPrice = Number(sample[sample.length - 1][field]);
       const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
       const minPrice = Math.min(...prices);
@@ -1359,7 +1371,20 @@
       const highPrice = Number(Math.max(maxPrice, avgPrice * 1.008).toFixed(2));
       const pctVsAvg = Number((((latestPrice - avgPrice) / avgPrice) * 100).toFixed(2));
       const trendPct = oldestPrice > 0 ? Number((((latestPrice - oldestPrice) / oldestPrice) * 100).toFixed(2)) : 0;
-      return { karat, latestPrice, avgPrice: Number(avgPrice.toFixed(2)), bargainPrice, highPrice, pctVsAvg, trendPct, isRising: trendPct > 0.25 || pctVsAvg > 0.25 };
+      return {
+        karat,
+        latestPrice,
+        prevPrice,
+        prevLabel,
+        dayChange,
+        dayChangePct,
+        avgPrice: Number(avgPrice.toFixed(2)),
+        bargainPrice,
+        highPrice,
+        pctVsAvg,
+        trendPct,
+        isRising: trendPct > 0.25 || pctVsAvg > 0.25,
+      };
     }
 
     function cleanSupabaseUrl(rawUrl) {
@@ -1978,19 +2003,19 @@
 
       const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
       const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
-      const diff22 = Number((main22 - s22.avgPrice).toFixed(0));
+      const diff22 = s22.dayChange;
       document.getElementById("price-22k").textContent = formatINR(main22, 0);
-      document.getElementById("badge-22k").textContent = `${diff22 <= 0 ? "" : "+"}${diff22} ${diff22 <= 0 ? "▼" : "▲"}`;
-      document.getElementById("badge-22k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff22 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("badge-22k").textContent = `${diff22 > 0 ? "+" : ""}${diff22} ${diff22 > 0 ? "▲" : (diff22 < 0 ? "▼" : "•")} vs ${s22.prevLabel}`;
+      document.getElementById("badge-22k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff22 < 0 ? "bg-emerald-500/15 text-emerald-400" : (diff22 > 0 ? "bg-rose-500/15 text-rose-400" : "bg-slate-800 text-slate-300")}`;
       document.getElementById("subprice-22k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
       document.getElementById("pavan-22k").textContent = formatINR(main22 * 8, 0);
 
       const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
       const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
-      const diff24 = Number((main24 - s24.avgPrice).toFixed(0));
+      const diff24 = s24.dayChange;
       document.getElementById("price-24k").textContent = formatINR(main24, 0);
-      document.getElementById("badge-24k").textContent = `${diff24 <= 0 ? "" : "+"}${diff24} ${diff24 <= 0 ? "▼" : "▲"}`;
-      document.getElementById("badge-24k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff24 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("badge-24k").textContent = `${diff24 > 0 ? "+" : ""}${diff24} ${diff24 > 0 ? "▲" : (diff24 < 0 ? "▼" : "•")} vs ${s24.prevLabel}`;
+      document.getElementById("badge-24k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff24 < 0 ? "bg-emerald-500/15 text-emerald-400" : (diff24 > 0 ? "bg-rose-500/15 text-rose-400" : "bg-slate-800 text-slate-300")}`;
       document.getElementById("subprice-24k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
       document.getElementById("ten-gram-24k").textContent = formatINR(main24 * 10, 0);
     }
@@ -2184,9 +2209,33 @@
       const absPct = Math.abs(s22.pctVsAvg).toFixed(2);
       const avgText = `${formatINR(s22.avgPrice, 0)}/g`;
 
-      if (s22.isRising) {
-        outlookTrend.textContent = "Mildly Higher";
+      // Daily move vs previous day/session
+      const dayMoveText = s22.dayChange > 0
+        ? `Up +${formatINR(s22.dayChange, 0)}/g vs ${s22.prevLabel} (${formatINR(s22.prevPrice, 0)}/g)`
+        : s22.dayChange < 0
+        ? `Down ${formatINR(s22.dayChange, 0)}/g vs ${s22.prevLabel} (${formatINR(s22.prevPrice, 0)}/g)`
+        : `Unchanged vs ${s22.prevLabel}`;
+
+      if (s22.dayChange > 0) {
+        pill.textContent = `Up +${formatINR(s22.dayChange, 0)}/g vs ${s22.prevLabel}`;
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-rose-500/15 text-rose-400 border-rose-500/30";
+      } else if (s22.dayChange < 0) {
+        pill.textContent = `Down ${formatINR(s22.dayChange, 0)}/g vs ${s22.prevLabel}`;
+        pill.className = "px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+      } else {
+        pill.textContent = s22.pctVsAvg < 0 ? `Below 5d Avg (${s22.pctVsAvg}%)` : `Above 5d Avg (+${s22.pctVsAvg}%)`;
+        pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s22.pctVsAvg < 0 ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-rose-500/15 text-rose-400 border-rose-500/30"}`;
+      }
+
+      if (s22.isRising || s22.dayChange > 0) {
+        outlookTrend.textContent = s22.dayChange > 0 ? "Rebounding Higher" : "Mildly Higher";
         outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400";
+      } else {
+        outlookTrend.textContent = "Stable to Mildly Lower";
+        outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
+      }
+
+      if (s22.pctVsAvg > 0.25) {
         updateBuyConfidenceGauge(
           Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8))),
           "Above 5-Day Average",
@@ -2195,8 +2244,6 @@
           `${formatINR(diffRs, 0)} Above Avg`
         );
       } else {
-        outlookTrend.textContent = "Stable to Mildly Lower";
-        outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400";
         updateBuyConfidenceGauge(
           Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6))),
           "Below 5-Day Average",
@@ -2209,11 +2256,11 @@
       const badgeColors = ["bg-amber-500/15 text-amber-400", "bg-sky-500/15 text-sky-400", "bg-emerald-500/15 text-emerald-400", "bg-purple-500/15 text-purple-300"];
       if (latest?.ai_analysis?.drivers && scenarioOverride === "actual") {
         aiBadge.classList.remove("hidden");
-        pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : `Prices Rising (+${s22.pctVsAvg}%)`;
-        pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s22.pctVsAvg < 0 ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-rose-500/15 text-rose-400 border-rose-500/30"}`;
-        headlineEl.textContent = latest.ai_analysis.headline;
-        headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
-        story.textContent = latest.ai_analysis.story;
+        headlineEl.textContent = s22.dayChange > 0
+          ? `Up +${formatINR(s22.dayChange, 0)}/g Today — ${latest.ai_analysis.headline}`
+          : latest.ai_analysis.headline;
+        headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.dayChange > 0 ? "text-amber-300" : (s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400")}`;
+        story.textContent = `${dayMoveText} (still ${formatINR(diffRs, 0)}/g ${s22.pctVsAvg <= 0 ? "below" : "above"} the 5-day average of ${avgText}). ${latest.ai_analysis.story}`;
         const drivers = [...latest.ai_analysis.drivers];
         if (drivers.length < 4) drivers.push({ title: "Buy in parts (recommended)", detail: "Consider splitting your budget into 3 parts rather than buying 100% on one day." });
         driversEl.innerHTML = drivers.map((d, idx) => `
@@ -2225,26 +2272,26 @@
             </div>
           </div>
         `).join("");
-        recText.textContent = s22.pctVsAvg <= 0
-          ? `Prices are ${formatINR(diffRs, 0)}/g below the 5-day average (${avgText}). Consider a staggered first part and watch ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
-          : `Prices are ${formatINR(diffRs, 0)}/g above the 5-day average (${avgText}). Consider waiting or setting staggered alerts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
+        recText.textContent = s22.dayChange > 0
+          ? `Gold rose +${formatINR(s22.dayChange, 0)}/g from ${s22.prevLabel} to ${formatINR(base22, 0)}/g. Avoid chasing sudden spikes; consider staggered alerts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
+          : `Prices are ${formatINR(diffRs, 0)}/g below the 5-day average (${avgText}). Consider a staggered first part and watch ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
         return;
       }
 
       aiBadge.classList.add("hidden");
-      pill.textContent = s22.isRising ? `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)` : (s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady");
-      pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s22.isRising ? "bg-rose-500/15 text-rose-400 border-rose-500/30" : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"}`;
-      headlineEl.textContent = s22.isRising ? "Elevated Momentum — Watch for Pullbacks" : "Below 5-Day Average — Staggered Entry Window";
-      headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.isRising ? "text-rose-400" : "text-emerald-400"}`;
-      story.textContent = `22K gold is ${formatINR(diffRs, 0)}/g (${absPct}%) ${s22.isRising ? "above" : "below"} its 5-day average (${avgText}). These signals describe recent movement and do not guarantee future prices:`;
+      headlineEl.textContent = s22.dayChange > 0
+        ? `Rebounded +${formatINR(s22.dayChange, 0)}/g vs ${s22.prevLabel} — Watch Pullbacks`
+        : (s22.isRising ? "Elevated Momentum — Watch for Pullbacks" : "Below 5-Day Average — Staggered Entry Window");
+      headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.dayChange > 0 ? "text-amber-300" : (s22.isRising ? "text-rose-400" : "text-emerald-400")}`;
+      story.textContent = `${dayMoveText}. Overall, 22K gold is ${formatINR(diffRs, 0)}/g (${absPct}%) ${s22.pctVsAvg > 0 ? "above" : "below"} its 5-day average (${avgText}):`;
       driversEl.innerHTML = `
         <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
           <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
-          <div><div class="text-xs font-semibold text-white">Global bullion &amp; USD rates</div><p class="text-[11px] text-slate-400 mt-0.5">International spot XAU/USD and US interest expectations influence daily Indian rates.</p></div>
+          <div><div class="text-xs font-semibold text-white">Daily session move (${s22.dayChange >= 0 ? "+" : ""}${formatINR(s22.dayChange, 0)}/g)</div><p class="text-[11px] text-slate-400 mt-0.5">22K rate moved from ${formatINR(s22.prevPrice, 0)}/g (${s22.prevLabel}) to ${formatINR(base22, 0)}/g today.</p></div>
         </div>
         <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
           <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-          <div><div class="text-xs font-semibold text-white">USD/INR exchange movement</div><p class="text-[11px] text-slate-400 mt-0.5">Rupee strength or weakness directly affects landed gold prices in India.</p></div>
+          <div><div class="text-xs font-semibold text-white">Global bullion &amp; USD/INR</div><p class="text-[11px] text-slate-400 mt-0.5">International spot XAU/USD and Rupee exchange fluctuations drive daily Indian retail resets.</p></div>
         </div>
         <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
           <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>

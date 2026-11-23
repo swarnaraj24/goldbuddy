@@ -8,6 +8,7 @@
   <link rel="canonical" href="https://swarnaraj24.github.io/goldbuddy/contact.html" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body { background-color: #0B0F17; color: #F1F5F9; font-family: 'Inter', system-ui, sans-serif; }
@@ -74,6 +75,8 @@
             class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"></textarea>
         </div>
 
+        <div id="contact-turnstile-container" class="pt-1"></div>
+
         <button type="submit" id="c-submit-btn" class="px-5 py-2.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors cursor-pointer">
           Submit Feedback
         </button>
@@ -100,9 +103,28 @@
   <script>
     const SUPABASE_URL = "https://qcwangaymlurglvamjsq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2FuZ2F5bWx1cmdsdmFtanNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzkyMTEsImV4cCI6MjA5Nzc1NTIxMX0.Q8JeHm0H4ZqdO7sN48DxPQS8kTpyX-LS7sjs7n8dIbU";
+    const TURNSTILE_SITE_KEY = "0x4AAAAAAGJv9sHfNNOuuvKP";
     const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     let signedInUser = null;
     let lastContactSubmitTs = 0;
+    let contactTurnstileToken = "";
+    let contactTurnstileId = null;
+
+    function initContactTurnstile() {
+      const container = document.getElementById("contact-turnstile-container");
+      if (!container || typeof window.turnstile === "undefined") {
+        setTimeout(initContactTurnstile, 300);
+        return;
+      }
+      if (contactTurnstileId !== null) return;
+      contactTurnstileId = window.turnstile.render("#contact-turnstile-container", {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: "dark",
+        callback: (token) => { contactTurnstileToken = token; },
+        "expired-callback": () => { contactTurnstileToken = ""; },
+        "error-callback": () => { contactTurnstileToken = ""; },
+      });
+    }
 
     function syncAuthContactUI(unavailable = false) {
       const badge = document.getElementById("auth-session-badge");
@@ -122,6 +144,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
+      initContactTurnstile();
       if (!sb) {
         syncAuthContactUI(true);
         return;
@@ -163,6 +186,12 @@
         return;
       }
 
+      if (!contactTurnstileToken && typeof window.turnstile !== "undefined") {
+        status.className = "text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3";
+        status.textContent = "Please complete the human verification check above before submitting.";
+        return;
+      }
+
       btn.disabled = true;
       btn.textContent = "Sending...";
       status.classList.add("hidden");
@@ -187,6 +216,10 @@
         status.className = "text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3";
         status.textContent = "Could not send message right now. Please check your inputs and try again shortly.";
       } finally {
+        contactTurnstileToken = "";
+        if (contactTurnstileId !== null && typeof window.turnstile !== "undefined") {
+          try { window.turnstile.reset(contactTurnstileId); } catch (_e) {}
+        }
         btn.disabled = false;
         btn.textContent = "Submit Feedback";
       }

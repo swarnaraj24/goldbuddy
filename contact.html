@@ -51,9 +51,26 @@
             <label for="c-email" class="block text-xs font-medium text-slate-300">Your Email Address <span class="text-amber-400">*</span></label>
             <a href="index.html" class="text-[11px] text-amber-400 hover:text-amber-300 underline">Or sign in on Home &rarr;</a>
           </div>
-          <input type="email" id="c-email" required maxlength="150" placeholder="you@example.com"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-          <p class="text-[11px] text-slate-400 mt-1">Required when not signed in so we can follow up on your feedback.</p>
+          <div class="flex gap-2">
+            <input type="email" id="c-email" required maxlength="150" placeholder="you@example.com"
+              class="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
+            <button type="button" id="send-otp-btn" onclick="sendGuestEmailOtp()"
+              class="px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/35 shrink-0 cursor-pointer">
+              Verify Email
+            </button>
+          </div>
+          <div id="otp-verify-box" class="hidden mt-2.5 p-3 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-2">
+            <label for="c-otp" class="block text-[11px] font-medium text-amber-300">Enter the verification code sent to your inbox:</label>
+            <div class="flex gap-2">
+              <input type="text" id="c-otp" maxlength="8" inputmode="numeric" placeholder="6-digit code"
+                class="w-36 rounded-lg bg-slate-950 border border-slate-700 px-3 py-1.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
+              <button type="button" id="confirm-otp-btn" onclick="verifyGuestEmailOtp()"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 cursor-pointer">
+                Confirm Code
+              </button>
+            </div>
+          </div>
+          <p id="email-verify-hint" class="text-[11px] text-slate-400 mt-1">We send a one-time code to confirm your inbox exists before submitting.</p>
         </div>
 
         <div>
@@ -104,11 +121,21 @@
     const SUPABASE_URL = "https://qcwangaymlurglvamjsq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2FuZ2F5bWx1cmdsdmFtanNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzkyMTEsImV4cCI6MjA5Nzc1NTIxMX0.Q8JeHm0H4ZqdO7sN48DxPQS8kTpyX-LS7sjs7n8dIbU";
     const TURNSTILE_SITE_KEY = "0x4AAAAAAGJv9sHfNNOuuvKP";
+    const DISPOSABLE_DOMAINS = new Set([
+      "example.com", "test.com", "fake.com", "mailinator.com",
+      "tempmail.com", "10minutemail.com", "yopmail.com", "guerrillamail.com"
+    ]);
     const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     let signedInUser = null;
     let lastContactSubmitTs = 0;
     let contactTurnstileToken = "";
     let contactTurnstileId = null;
+
+    function isValidEmailFormat(email) {
+      if (!/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)) return false;
+      const domain = email.split("@")[1]?.toLowerCase() || "";
+      return !DISPOSABLE_DOMAINS.has(domain);
+    }
 
     function initContactTurnstile() {
       const container = document.getElementById("contact-turnstile-container");
@@ -132,14 +159,79 @@
       const emailInput = document.getElementById("c-email");
 
       if (signedInUser) {
-        badge.innerHTML = `<span class="text-emerald-400 font-medium">Signed in as ${signedInUser.email}</span>`;
+        badge.innerHTML = `<span class="text-emerald-400 font-medium">Verified: ${signedInUser.email}</span>`;
         emailGroup.classList.add("hidden");
         emailInput.required = false;
         emailInput.value = signedInUser.email || "";
       } else {
-        badge.textContent = unavailable ? "Guest Mode (Auth offline)" : "Guest User";
+        badge.textContent = unavailable ? "Guest Mode (Auth offline)" : "Email Verification Required";
         emailGroup.classList.remove("hidden");
         emailInput.required = true;
+      }
+    }
+
+    async function sendGuestEmailOtp() {
+      const email = document.getElementById("c-email").value.trim();
+      const status = document.getElementById("contact-status");
+      const btn = document.getElementById("send-otp-btn");
+
+      if (!isValidEmailFormat(email)) {
+        status.className = "text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3";
+        status.textContent = "Please enter a valid real email address first.";
+        return;
+      }
+      if (!contactTurnstileToken && typeof window.turnstile !== "undefined") {
+        status.className = "text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3";
+        status.textContent = "Please complete the human verification check below first.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Sending...";
+      try {
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options: { shouldCreateUser: true, captchaToken: contactTurnstileToken || undefined }
+        });
+        if (error) throw error;
+        document.getElementById("otp-verify-box").classList.remove("hidden");
+        status.className = "text-xs text-sky-300 bg-sky-500/10 border border-sky-500/30 rounded-xl p-3";
+        status.textContent = `Verification code sent to ${email}. Check your inbox (or spam) and enter the code above.`;
+      } catch (err) {
+        status.className = "text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3";
+        status.textContent = err?.message || "Could not send verification code.";
+      } finally {
+        contactTurnstileToken = "";
+        if (contactTurnstileId !== null && typeof window.turnstile !== "undefined") {
+          try { window.turnstile.reset(contactTurnstileId); } catch (_e) {}
+        }
+        btn.disabled = false;
+        btn.textContent = "Resend Code";
+      }
+    }
+
+    async function verifyGuestEmailOtp() {
+      const email = document.getElementById("c-email").value.trim();
+      const token = document.getElementById("c-otp").value.trim();
+      const status = document.getElementById("contact-status");
+      const btn = document.getElementById("confirm-otp-btn");
+
+      if (!token) return;
+      btn.disabled = true;
+      btn.textContent = "Checking...";
+      try {
+        const { data, error } = await sb.auth.verifyOtp({ email, token, type: "email" });
+        if (error) throw error;
+        signedInUser = data?.user ?? data?.session?.user ?? null;
+        syncAuthContactUI(false);
+        status.className = "text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3";
+        status.textContent = "Email verified! You can now click Submit Feedback.";
+      } catch (err) {
+        status.className = "text-xs text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3";
+        status.textContent = "Invalid or expired code. Please check your inbox and try again.";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Confirm Code";
       }
     }
 
@@ -180,15 +272,15 @@
         return;
       }
 
-      if (!name || !message || (!signedInUser && (!email || !email.includes("@")))) {
+      if (!name || !message) {
         status.className = "text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3";
-        status.textContent = "Please complete all required fields with a valid email address.";
+        status.textContent = "Please enter your name and message.";
         return;
       }
 
-      if (!contactTurnstileToken && typeof window.turnstile !== "undefined") {
+      if (!signedInUser) {
         status.className = "text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3";
-        status.textContent = "Please complete the human verification check above before submitting.";
+        status.textContent = "Please click 'Verify Email' and confirm the code sent to your inbox before submitting.";
         return;
       }
 
@@ -199,9 +291,9 @@
       try {
         if (!sb) throw new Error("Backend service unavailable");
         const { error } = await sb.from("contact_messages").insert({
-          user_id: signedInUser ? signedInUser.id : null,
+          user_id: signedInUser.id,
           name: name.slice(0, 100),
-          email: email.slice(0, 150),
+          email: (signedInUser.email || email).slice(0, 150),
           topic: topic.slice(0, 50),
           message: message.slice(0, 2000),
         });

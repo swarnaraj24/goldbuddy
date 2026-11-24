@@ -2254,13 +2254,19 @@
       }
 
       const badgeColors = ["bg-amber-500/15 text-amber-400", "bg-sky-500/15 text-sky-400", "bg-emerald-500/15 text-emerald-400", "bg-purple-500/15 text-purple-300"];
-      if (latest?.ai_analysis?.drivers && scenarioOverride === "actual") {
+      const aiHeadline = String(latest?.ai_analysis?.headline || "");
+      const aiStory = String(latest?.ai_analysis?.story || "");
+      const aiContradictsRise = s22.dayChange > 0 && /(steady|haven't changed|hasn't moved|unchanged|dropped|falling)/i.test(`${aiHeadline} ${aiStory}`);
+      const aiContradictsDrop = s22.dayChange < 0 && /(steady|haven't changed|hasn't moved|unchanged|jumped|rising|surge)/i.test(`${aiHeadline} ${aiStory}`);
+
+      if (latest?.ai_analysis?.drivers && scenarioOverride === "actual" && !aiContradictsRise && !aiContradictsDrop) {
         aiBadge.classList.remove("hidden");
-        headlineEl.textContent = s22.dayChange > 0
-          ? `Up +${formatINR(s22.dayChange, 0)}/g Today — ${latest.ai_analysis.headline}`
-          : latest.ai_analysis.headline;
+        headlineEl.textContent = aiHeadline;
         headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.dayChange > 0 ? "text-amber-300" : (s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400")}`;
-        story.textContent = `${dayMoveText} (still ${formatINR(diffRs, 0)}/g ${s22.pctVsAvg <= 0 ? "below" : "above"} the 5-day average of ${avgText}). ${latest.ai_analysis.story}`;
+        const avgRelation = s22.pctVsAvg > 0
+          ? `now ${formatINR(diffRs, 0)}/g above the 5-day average of ${avgText}`
+          : `still ${formatINR(diffRs, 0)}/g below the 5-day average of ${avgText}`;
+        story.textContent = `${dayMoveText} (${avgRelation}). ${aiStory}`;
         const drivers = [...latest.ai_analysis.drivers];
         if (drivers.length < 4) drivers.push({ title: "Buy in parts (recommended)", detail: "Consider splitting your budget into 3 parts rather than buying 100% on one day." });
         driversEl.innerHTML = drivers.map((d, idx) => `
@@ -2277,6 +2283,31 @@
           : `Prices are ${formatINR(diffRs, 0)}/g below the 5-day average (${avgText}). Consider a staggered first part and watch ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
         return;
       }
+
+      aiBadge.classList.add("hidden");
+      headlineEl.textContent = s22.dayChange > 0
+        ? `Gold Up +${formatINR(s22.dayChange, 0)}/g Today — Avoid Chasing Spikes`
+        : (s22.dayChange < 0 ? `Gold Down ${formatINR(s22.dayChange, 0)}/g Today — Good Entry Window` : "Below 5-Day Average — Staggered Entry Window");
+      headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.dayChange > 0 ? "text-amber-300" : (s22.isRising ? "text-rose-400" : "text-emerald-400")}`;
+      story.textContent = `${dayMoveText}. Overall, 22K gold is now ${formatINR(diffRs, 0)}/g (${absPct}%) ${s22.pctVsAvg > 0 ? "above" : "below"} its 5-day average (${avgText}):`;
+      driversEl.innerHTML = `
+        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+          <div><div class="text-xs font-semibold text-white">Daily session move (${s22.dayChange >= 0 ? "+" : ""}${formatINR(s22.dayChange, 0)}/g)</div><p class="text-[11px] text-slate-400 mt-0.5">22K rate moved from ${formatINR(s22.prevPrice, 0)}/g (${s22.prevLabel}) to ${formatINR(base22, 0)}/g today.</p></div>
+        </div>
+        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+          <div><div class="text-xs font-semibold text-white">Global bullion &amp; USD/INR</div><p class="text-[11px] text-slate-400 mt-0.5">International spot XAU/USD and Rupee exchange fluctuations drive daily Indian retail resets.</p></div>
+        </div>
+        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+          <div><div class="text-xs font-semibold text-white">Staggered buying reduces timing risk</div><p class="text-[11px] text-slate-400 mt-0.5">Splitting purchases across 3 levels helps average out short-term volatility.</p></div>
+        </div>
+      `;
+      recText.textContent = s22.dayChange > 0
+        ? `Gold jumped +${formatINR(s22.dayChange, 0)}/g today. Instead of buying all at once on a green day, split your budget into 3 parts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
+        : `If you are buying for a planned occasion, consider splitting your budget into 3 parts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g rather than relying on a single day's rate.`;
+    }
 
       aiBadge.classList.add("hidden");
       headlineEl.textContent = s22.dayChange > 0

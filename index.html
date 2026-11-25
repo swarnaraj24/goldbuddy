@@ -3,2477 +3,916 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GoldBuddy — Live Indian Gold Rates, Smart Buying Planner &amp; Market Insights</title>
-  <meta name="description" content="Track live 22K and 24K Indian gold rates, calculate showroom bills with making charges and 3% GST, and plan staggered gold purchases with price-drop alerts." />
-  <link rel="canonical" href="https://swarnaraj24.github.io/goldbuddy/" />
-  <meta property="og:site_name" content="GoldBuddy" />
-  <meta property="og:title" content="GoldBuddy — Indian Gold Rate Calculator &amp; Buying Planner" />
-  <meta property="og:description" content="Live 22K/24K Indian gold prices, GST &amp; making charge calculator, and 3-part staggered buying planner." />
-  <meta property="og:type" content="website" />
-
+  <title>GoldBuddy — Live India Gold Rate, Showroom Calculator & Smart Buying Planner</title>
+  <meta name="description" content="Track live 22K and 24K Indian gold rates, calculate showroom bills with making charges & 3% GST, and plan 3-part staggered gold purchases." />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            obsidian: '#0B0F17',
-            card: '#131A26',
-          },
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+            obsidian: '#0B0F19',
+            card: '#111827',
+            gold: {
+              400: '#FBBF24',
+              500: '#F59E0B',
+              600: '#D97706'
+            }
           }
         }
       }
     };
   </script>
-
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-    :root { color-scheme: dark; }
     body {
-      background-color: #0B0F17;
-      color: #F1F5F9;
-      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #0B0F19;
+      color: #F3F4F6;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    .glass-card {
+      background: linear-gradient(145deg, rgba(17, 24, 39, 0.92), rgba(15, 23, 42, 0.96));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
     .gold-glow {
-      box-shadow: 0 0 32px -10px rgba(245, 158, 11, 0.25);
+      box-shadow: 0 0 28px rgba(245, 158, 11, 0.14);
     }
-    .gold-card-bg {
-      background: radial-gradient(circle at 86% 48%, rgba(245, 158, 11, 0.14), transparent 58%), #131A26;
+    @keyframes pulseWave {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 1; }
     }
-    .signal-scan-bg {
-      background:
-        radial-gradient(ellipse at 18% 50%, rgba(16, 185, 129, 0.16), transparent 55%),
-        radial-gradient(ellipse at 82% 50%, rgba(16, 185, 129, 0.16), transparent 55%),
-        linear-gradient(180deg, rgba(11, 18, 29, 0.96), rgba(15, 23, 42, 0.92));
-    }
-
-    /* Rocket & Golden Cracker Firework Layer */
-    #fx-canvas {
-      position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 9998;
-    }
-    #budget-rocket {
-      position: fixed;
-      width: 42px;
-      height: 42px;
-      pointer-events: none;
-      z-index: 9999;
-      display: none;
-      filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.95));
-      will-change: left, top, transform;
-    }
-    @keyframes budgetTargetBurstFlash {
-      0% {
-        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.95), inset 0 0 16px rgba(251, 191, 36, 0.45);
-        border-color: #FDE047;
-        transform: scale(1.03);
-      }
-      55% {
-        box-shadow: 0 0 26px 6px rgba(245, 158, 11, 0.55), inset 0 0 10px rgba(245, 158, 11, 0.25);
-        border-color: #FBBF24;
-        transform: scale(1.01);
-      }
-      100% {
-        box-shadow: none;
-        border-color: #334155;
-        transform: scale(1);
-      }
-    }
-    .budget-burst-flash {
-      animation: budgetTargetBurstFlash 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    /* Gold Expedition & Reveal Animations */
-    @keyframes cardRevealFlash {
-      0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7), inset 0 0 24px rgba(251, 191, 36, 0.28); border-color: #FDE047; }
-      100% { box-shadow: 0 0 32px -10px rgba(245, 158, 11, 0.25); border-color: rgba(245, 158, 11, 0.3); }
-    }
-    @keyframes driverFadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .card-reveal-flash {
-      animation: cardRevealFlash 1.1s ease-out forwards;
-    }
-    .driver-stagger {
-      opacity: 0;
-      animation: driverFadeIn 0.4s ease-out forwards;
-    }
-
-    /* Golden Hourglass ("Golden time is flowing") */
-    @keyframes hourglassSandFall {
-      0% { stroke-dashoffset: 12; opacity: 0.95; }
-      100% { stroke-dashoffset: 0; opacity: 0.55; }
-    }
-    @keyframes hourglassAnticipate {
-      0%, 92%, 100% { transform: rotate(0deg); filter: drop-shadow(0 0 0px rgba(251,191,36,0)); }
-      94% { transform: rotate(-10deg); filter: drop-shadow(0 0 6px rgba(253,224,71,0.9)); }
-      97% { transform: rotate(7deg); filter: drop-shadow(0 0 4px rgba(251,191,36,0.7)); }
-    }
-    .hg-sand-stream {
-      stroke-dasharray: 2 2;
-      animation: hourglassSandFall 0.65s linear infinite;
-    }
-    .hg-alive {
-      animation: hourglassAnticipate 35s ease-in-out infinite;
-      transform-origin: center;
-    }
-
-    /* Cute Duck Laying Golden Egg on Wait Button */
-    @keyframes duckStrain {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      45% { transform: translateY(1px) rotate(-4deg); }
-      65% { transform: translateY(-0.5px) rotate(2deg); }
-    }
-    @keyframes eggPeekPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.06); filter: drop-shadow(0 0 5px rgba(254,240,138,0.9)); }
-    }
-    @keyframes eggHatchCrack {
-      0% { transform: scale(1); opacity: 1; }
-      45% { transform: scale(1.35) rotate(-10deg); filter: drop-shadow(0 0 10px #FEF08A); opacity: 1; }
-      100% { transform: scale(0.7) rotate(12deg); opacity: 0; }
-    }
-    .duck-strain {
-      transform-origin: 65% 75%;
-      animation: duckStrain 0.9s ease-in-out infinite;
-    }
-    .egg-peek {
-      transform-origin: center;
-      animation: eggPeekPulse 1.2s ease-in-out infinite;
-    }
-    .egg-hatch {
-      transform-origin: center;
-      animation: eggHatchCrack 0.6s ease-out forwards;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
+    .signal-pulse {
+      animation: pulseWave 2.4s infinite ease-in-out;
     }
   </style>
 </head>
-<body class="min-h-screen overflow-x-hidden antialiased selection:bg-amber-500/30 selection:text-amber-200">
+<body class="min-h-screen flex flex-col selection:bg-amber-500/30 selection:text-amber-200">
 
-  <div id="toast-container" class="fixed bottom-5 right-5 z-[70] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
-
+  <!-- Full-Screen Gold Mining Expedition Canvas Overlay -->
+  <canvas id="mining-canvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
   <!-- Rocket & Cracker Firework Canvas -->
-  <canvas id="fx-canvas"></canvas>
-  <div id="budget-rocket">
-    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-      <path d="M18 46C10 50 6 58 6 58C6 58 14 54 18 46Z" fill="#FFFBEB"/>
-      <path d="M21 43C11 47 4 60 4 60C4 60 17 53 21 43Z" fill="#F59E0B"/>
-      <path d="M22 36L12 40L18 46L26 42L22 36Z" fill="#D97706"/>
-      <path d="M28 42L24 52L18 46L22 38L28 42Z" fill="#B45309"/>
-      <path d="M54 10C42 10 30 18 20 30L34 44C46 34 54 22 54 10Z" fill="url(#gbRocketGrad)" stroke="#FEF08A" stroke-width="1.5"/>
-      <path d="M54 10C49 10 44 11.5 40 14L50 24C52.5 20 54 15 54 10Z" fill="#FEF08A"/>
-      <circle cx="38" cy="26" r="4.5" fill="#0B0F17" stroke="#FDE047" stroke-width="2"/>
-      <defs>
-        <linearGradient id="gbRocketGrad" x1="20" y1="44" x2="54" y2="10" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#D97706"/>
-          <stop offset="0.5" stop-color="#FBBF24"/>
-          <stop offset="1" stop-color="#FEF08A"/>
-        </linearGradient>
-      </defs>
-    </svg>
-  </div>
+  <canvas id="firework-canvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
 
-  <!-- Top Header -->
-  <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-[#0B0F17]/90 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 min-h-[4rem] py-2 sm:py-0 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
-      <div class="flex items-center gap-3">
-        <a href="index.html" class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-bold">
-          <i data-lucide="coins" class="w-5 h-5"></i>
-        </a>
+  <!-- Toast Notification -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Top Navigation -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-[#0B0F19]/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="index.html" class="flex items-center gap-2.5 shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-extrabold text-lg shadow-md">
+          G
+        </div>
         <div>
-          <a href="index.html" class="text-lg font-bold tracking-tight text-white">GoldBuddy</a>
-          <p class="text-xs text-slate-400 hidden sm:block">Live Indian gold rates, smart buying planner &amp; market insights</p>
+          <span class="font-bold text-lg tracking-tight text-white">Gold<span class="text-amber-400">Buddy</span></span>
+          <span class="hidden sm:inline-block ml-2 text-[11px] px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25">India</span>
         </div>
-      </div>
+      </a>
 
-      <div class="flex items-center gap-2 sm:gap-2.5">
-        <nav class="hidden lg:flex items-center gap-1 mr-1 text-xs">
-          <a href="gold-profit-calculator.html" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-amber-300 hover:bg-slate-900 transition-colors">Profit Calc</a>
-          <a href="22k-to-24k-converter.html" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-amber-300 hover:bg-slate-900 transition-colors">22K/24K</a>
-          <a href="guides.html" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-amber-300 hover:bg-slate-900 transition-colors">Guides</a>
-        </nav>
+      <nav class="hidden md:flex items-center gap-5 text-sm text-slate-300">
+        <a href="index.html" class="text-amber-400 font-medium">Dashboard</a>
+        <a href="gold-profit-calculator.html" class="hover:text-amber-300 transition">Profit/Loss Calculator</a>
+        <a href="22k-to-24k-converter.html" class="hover:text-amber-300 transition">22K/24K Converter</a>
+        <a href="guides.html" class="hover:text-amber-300 transition">Gold Guides</a>
+      </nav>
 
-        <div id="status-badge-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border bg-slate-900 border-slate-700/80 text-slate-300">
-          <span id="status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="status-text">Live Rates</span>
-        </div>
-
-        <button type="button" id="gst-toggle-btn" onclick="toggleGst()" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-300 cursor-pointer">
-          <span id="gst-toggle-label">Without 3% GST</span>
-        </button>
-
+      <div class="flex items-center gap-2.5">
+        <!-- Refresh Button with Cooldown Tooltip -->
         <div class="relative group">
-          <button type="button" id="refresh-btn" onclick="handleManualRefresh()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all disabled:opacity-60 cursor-pointer">
-            <span id="refresh-spinner" class="inline-flex items-center justify-center">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-            </span>
-            <span id="refresh-btn-text" class="hidden sm:inline">Update Price</span>
+          <button id="refresh-btn" type="button"
+            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition cursor-pointer">
+            <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span id="refresh-label">Refresh</span>
           </button>
-
-          <!-- Custom Hover Tooltip (works even when button is disabled) -->
-          <div id="refresh-hover-tooltip" class="pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 absolute right-0 top-full mt-2 w-64 rounded-xl bg-slate-900/95 border border-amber-500/30 p-3.5 shadow-2xl backdrop-blur-md z-50 text-left">
-            <div id="tooltip-hourglass-stage" class="hidden items-center gap-3 pb-2.5 mb-2.5 border-b border-slate-800/90">
-              <div id="tooltip-hourglass-svg" class="w-11 h-12 shrink-0 flex items-center justify-center"></div>
-              <div class="min-w-0">
-                <div class="text-[11px] font-semibold text-amber-300">Golden Time is Flowing</div>
-                <div id="tooltip-hourglass-sub" class="text-[10px] text-slate-400 leading-snug mt-0.5">Shifting gold sands until next unlock...</div>
-              </div>
+          <div id="refresh-tooltip"
+            class="hidden group-hover:block absolute right-0 mt-2 w-60 p-3 rounded-xl bg-slate-900 border border-white/15 text-xs text-slate-300 shadow-xl z-50">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-semibold text-amber-300">Live Rate Sync</span>
+              <span id="quota-badge" class="text-[11px] text-slate-400">5/5 left today</span>
             </div>
-            <div class="flex items-center justify-between text-[11px] font-semibold text-white mb-1">
-              <span>Daily Manual Updates</span>
-              <span id="tooltip-quota-pill" class="font-mono text-amber-300">0 / 5 used</span>
-            </div>
-            <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden mb-1.5">
-              <div id="tooltip-quota-bar" class="h-full bg-amber-400 transition-all duration-300" style="width: 0%"></div>
-            </div>
-            <p id="tooltip-quota-msg" class="text-[10px] text-slate-300 leading-snug">
-              5 updates remaining today. Auto-updates every 30 mins.
-            </p>
+            <p id="cooldown-text" class="text-slate-400">Sign in to trigger an on-demand rate update (auto-updates every 30 mins).</p>
           </div>
         </div>
 
-        <button type="button" id="auth-header-btn" onclick="handleAuthHeaderClick()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700/80 bg-slate-900 hover:bg-slate-800 text-slate-200 cursor-pointer">
-          <i data-lucide="user" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span id="auth-header-label">Sign In</span>
+        <!-- Auth Button -->
+        <button id="auth-btn" type="button"
+          class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/10 transition cursor-pointer">
+          Sign In
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-5">
+  <!-- Main Dashboard -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-    <!-- Scenario Preview Alert Banner -->
-    <div id="scenario-banner" class="hidden rounded-xl border border-purple-500/35 bg-purple-500/10 px-4 py-2.5 flex items-center justify-between gap-3">
-      <p id="scenario-banner-text" class="text-xs text-purple-200 font-medium"></p>
-      <button type="button" onclick="setScenarioOverride('actual')" class="text-xs font-semibold px-2.5 py-1 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-400/30 shrink-0 cursor-pointer">
-        Exit Preview
-      </button>
-    </div>
-
-    <!-- Connection Banner -->
-    <div id="demo-banner" class="hidden rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <p class="text-xs sm:text-sm text-slate-300">
-        <span class="font-semibold text-amber-300">Sample Prices Shown:</span> Sign in or connect to view live Indian gold rates.
-      </p>
-    </div>
-
-    <div id="empty-db-banner" class="hidden rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <p class="text-xs sm:text-sm text-slate-200">
-        <span class="font-semibold text-sky-300">Connected!</span> Click <strong class="text-white">Update Price</strong> to fetch today's live gold rate.
-      </p>
-      <button type="button" onclick="handleManualRefresh()" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer">
-        Get Today's Price &rarr;
-      </button>
-    </div>
-
-    <!-- Market Telemetry Strip -->
-    <section class="rounded-xl bg-[#131A26] border border-slate-800/90 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex flex-wrap items-center gap-2.5">
-        <span id="board-date-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700/80 text-xs font-medium text-emerald-400">
-          Today
+    <!-- Status Strip -->
+    <div class="glass-card rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
+      <div class="flex items-center gap-2.5">
+        <span id="rate-date-badge" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 font-medium">
+          Loading date...
         </span>
-        <span class="text-slate-700">|</span>
-        <span id="board-source-label" class="text-xs font-medium text-slate-300">India Retail Gold Rate</span>
+        <span class="text-slate-300 font-medium">India Retail Gold Rate</span>
+        <span id="rate-source-badge" class="hidden sm:inline-block px-2 py-0.5 rounded-md bg-white/5 text-slate-400 text-xs">
+          Verified Board
+        </span>
       </div>
-
-      <div class="flex items-center gap-4 text-xs text-slate-400 font-mono">
-        <span>USD: <strong id="board-usd" class="text-slate-200">—</strong></span>
-        <span class="text-slate-700">|</span>
-        <span>Global Gold: <strong id="board-xau" class="text-slate-200">—</strong></span>
-        <span class="text-slate-700">|</span>
-        <span id="updated-time-badge" class="font-sans text-slate-400">Just now</span>
+      <div class="flex flex-wrap items-center gap-4 text-slate-400">
+        <span>USD: <strong id="usd-inr-val" class="text-slate-200">—</strong></span>
+        <span>Global Gold: <strong id="xau-usd-val" class="text-slate-200">—</strong></span>
+        <span id="last-updated-text" class="text-amber-300/90">Syncing...</span>
       </div>
-    </section>
+    </div>
 
-    <!-- ROW 1: 22K JEWELLERY GOLD & 24K PURE GOLD CARDS -->
-    <section id="price-cards-stage" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <!-- 22K Jewellery Gold Card with Gold Coins SVG -->
-      <div id="card-22k" class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 gold-glow relative overflow-hidden flex flex-col justify-between">
-        <div class="flex items-center justify-between gap-4">
-          <div class="space-y-2.5 z-10">
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/20">22K Jewellery Gold / g</span>
-              <span class="text-[11px] text-slate-400">91.6% Hallmark</span>
+    <!-- Hero Rate Cards (22K & 24K) -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- 22K Card -->
+      <div id="card-22k" class="glass-card gold-glow rounded-2xl p-6 relative overflow-hidden">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-xs font-bold border border-amber-500/30">
+                22K Jewellery Gold / g
+              </span>
+              <span class="text-xs text-slate-400">91.6% Hallmark</span>
             </div>
-            <div class="flex items-center gap-3">
-              <span id="price-22k" class="text-3xl sm:text-4xl font-bold font-mono text-white tracking-tight">—</span>
-              <span id="badge-22k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+            <div class="flex items-baseline gap-3 mt-1">
+              <span id="rate-22k-display" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">—</span>
+              <span id="change-22k-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-slate-300">—</span>
             </div>
           </div>
 
-          <!-- Classic Stacked Gold Coins SVG -->
-          <div id="icon-22k" class="shrink-0 w-20 h-16 sm:w-24 sm:h-20 flex items-center justify-center pointer-events-none select-none">
-            <svg viewBox="0 0 120 96" class="w-full h-full drop-shadow-[0_8px_16px_rgba(245,158,11,0.38)]">
-              <defs>
-                <radialGradient id="coinFaceGrad" cx="38%" cy="32%" r="68%">
-                  <stop offset="0%" stop-color="#FEF9C3" />
-                  <stop offset="40%" stop-color="#FBBF24" />
-                  <stop offset="80%" stop-color="#D97706" />
-                  <stop offset="100%" stop-color="#92400E" />
-                </radialGradient>
-                <linearGradient id="coinEdgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#78350F" />
-                  <stop offset="50%" stop-color="#F59E0B" />
-                  <stop offset="100%" stop-color="#78350F" />
-                </linearGradient>
-              </defs>
-              <ellipse cx="60" cy="82" rx="38" ry="6" fill="rgba(245,158,11,0.18)" />
-              <path d="M22,64 L22,72 C22,76 34,79 48,79 C62,79 74,76 74,72 L74,64 Z" fill="url(#coinEdgeGrad)" />
-              <ellipse cx="48" cy="64" rx="26" ry="8" fill="#B45309" stroke="#FDE047" stroke-width="0.8" />
-              <path d="M22,55 L22,63 C22,67 34,70 48,70 C62,70 74,67 74,63 L74,55 Z" fill="url(#coinEdgeGrad)" />
-              <ellipse cx="48" cy="55" rx="26" ry="8" fill="url(#coinFaceGrad)" stroke="#FEF08A" stroke-width="0.9" />
-              <circle cx="72" cy="45" r="27" fill="#92400E" />
-              <circle cx="70" cy="44" r="27" fill="url(#coinFaceGrad)" stroke="#FEF08A" stroke-width="1.4" />
-              <circle cx="70" cy="44" r="22" fill="none" stroke="#92400E" stroke-width="1.2" stroke-dasharray="2.5 2" opacity="0.65" />
-              <text x="70" y="42" text-anchor="middle" font-size="10.5" font-family="monospace" font-weight="bold" fill="#78350F">22K</text>
-              <text x="70" y="53" text-anchor="middle" font-size="7.5" font-family="monospace" font-weight="bold" fill="#92400E">916</text>
-              <path d="M52,27 Q66,18 84,23" fill="none" stroke="#FFFBEB" stroke-width="1.8" stroke-linecap="round" opacity="0.7" />
+          <!-- 22K Stacked Coins SVG -->
+          <div class="shrink-0 w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+            <svg class="w-9 h-9" viewBox="0 0 48 48" fill="none">
+              <ellipse cx="24" cy="34" rx="14" ry="5" fill="#B45309"/>
+              <ellipse cx="24" cy="31" rx="14" ry="5" fill="#F59E0B"/>
+              <ellipse cx="24" cy="25" rx="14" ry="5" fill="#D97706"/>
+              <ellipse cx="24" cy="22" rx="14" ry="5" fill="#FBBF24"/>
+              <text x="24" y="24" text-anchor="middle" fill="#78350F" font-size="7" font-weight="bold">22K</text>
             </svg>
           </div>
         </div>
 
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs z-10">
-          <span id="subprice-22k" class="text-slate-400">—</span>
-          <span class="text-slate-400">8g (1 Pavan): <strong id="pavan-22k" class="font-mono text-slate-200">—</strong></span>
+        <div class="mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between text-xs sm:text-sm text-slate-400">
+          <span>Incl. 3% GST: <strong id="rate-22k-gst" class="text-slate-200">—</strong></span>
+          <span>8g (1 Pavan): <strong id="rate-22k-pavan" class="text-amber-300">—</strong></span>
         </div>
       </div>
 
-      <!-- 24K Pure Gold Card with Rounded Cast Gold Biscuit Bar SVG -->
-      <div id="card-24k" class="rounded-2xl gold-card-bg border border-amber-500/30 p-5 relative overflow-hidden flex flex-col justify-between">
-        <div class="flex items-center justify-between gap-4">
-          <div class="space-y-2.5 z-10">
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 rounded text-xs font-semibold bg-yellow-500/15 text-yellow-300 border border-yellow-500/20">24K Pure Gold / g</span>
-              <span class="text-[11px] text-slate-400">99.9% Coin / Bar</span>
+      <!-- 24K Card -->
+      <div id="card-24k" class="glass-card rounded-2xl p-6 relative overflow-hidden">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="px-2.5 py-0.5 rounded-md bg-yellow-500/20 text-yellow-300 text-xs font-bold border border-yellow-500/30">
+                24K Pure Gold / g
+              </span>
+              <span class="text-xs text-slate-400">99.9% Coin / Bar</span>
             </div>
-            <div class="flex items-center gap-3">
-              <span id="price-24k" class="text-3xl sm:text-4xl font-bold font-mono text-white tracking-tight">—</span>
-              <span id="badge-24k" class="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-500/15 text-emerald-400">—</span>
+            <div class="flex items-baseline gap-3 mt-1">
+              <span id="rate-24k-display" class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">—</span>
+              <span id="change-24k-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-slate-300">—</span>
             </div>
           </div>
 
-          <!-- Rounded Cast 24K Fine Gold Bar (Biscuit) SVG -->
-          <div id="icon-24k" class="shrink-0 w-20 h-16 sm:w-24 sm:h-20 flex items-center justify-center pointer-events-none select-none">
-            <svg viewBox="0 0 120 96" class="w-full h-full drop-shadow-[0_8px_16px_rgba(245,158,11,0.42)]">
+          <!-- 24K Biscuit Bar SVG -->
+          <div class="shrink-0 w-14 h-14 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center">
+            <svg class="w-9 h-9" viewBox="0 0 48 48" fill="none">
+              <rect x="12" y="8" width="24" height="32" rx="5" fill="url(#barGrad)" stroke="#FDE68A" stroke-width="1.5"/>
+              <text x="24" y="23" text-anchor="middle" fill="#78350F" font-size="7" font-weight="bold">24K</text>
+              <text x="24" y="31" text-anchor="middle" fill="#78350F" font-size="6" font-weight="bold">999</text>
               <defs>
-                <linearGradient id="biscuitBody" x1="15%" y1="0%" x2="85%" y2="100%">
-                  <stop offset="0%" stop-color="#FEF9C3" />
-                  <stop offset="28%" stop-color="#FACC15" />
-                  <stop offset="72%" stop-color="#D97706" />
-                  <stop offset="100%" stop-color="#92400E" />
-                </linearGradient>
-                <linearGradient id="biscuitTop" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#FEF08A" />
-                  <stop offset="45%" stop-color="#FBBF24" />
-                  <stop offset="100%" stop-color="#B45309" />
+                <linearGradient id="barGrad" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#FDE047"/>
+                  <stop offset="1" stop-color="#D97706"/>
                 </linearGradient>
               </defs>
-              <ellipse cx="60" cy="82" rx="30" ry="6" fill="rgba(245,158,11,0.22)" />
-              <rect x="33" y="13" width="54" height="68" rx="15" fill="#92400E" />
-              <rect x="31" y="10" width="54" height="68" rx="15" fill="url(#biscuitBody)" stroke="#FEF08A" stroke-width="1.3" />
-              <rect x="36" y="15" width="44" height="58" rx="11" fill="url(#biscuitTop)" stroke="#B45309" stroke-width="0.9" opacity="0.9" />
-              <circle cx="58" cy="28" r="7.5" fill="none" stroke="#78350F" stroke-width="1.4" opacity="0.75" />
-              <path d="M54,28 Q58,22 62,28 Q58,31 54,28 Z" fill="#78350F" opacity="0.75" />
-              <text x="58" y="44" text-anchor="middle" font-size="8.5" font-family="monospace" font-weight="bold" fill="#78350F">24K</text>
-              <text x="58" y="54" text-anchor="middle" font-size="6.5" font-family="monospace" font-weight="bold" fill="#78350F">FINE GOLD</text>
-              <text x="58" y="64" text-anchor="middle" font-size="7" font-family="monospace" font-weight="bold" fill="#92400E">999.9</text>
-              <path d="M38,22 Q44,14 58,14" fill="none" stroke="#FFFBEB" stroke-width="2" stroke-linecap="round" opacity="0.75" />
             </svg>
           </div>
         </div>
 
-        <div class="mt-3 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs z-10">
-          <span id="subprice-24k" class="text-slate-400">—</span>
-          <span class="text-slate-400">10g Pure: <strong id="ten-gram-24k" class="font-mono text-slate-200">—</strong></span>
+        <div class="mt-5 pt-3.5 border-t border-white/10 flex items-center justify-between text-xs sm:text-sm text-slate-400">
+          <span>Incl. 3% GST: <strong id="rate-24k-gst" class="text-slate-200">—</strong></span>
+          <span>10g Pure: <strong id="rate-24k-10g" class="text-yellow-300">—</strong></span>
         </div>
       </div>
     </section>
 
-    <!-- ROW 2: "HOW MUCH GOLD CAN MY MONEY BUY?" + "PRICE SCENARIOS FOR YOUR BUY DATE" -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+    <!-- 12-Column Middle Grid: Calculator + AI Summary & 15-Day Scenarios -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-      <!-- Left 7 Columns: Calculator -->
-      <div class="lg:col-span-7 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between gap-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center">
-              <i data-lucide="calculator" class="w-4 h-4"></i>
-            </span>
+      <!-- Left 5 Cols: Budget & Showroom Calculator -->
+      <div class="lg:col-span-5 glass-card rounded-2xl p-6 flex flex-col justify-between space-y-5">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-4">
             <div>
-              <h2 class="text-base font-semibold text-white">How Much Gold Can My Money Buy?</h2>
-              <p class="text-xs text-slate-400">Instant budget-to-grams &amp; showroom bill breakdown</p>
+              <h2 class="text-base sm:text-lg font-bold text-white">How Much Gold Can My Money Buy?</h2>
+              <p class="text-xs text-slate-400">Instant budget-to-grams & showroom bill breakdown</p>
+            </div>
+            <div class="inline-flex rounded-xl bg-slate-900 p-1 border border-white/10 shrink-0">
+              <button id="mode-budget-btn" type="button"
+                class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 transition cursor-pointer">
+                Budget (₹→g)
+              </button>
+              <button id="mode-weight-btn" type="button"
+                class="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition cursor-pointer">
+                Weight (g→₹)
+              </button>
             </div>
           </div>
 
-          <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs">
-            <button type="button" id="mode-budget-btn" onclick="switchCalcMode('budget')" class="px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer">
-              Budget (₹ &rarr; g)
-            </button>
-            <button type="button" id="mode-grams-btn" onclick="switchCalcMode('grams')" class="px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer">
-              Weight (g &rarr; ₹)
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
-          <div class="md:col-span-7 rounded-xl bg-slate-900/70 border border-slate-800/90 p-4 space-y-3.5">
+          <div class="space-y-4">
+            <!-- Budget Input Wrapper -->
             <div id="calc-budget-wrapper">
-              <div class="flex items-center justify-between mb-1.5">
-                <label for="calc-budget-inr" class="text-xs font-medium text-slate-300">Your Budget Amount</label>
-                <div class="flex items-center gap-1">
-                  <button type="button" onclick="setQuickBudget(25000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹25k</button>
-                  <button type="button" onclick="setQuickBudget(50000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹50k</button>
-                  <button type="button" onclick="setQuickBudget(100000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹1L</button>
-                  <button type="button" onclick="setQuickBudget(150000)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">₹1.5L</button>
-                </div>
-              </div>
-              <div class="relative">
-                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-mono text-amber-400 font-bold">₹</span>
-                <input type="number" id="calc-budget-inr" value="50000" step="500" min="500" oninput="recalculateGoldWorth()"
-                  class="w-full rounded-xl bg-slate-950 border border-slate-700/90 pl-8 pr-3.5 py-2.5 text-base font-mono font-bold text-white focus:border-amber-500 focus:outline-none" />
-              </div>
+              <label for="calc-budget" class="block text-xs font-medium text-slate-300 mb-1.5">Your Total Budget (₹)</label>
+              <input id="calc-budget" type="number" value="100000" min="500" step="500"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white font-semibold focus:outline-none focus:border-amber-400" />
             </div>
 
+            <!-- Weight Input Wrapper -->
             <div id="calc-grams-wrapper" class="hidden">
-              <div class="flex items-center justify-between mb-1.5">
-                <label for="calc-grams" class="text-xs font-medium text-slate-300">Gold Weight (grams)</label>
-                <div class="flex items-center gap-1">
-                  <button type="button" onclick="setQuickGrams(1)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">1g</button>
-                  <button type="button" onclick="setQuickGrams(4)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">4g</button>
-                  <button type="button" onclick="setQuickGrams(8)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">8g (1 Pavan)</button>
-                  <button type="button" onclick="setQuickGrams(10)" class="px-2 py-0.5 rounded text-[10px] font-mono bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer">10g</button>
-                </div>
-              </div>
-              <div class="relative">
-                <input type="number" id="calc-grams" value="8" step="0.1" min="0.1" oninput="recalculateGoldWorth()"
-                  class="w-full rounded-xl bg-slate-950 border border-slate-700/90 px-3.5 py-2.5 text-base font-mono font-bold text-white focus:border-amber-500 focus:outline-none" />
-                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400">grams</span>
-              </div>
+              <label for="calc-grams" class="block text-xs font-medium text-slate-300 mb-1.5">Gold Weight (grams)</label>
+              <input id="calc-grams" type="number" value="8" min="0.1" step="0.1"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white font-semibold focus:outline-none focus:border-amber-400" />
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label for="calc-karat" class="block text-[11px] text-slate-400 mb-1">Gold Purity</label>
-                <select id="calc-karat" onchange="recalculateGoldWorth()"
-                  class="w-full rounded-xl bg-slate-950 border border-slate-700/90 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-                  <option value="22K">22K Jewellery</option>
-                  <option value="24K">24K Pure Gold</option>
+                <label for="calc-karat" class="block text-xs font-medium text-slate-300 mb-1.5">Purity</label>
+                <select id="calc-karat"
+                  class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm font-medium focus:outline-none focus:border-amber-400">
+                  <option value="22" selected>22K Jewellery (916)</option>
+                  <option value="24">24K Coin / Bar (999)</option>
                 </select>
               </div>
               <div>
-                <label for="calc-making" class="block text-[11px] text-slate-400 mb-1">Making Charges (%)</label>
-                <div class="relative">
-                  <input type="number" id="calc-making" value="10" step="0.5" min="0" max="40" oninput="recalculateGoldWorth()"
-                    class="w-full rounded-xl bg-slate-950 border border-slate-700/90 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none" />
-                  <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-500">%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="md:col-span-5 rounded-xl bg-gradient-to-b from-amber-500/10 to-slate-900/95 border border-amber-500/30 p-4 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between">
-                <span id="res-primary-label" class="text-[11px] font-semibold uppercase tracking-wider text-amber-300">Gold You Can Buy (22K)</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-950/80 text-slate-400 font-mono">Incl. 3% GST</span>
-              </div>
-              <div id="res-primary-val" class="text-2xl sm:text-3xl font-bold font-mono text-white mt-1.5 tracking-tight">—</div>
-
-              <div class="mt-3">
-                <div class="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden flex">
-                  <div id="bar-gold-pct" class="bg-amber-400 h-full" style="width: 88%"></div>
-                  <div id="bar-making-pct" class="bg-sky-400 h-full" style="width: 9%"></div>
-                  <div id="bar-gst-pct" class="bg-rose-400 h-full" style="width: 3%"></div>
-                </div>
-                <div class="mt-2.5 space-y-1 text-[11px]">
-                  <div class="flex items-center justify-between">
-                    <span class="text-slate-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span>Net Gold</span>
-                    <span id="res-gold-val" class="font-mono font-semibold text-slate-200">—</span>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-slate-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-sky-400"></span>Making</span>
-                    <span id="res-making-val" class="font-mono font-semibold text-slate-200">—</span>
-                  </div>
-                  <div class="flex items-center justify-between">
-                    <span class="text-slate-400 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-400"></span>3% GST</span>
-                    <span id="res-gst-val" class="font-mono font-semibold text-slate-200">—</span>
-                  </div>
-                </div>
+                <label for="calc-making" class="block text-xs font-medium text-slate-300 mb-1.5">Making Charges (%)</label>
+                <input id="calc-making" type="number" value="12" min="0" max="45" step="0.5"
+                  class="w-full px-3 py-2.5 rounded-xl bg-slate-900/90 border border-white/15 text-white text-sm font-medium focus:outline-none focus:border-amber-400" />
               </div>
             </div>
 
-            <button type="button" id="use-in-plan-btn" onclick="syncCalculatorToPlan(event)"
-              class="mt-3.5 w-full py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors cursor-pointer">
-              Use This Amount in 3-Part Plan &rarr;
-            </button>
+            <!-- Breakdown Box -->
+            <div class="rounded-xl bg-slate-900/80 border border-white/10 p-4 space-y-2.5 text-sm">
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400">Estimated Gold Weight</span>
+                <span id="res-grams" class="text-lg font-extrabold text-amber-400">—</span>
+              </div>
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>Base Gold Value</span>
+                <span id="res-base" class="text-slate-200">—</span>
+              </div>
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>Making Charges</span>
+                <span id="res-making" class="text-slate-200">—</span>
+              </div>
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>GST (3%)</span>
+                <span id="res-gst" class="text-slate-200">—</span>
+              </div>
+              <div class="pt-2 border-t border-white/10 flex justify-between items-center font-bold">
+                <span class="text-slate-200">Final Showroom Bill</span>
+                <span id="res-total" class="text-base text-emerald-400">—</span>
+              </div>
+            </div>
           </div>
         </div>
+
+        <button id="apply-to-plan-btn" type="button"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-sm shadow-lg transition cursor-pointer">
+          Use This Amount in 3-Part Plan
+        </button>
       </div>
 
-      <!-- Right 5 Columns: Price Scenarios for Your Buy Date -->
-      <div class="lg:col-span-5 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between">
+      <!-- Right 7 Cols: AI Market Summary & 15-Day Scenarios -->
+      <div class="lg:col-span-7 glass-card rounded-2xl p-6 flex flex-col justify-between space-y-5">
         <div>
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <div class="flex items-center gap-2">
-              <span class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-400 border border-sky-500/25 flex items-center justify-center">
-                <i data-lucide="calendar" class="w-4 h-4"></i>
-              </span>
-              <h2 class="text-base font-semibold text-white">Price Estimate for Your Buy Date</h2>
-            </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0">
-              Max 15d &bull; Est.
+          <div class="flex items-center justify-between gap-2 mb-3">
+            <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 signal-pulse"></span>
+              AI Market Intelligence
             </span>
+            <span class="text-[11px] text-slate-400">Educational context • Not financial advice</span>
           </div>
 
-          <p class="text-xs text-slate-400 mb-3.5">
-            Choose your upcoming shopping date (up to <strong class="text-slate-200">15 days</strong> ahead) to view scenario ranges:
+          <h2 id="ai-headline" class="text-lg sm:text-xl font-bold text-emerald-400 leading-snug">
+            Analyzing today's gold price action...
+          </h2>
+          <p id="ai-story" class="mt-2 text-sm text-slate-300 leading-relaxed">
+            Syncing domestic retail rates and international bullion drivers.
           </p>
-
-          <div class="grid grid-cols-2 gap-3 mb-3.5">
-            <div>
-              <label for="forecast-days-select" class="block text-xs text-slate-400 mb-1">Your Shopping Date</label>
-              <select id="forecast-days-select" onchange="renderDateForecast()"
-                class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-              </select>
-            </div>
-            <div>
-              <label for="forecast-karat" class="block text-xs text-slate-400 mb-1">Gold Type</label>
-              <select id="forecast-karat" onchange="renderDateForecast()"
-                class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-semibold text-white focus:border-amber-500 focus:outline-none cursor-pointer">
-                <option value="22K">22K Jewellery</option>
-                <option value="24K">24K Pure Gold</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span id="forecast-floor-label" class="text-xs text-slate-400">Optimistic Scenario (If Dip Continues):</span>
-              <span id="forecast-floor-price" class="text-xs font-mono font-semibold text-emerald-400">—</span>
-            </div>
-            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span id="forecast-base-label" class="text-xs font-medium text-slate-300">Trend Scenario (5-Day Momentum):</span>
-              <span id="forecast-base-price" class="text-base font-mono font-bold text-amber-300">—</span>
-            </div>
-            <div class="flex items-center justify-between pt-1.5 border-t border-slate-800/80">
-              <span id="forecast-ceil-label" class="text-xs text-slate-400">Risk Scenario (If Rally Resumes):</span>
-              <span id="forecast-ceil-price" class="text-xs font-mono font-semibold text-rose-400">—</span>
-            </div>
-          </div>
         </div>
 
-        <p class="mt-3 text-[11px] text-slate-400 leading-relaxed">
-          <strong class="text-amber-300">Methodology Note:</strong> 15-day scenarios are mathematical projections from recent 5-day price movement—not guaranteed forecasts or financial advice.
-        </p>
-      </div>
-
-    </section>
-
-    <!-- ROW 3: LEFT 6 COLS AI MARKET SUMMARY + RIGHT 6 COLS STAGGERED BUYING PLAN & ALERTS -->
-    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-
-      <!-- Left 6 Columns: AI Market Summary & 15-Day Outlook -->
-      <div class="lg:col-span-6 rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 flex flex-col justify-between gap-4">
-        <div>
-          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-400 flex items-center justify-center">
-                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-              </span>
-              <h2 class="text-base font-bold text-white">AI Market Summary</h2>
-              <span id="ai-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/25">Live AI</span>
-            </div>
-            <span id="trend-pill" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-              Prices Dropping
-            </span>
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+          <!-- Key Drivers Today (7 cols) -->
+          <div class="md:col-span-7 space-y-2.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300">Key Drivers Today</h3>
+            <div id="ai-drivers-list" class="space-y-2.5"></div>
           </div>
 
-          <div class="signal-scan-bg rounded-xl border border-slate-800/90 h-12 px-3 mb-3.5 relative overflow-hidden flex items-center justify-center">
-            <svg viewBox="0 0 600 60" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none opacity-80">
-              <defs>
-                <linearGradient id="scanWaveL" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#10B981" stop-opacity="0.45" />
-                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.02" />
-                </linearGradient>
-                <linearGradient id="scanWaveR" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#10B981" stop-opacity="0.02" />
-                  <stop offset="100%" stop-color="#10B981" stop-opacity="0.45" />
-                </linearGradient>
-              </defs>
-              <path d="M0,45 Q60,12 130,34 T260,30" fill="none" stroke="url(#scanWaveL)" stroke-width="1.5" stroke-dasharray="2 4" />
-              <path d="M0,34 Q80,52 150,24 T275,38" fill="none" stroke="url(#scanWaveL)" stroke-width="1.2" stroke-dasharray="1.5 3.5" />
-              <path d="M0,52 Q95,22 175,40 T290,32" fill="none" stroke="url(#scanWaveL)" stroke-width="1" stroke-dasharray="1 3" />
-              <path d="M340,30 Q420,10 490,36 T600,26" fill="none" stroke="url(#scanWaveR)" stroke-width="1.5" stroke-dasharray="2 4" />
-              <path d="M325,38 Q435,54 510,24 T600,42" fill="none" stroke="url(#scanWaveR)" stroke-width="1.2" stroke-dasharray="1.5 3.5" />
-              <path d="M310,32 Q445,18 525,44 T600,32" fill="none" stroke="url(#scanWaveR)" stroke-width="1" stroke-dasharray="1 3" />
-            </svg>
-            <span class="relative z-10 text-[10px] font-medium tracking-[0.18em] text-slate-300/90 uppercase text-center">
-              AI SIGNAL SCAN &bull; MARKET DATA &amp; TRENDS
-            </span>
-          </div>
+          <!-- 15-Day Scenarios & Gauge (5 cols) -->
+          <div class="md:col-span-5 rounded-xl bg-slate-900/80 border border-white/10 p-4 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300 mb-2">15-Day Scenarios</h3>
 
-          <div id="verdict-headline" class="text-sm sm:text-base font-bold text-emerald-400 mb-1.5">—</div>
-          <p id="plain-english-story" class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-4"></p>
-
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-            <div class="md:col-span-7 space-y-2.5">
-              <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-                <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
-                Key Drivers Today
-              </div>
-              <div id="drivers-list" class="space-y-2.5"></div>
-            </div>
-
-            <div class="md:col-span-5 rounded-xl bg-slate-900/90 border border-slate-800 p-3 flex flex-col justify-between space-y-2.5">
-              <div class="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
-                <i data-lucide="compass" class="w-3.5 h-3.5"></i>
-                15-Day Scenarios
-              </div>
-
-              <div class="rounded-xl bg-slate-950/75 border border-slate-800/90 p-2.5 text-center">
-                <div class="flex items-center justify-center gap-1 text-[11px] font-semibold text-white mb-0.5">
-                  <span>Market Positioning</span>
-                  <span title="Measures how today's rate compares to the 5-day average and short-term momentum. Informational only — not investment advice." class="w-3.5 h-3.5 rounded-full bg-slate-800 text-slate-400 text-[9px] inline-flex items-center justify-center cursor-help">i</span>
-                </div>
-
-                <div class="relative w-full max-w-[165px] mx-auto pt-1">
-                  <svg viewBox="0 0 220 120" class="w-full h-auto overflow-visible">
+              <!-- Semi-Circular Market Positioning Gauge -->
+              <div class="text-center py-2">
+                <p class="text-[11px] text-slate-400 mb-1">Market Positioning</p>
+                <div class="relative w-36 h-20 mx-auto">
+                  <svg viewBox="0 0 160 90" class="w-full h-full overflow-visible">
                     <defs>
-                      <linearGradient id="buyGaugeGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#EF4444" />
-                        <stop offset="30%" stop-color="#F59E0B" />
-                        <stop offset="60%" stop-color="#EAB308" />
-                        <stop offset="100%" stop-color="#10B981" />
+                      <linearGradient id="gaugeArc" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#EF4444"/>
+                        <stop offset="50%" stop-color="#F59E0B"/>
+                        <stop offset="100%" stop-color="#10B981"/>
                       </linearGradient>
-                      <filter id="gaugeDotGlow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3.5" result="blur" />
-                        <feMerge>
-                          <feMergeNode in="blur" />
-                          <feMergeNode in="SourceGraphic" />
-                        </feMerge>
-                      </filter>
                     </defs>
-                    <path d="M 26 104 A 84 84 0 0 1 194 104" fill="none" stroke="#1E293B" stroke-width="14" stroke-linecap="round" />
-                    <path d="M 26 104 A 84 84 0 0 1 194 104" fill="none" stroke="url(#buyGaugeGrad)" stroke-width="14" stroke-linecap="round" />
-                    <circle id="confidence-dot-halo" cx="169" cy="45" r="10" fill="rgba(16, 185, 129, 0.35)" />
-                    <circle id="confidence-dot" cx="169" cy="45" r="6" fill="#FFFFFF" stroke="#10B981" stroke-width="2.5" filter="url(#gaugeDotGlow)" />
+                    <path d="M 16 78 A 64 64 0 0 1 144 78" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10" stroke-linecap="round"/>
+                    <path d="M 16 78 A 64 64 0 0 1 144 78" fill="none" stroke="url(#gaugeArc)" stroke-width="10" stroke-linecap="round"/>
+                    <circle id="gauge-dot" cx="118" cy="34" r="6" fill="#FFFFFF" stroke="#10B981" stroke-width="3"/>
                   </svg>
-
-                  <div class="-mt-8 flex flex-col items-center">
-                    <div id="outlook-confidence-pct" class="text-xs sm:text-sm font-bold font-mono text-white leading-tight">Dip Zone</div>
-                    <span id="outlook-confidence-badge" class="mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                      Below Recent Average
-                    </span>
-                    <p id="outlook-confidence-caption" class="text-[10px] text-slate-400 mt-1 leading-snug">
-                      Relative price signal only — not a guarantee of further drops
-                    </p>
+                  <div class="absolute inset-x-0 bottom-0 text-center">
+                    <span id="gauge-zone-label" class="text-xs font-bold text-white">Dip Zone</span>
                   </div>
                 </div>
-              </div>
-
-              <div class="space-y-1.5 text-[11px] pt-1 border-t border-slate-800/80">
-                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400 whitespace-nowrap">Trend</span>
-                  <span id="outlook-trend-badge" class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 whitespace-nowrap">Stable to Mildly Lower</span>
-                </div>
-                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400 whitespace-nowrap">Trend Band</span>
-                  <span id="outlook-expected-band" class="font-mono font-semibold text-amber-300 whitespace-nowrap">—</span>
-                </div>
-                <div class="flex items-center justify-between gap-2 pb-1 border-b border-slate-800/60">
-                  <span class="text-slate-400 whitespace-nowrap">Dip Zone</span>
-                  <span id="outlook-dip-band" class="font-mono font-semibold text-emerald-400 whitespace-nowrap">—</span>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-slate-400 whitespace-nowrap">Risk Zone</span>
-                  <span id="outlook-bounce-band" class="font-mono font-semibold text-rose-400 whitespace-nowrap">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center">
-              <i data-lucide="target" class="w-3.5 h-3.5"></i>
-            </span>
-            <span class="text-xs font-bold text-amber-300">Suggested Strategy</span>
-          </div>
-          <p id="ai-recommendation-text" class="text-xs text-slate-200 leading-relaxed">
-            Consider splitting your planned purchase into 3 parts instead of buying all at once, using alerts to track deeper dips.
-          </p>
-        </div>
-      </div>
-
-      <!-- Right 6 Columns: My Staggered Buying Plan + Price Drop Alerts -->
-      <div id="staggered-plan-section" class="lg:col-span-6 flex flex-col gap-5">
-        <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col gap-3.5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-800/80">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-500/35 flex items-center justify-center text-amber-400 shrink-0">
-                <i data-lucide="layers" class="w-4 h-4"></i>
-              </div>
-              <div>
-                <h2 class="text-base font-bold text-white">My Staggered <span class="text-amber-400">Buying Plan</span></h2>
-                <p class="text-[11px] text-slate-400">Split your budget into 3 parts &mdash; GoldBuddy alerts you as each dip hits</p>
-              </div>
-            </div>
-            <button type="button" onclick="openTrancheModal()" class="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-amber-300 border border-amber-500/30 cursor-pointer shrink-0">
-              <i data-lucide="target" class="w-3.5 h-3.5"></i>
-              + Custom Target
-            </button>
-          </div>
-
-          <div class="rounded-xl bg-slate-900/90 border border-slate-800 p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            <div class="flex items-center gap-2.5 flex-1">
-              <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-400 shrink-0">
-                <i data-lucide="wallet" class="w-4 h-4"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <label for="auto-budget-inr" class="block text-[10px] text-slate-400 mb-0.5">My Total Gold Budget (₹)</label>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-sm font-mono font-bold text-amber-400">₹</span>
-                  <input type="number" id="auto-budget-inr" value="150000" step="1000" min="1000"
-                    class="w-full rounded-lg bg-slate-950 border border-slate-700 px-2.5 py-1 text-sm font-mono font-bold text-white focus:border-amber-500 focus:outline-none transition-all" />
-                </div>
-              </div>
-            </div>
-            <button type="button" onclick="generateSmartTranches()"
-              class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 transition-all shrink-0 cursor-pointer">
-              <i data-lucide="layers" class="w-3.5 h-3.5"></i>
-              Split Into 3 Smart Parts
-            </button>
-          </div>
-
-          <div id="tranches-list" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
-
-          <div id="plan-overview-bar" class="rounded-xl bg-slate-900/90 border border-slate-800 px-3 py-2.5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 items-center">
-            <div class="flex items-center gap-2">
-              <i data-lucide="layers" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
-              <div>
-                <div class="text-[10px] text-slate-400">Total Parts</div>
-                <div id="overview-parts" class="text-xs font-mono font-bold text-white">0</div>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <i data-lucide="coins" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
-              <div>
-                <div class="text-[10px] text-slate-400">Total Budget</div>
-                <div id="overview-budget" class="text-xs font-mono font-bold text-white">₹0</div>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <i data-lucide="scale" class="w-3.5 h-3.5 text-emerald-400 shrink-0"></i>
-              <div>
-                <div class="text-[10px] text-slate-400">Est. Quantity</div>
-                <div id="overview-grams" class="text-xs font-mono font-bold text-white">≈ 0.00 g</div>
-              </div>
-            </div>
-
-            <div class="rounded-lg bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 flex items-center gap-1.5">
-              <i data-lucide="trending-up" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
-              <div class="min-w-0">
-                <div class="text-[9px] text-amber-300/90 truncate">Avg. Target</div>
-                <div id="overview-avg-price" class="text-[11px] font-mono font-bold text-amber-300 truncate">—</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 flex flex-col">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h2 class="text-sm font-semibold text-white">Price Drop Alerts</h2>
-              <p class="text-xs text-slate-400">Triggered automatically when gold hits your target rates</p>
-            </div>
-            <span id="alert-count-badge" class="px-2 py-0.5 rounded-full text-xs font-mono bg-slate-800 text-slate-300">0</span>
-          </div>
-
-          <div id="alerts-list" class="space-y-2.5 max-h-48 overflow-y-auto pr-1"></div>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ROW 4: 5-DAY GOLD PRICE MOVEMENT CHART -->
-    <section class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-        <div>
-          <h2 class="text-base font-semibold text-white">5-Day Gold Price Movement</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Compare today's rate against this week's average and bargain buy level</p>
-        </div>
-
-        <div class="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800 self-start">
-          <button type="button" id="tab-22k" onclick="switchChartKarat('22K')" class="px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer">
-            22K Gold
-          </button>
-          <button type="button" id="tab-24k" onclick="switchChartKarat('24K')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">
-            24K Gold
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-3 gap-3 mb-5">
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">Good Bargain Price</div>
-          <div id="band-lower" class="text-sm sm:text-base font-mono font-semibold text-emerald-400 mt-0.5">—</div>
-        </div>
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">5-Day Average Price</div>
-          <div id="band-mean" class="text-sm sm:text-base font-mono font-semibold text-amber-300 mt-0.5">—</div>
-        </div>
-        <div class="rounded-xl bg-slate-900/75 border border-slate-800/80 px-3.5 py-2.5">
-          <div class="text-[11px] text-slate-400">5-Day High Price</div>
-          <div id="band-upper" class="text-sm sm:text-base font-mono font-semibold text-rose-400 mt-0.5">—</div>
-        </div>
-      </div>
-
-      <div class="relative h-64 sm:h-72 w-full">
-        <canvas id="goldChart"></canvas>
-      </div>
-    </section>
-
-    <!-- ROW 5: AFFILIATE PARTNER SECTION -->
-    <section id="affiliate-partners-section" class="rounded-2xl bg-[#131A26] border border-slate-800/90 p-5 sm:p-6 space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div class="flex items-center gap-2.5">
-          <span class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center shrink-0">
-            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-          </span>
-          <div>
-            <h2 class="text-base font-semibold text-white">Explore Gold Buying Options</h2>
-            <p class="text-xs text-slate-400">Explore third-party sellers and platforms. Verify seller terms, fees, purity, and custody policies independently.</p>
-          </div>
-        </div>
-        <span class="self-start sm:self-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-900 text-slate-400 border border-slate-800">
-          Partner Links &bull; Sponsored
-        </span>
-      </div>
-
-      <div id="affiliate-cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-    </section>
-
-    <!-- Footer with Trust Pages, Tools, Methodology & Affiliate Disclosures -->
-    <footer class="pt-4 pb-8 border-t border-slate-800/80 text-[11px] text-slate-400 space-y-3">
-      <div class="flex flex-wrap items-center justify-between gap-3">
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5 font-medium text-slate-300">
-          <a href="gold-profit-calculator.html" class="text-amber-300 hover:text-amber-200 transition-colors">Profit Calculator</a>
-          <a href="22k-to-24k-converter.html" class="text-amber-300 hover:text-amber-200 transition-colors">22K/24K Converter</a>
-          <a href="guides.html" class="text-amber-300 hover:text-amber-200 transition-colors">Gold Guides</a>
-          <a href="about.html" class="hover:text-amber-300 transition-colors">About</a>
-          <a href="methodology.html" class="hover:text-amber-300 transition-colors">Data Sources &amp; Methodology</a>
-          <a href="disclaimer.html" class="hover:text-amber-300 transition-colors">Financial Disclaimer</a>
-          <a href="privacy.html" class="hover:text-amber-300 transition-colors">Privacy Policy</a>
-          <a href="terms.html" class="hover:text-amber-300 transition-colors">Terms of Use</a>
-          <a href="contact.html" class="hover:text-amber-300 transition-colors">Contact</a>
-        </div>
-        <span class="text-slate-500">&copy; 2026 GoldBuddy &bull; Informational Tools Only</span>
-      </div>
-
-      <p class="text-slate-500 leading-relaxed">
-        <strong class="text-slate-400">Affiliate Disclosure:</strong> As an Amazon Associate I earn from qualifying purchases. Some partner links on this page are affiliate links—if you buy through them, GoldBuddy may earn a commission at no extra cost to you.
-      </p>
-      <p class="text-slate-500 leading-relaxed">
-        <strong class="text-slate-400">Financial Disclaimer:</strong> Gold rates, GST/making charge calculations, and 15-day trend scenarios are provided for educational and planning purposes only and do not constitute financial or investment advice. Always verify final rates with your jeweller before purchasing.
-      </p>
-    </footer>
-
-  </main>
-
-  <!-- FULL-BLEED ATMOSPHERIC GOLD EXPEDITION LAYER -->
-  <div id="expedition-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-[#060911]/65 backdrop-blur-[6px] transition-opacity duration-700 pointer-events-auto">
-    <canvas id="expedition-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
-    <div class="relative z-10 flex flex-col items-center text-center px-6 pointer-events-none select-none">
-      <div class="w-2.5 h-2.5 rounded-full bg-amber-300 shadow-[0_0_20px_6px_rgba(251,191,36,0.7)] animate-pulse mb-4"></div>
-      <p id="expedition-status-text" class="text-sm sm:text-lg font-medium tracking-wide text-amber-50/95 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] transition-opacity duration-500">
-        Connecting to global bullion markets...
-      </p>
-      <p id="expedition-sub-text" class="text-[11px] sm:text-xs font-mono tracking-widest uppercase text-amber-300/75 mt-2">
-        Retrieving Live Gold Intelligence
-      </p>
-    </div>
-  </div>
-
-  <!-- MODAL 0: Multi-User Sign In & Account Creation -->
-  <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full max-w-md rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 id="auth-modal-title" class="text-base font-bold text-white">Sign In to GoldBuddy</h3>
-          <p class="text-xs text-slate-400">Save your private 3-part plan &amp; price drop alerts</p>
-        </div>
-        <button type="button" onclick="closeAuthModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
-      </div>
-
-      <div class="grid grid-cols-2 rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs">
-        <button type="button" id="auth-tab-signin" onclick="switchAuthTab('signin')" class="py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer">
-          Sign In
-        </button>
-        <button type="button" id="auth-tab-signup" onclick="switchAuthTab('signup')" class="py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer">
-          Create Account
-        </button>
-      </div>
-
-      <button type="button" onclick="signInWithGoogle()" class="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs font-semibold transition-colors cursor-pointer">
-        <svg class="w-4 h-4" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-        </svg>
-        Continue with Google
-      </button>
-
-      <div class="relative flex items-center py-0.5">
-        <div class="flex-grow border-t border-slate-800"></div>
-        <span class="shrink mx-3 text-[10px] uppercase tracking-widest text-slate-500">or with email</span>
-        <div class="flex-grow border-t border-slate-800"></div>
-      </div>
-
-      <form onsubmit="handleEmailAuthSubmit(event)" class="space-y-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Email Address</label>
-          <input type="email" id="auth-email-input" required placeholder="you@example.com"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
-          <input type="password" id="auth-password-input" required minlength="6" placeholder="Minimum 6 characters"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-        </div>
-        <div id="turnstile-widget-container" class="flex justify-center pt-1"></div>
-        <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors cursor-pointer">
-          Sign In
-        </button>
-      </form>
-
-      <p id="auth-feedback" class="hidden text-xs text-emerald-400 text-center bg-emerald-500/10 border border-emerald-500/25 rounded-lg p-2.5"></p>
-    </div>
-  </div>
-
-  <!-- MODAL 1: Add Custom Target -->
-  <div id="tranche-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full max-w-md rounded-2xl bg-[#131A26] border border-slate-700/80 p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold text-white">Add Custom Price Alert</h3>
-        <button type="button" onclick="closeTrancheModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
-      </div>
-
-      <form id="tranche-form" onsubmit="handleCreateTranche(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Note / Name</label>
-          <input type="text" id="tranche-label" required placeholder="e.g., Wedding Ring Purchase"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Gold Type</label>
-            <select id="tranche-karat" onchange="prefillSuggestedTarget()"
-              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm text-white focus:border-amber-500 focus:outline-none">
-              <option value="22K">22K Jewellery</option>
-              <option value="24K">24K Pure Gold</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Alert Me at Price (₹/g)</label>
-            <input type="number" step="0.01" id="tranche-target" required
-              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Amount to Spend (₹)</label>
-          <input type="number" step="100" id="tranche-allocation" required value="50000"
-            class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono text-white focus:border-amber-500 focus:outline-none" />
-        </div>
-
-        <div class="pt-2 flex items-center justify-end gap-2.5">
-          <button type="button" onclick="closeTrancheModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">Cancel</button>
-          <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer">Save Alert</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script>
-    const AFFILIATE_PARTNERS = [
-      {
-        badge: "Coins &amp; Bars",
-        title: "Gold Coins &amp; Bars",
-        desc: "Explore listings from third-party sellers. Check purity, seller ratings, return rules, and delivery terms before ordering.",
-        cta: "View Coin Listings",
-        url: "https://www.amazon.in/s?k=24k+gold+coin+999.9",
-        accent: "amber",
-        icon: "coins",
-      },
-      {
-        badge: "Jewellery",
-        title: "22K Gold Jewellery",
-        desc: "Compare making charges, BIS HUID hallmark details, stone deductions, and buyback policies across retailers.",
-        cta: "Compare Jewellery",
-        url: "https://www.caratlane.com/",
-        accent: "emerald",
-        icon: "sparkles",
-      },
-      {
-        badge: "Digital Gold",
-        title: "Digital Gold Platforms",
-        desc: "Digital gold is distinct from physical gold and not SEBI/RBI-regulated; review provider fees, spread, and custody terms carefully.",
-        cta: "Review Platform Terms",
-        url: "https://www.gullak.money/",
-        accent: "sky",
-        icon: "piggy-bank",
-      },
-    ];
-
-    function renderAffiliatePartners() {
-      const grid = document.getElementById("affiliate-cards-grid");
-      if (!grid) return;
-
-      const themes = {
-        amber: {
-          border: "border-amber-500/30 hover:border-amber-400/60",
-          badge: "bg-amber-500/15 text-amber-300 border-amber-500/25",
-          btn: "bg-amber-500 hover:bg-amber-400 text-slate-950",
-          icon: "text-amber-400",
-        },
-        emerald: {
-          border: "border-emerald-500/30 hover:border-emerald-400/60",
-          badge: "bg-emerald-500/15 text-emerald-300 border-emerald-500/25",
-          btn: "bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/35",
-          icon: "text-emerald-400",
-        },
-        sky: {
-          border: "border-sky-500/30 hover:border-sky-400/60",
-          badge: "bg-sky-500/15 text-sky-300 border-sky-500/25",
-          btn: "bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/35",
-          icon: "text-sky-400",
-        },
-      };
-
-      grid.innerHTML = AFFILIATE_PARTNERS.map((p) => {
-        const th = themes[p.accent] || themes.amber;
-        return `
-          <div class="rounded-xl bg-slate-900/80 border ${th.border} p-4 flex flex-col justify-between gap-3 transition-colors">
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-2">
-                <span class="px-2 py-0.5 rounded text-[10px] font-semibold border ${th.badge}">${p.badge}</span>
-                <i data-lucide="${p.icon}" class="w-4 h-4 ${th.icon}"></i>
-              </div>
-              <h3 class="text-sm font-bold text-white">${p.title}</h3>
-              <p class="text-xs text-slate-400 mt-1 leading-relaxed">${p.desc}</p>
-            </div>
-            <a href="${p.url}" target="_blank" rel="noopener noreferrer sponsored"
-               class="inline-flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-xs font-semibold transition-all ${th.btn}">
-              <span>${p.cta}</span>
-              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-            </a>
-          </div>
-        `;
-      }).join("");
-    }
-
-    const DEFAULT_SUPABASE_URL = "https://qcwangaymlurglvamjsq.supabase.co";
-    const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2FuZ2F5bWx1cmdsdmFtanNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNzkyMTEsImV4cCI6MjA5Nzc1NTIxMX0.Q8JeHm0H4ZqdO7sN48DxPQS8kTpyX-LS7sjs7n8dIbU";
-    const TURNSTILE_SITE_KEY = "0x4AAAAAAGJv9sHfNNOuuvKP";
-    const STORAGE_URL_KEY = "goldbuddy_supabase_url";
-    const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
-    const MAX_FORECAST_DAYS = 15;
-    const FETCH_COOLDOWN_MS = 30 * 60 * 1000;
-    const MAX_DAILY_MANUAL_FETCHES = 5;
-
-    let supabaseClient = null;
-    let pollingFallbackInterval = null;
-    let syncInitialized = false;
-    let isDemoMode = true;
-    let includeGst = false;
-    let activeChartKarat = "22K";
-    let calcMode = "budget";
-    let scenarioOverride = "actual";
-    let chartInstance = null;
-    let currentUser = null;
-    let authMode = "signin";
-    let turnstileToken = "";
-    let turnstileWidgetId = null;
-    let wasInCooldown = false;
-
-    let appState = {
-      history: [],
-      tranches: [],
-      alerts: [],
-      stats22K: null,
-      stats24K: null,
-    };
-
-    function escapeHtml(str) {
-      return String(str ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function formatINR(value, decimals = 2) {
-      if (value === null || value === undefined || isNaN(Number(value))) return "—";
-      return "₹" + Number(value).toLocaleString("en-IN", {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals,
-      });
-    }
-
-    function timeAgo(isoString) {
-      if (!isoString) return "Just now";
-      const diffSec = Math.max(1, Math.floor((Date.now() - new Date(isoString).getTime()) / 1000));
-      if (diffSec < 60) return "Just now";
-      const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) return `${diffMin}m ago`;
-      const diffHr = Math.floor(diffMin / 60);
-      if (diffHr < 24) return `${diffHr}h ago`;
-      return `${Math.floor(diffHr / 24)}d ago`;
-    }
-
-    function showToast(title, body, type = "info") {
-      const container = document.getElementById("toast-container");
-      if (!container) return;
-      const el = document.createElement("div");
-      const borderClass =
-        type === "alert" ? "border-emerald-500/50 bg-slate-900/95" :
-        type === "error" ? "border-rose-500/50 bg-slate-900/95" :
-        "border-amber-500/40 bg-slate-900/95";
-
-      el.className = `pointer-events-auto rounded-xl border ${borderClass} p-3.5 shadow-xl backdrop-blur-md transition-all`;
-      el.innerHTML = `
-        <div class="text-xs font-semibold text-white">${escapeHtml(title)}</div>
-        <div class="text-xs text-slate-300 mt-0.5 leading-relaxed">${escapeHtml(body)}</div>
-      `;
-      container.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = "0";
-        setTimeout(() => el.remove(), 300);
-      }, 4500);
-    }
-
-    function populateForecastDateDropdown() {
-      const select = document.getElementById("forecast-days-select");
-      if (!select) return;
-      const today = new Date();
-      let defaultDays = 5;
-      const optionsHtml = [];
-
-      for (let d = 1; d <= MAX_FORECAST_DAYS; d++) {
-        const dt = new Date(today);
-        dt.setDate(today.getDate() + d);
-        if (dt.getDate() === 23) defaultDays = d;
-        const labelDate = dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
-        optionsHtml.push(`<option value="${d}">${labelDate} (In ${d} day${d > 1 ? "s" : ""})</option>`);
-      }
-
-      select.innerHTML = optionsHtml.join("");
-      select.value = String(defaultDays);
-    }
-
-    function setQuickBudget(amount) {
-      document.getElementById("calc-budget-inr").value = amount;
-      recalculateGoldWorth();
-    }
-
-    function setQuickGrams(grams) {
-      document.getElementById("calc-grams").value = grams;
-      recalculateGoldWorth();
-    }
-
-    function setScenarioOverride(mode) {
-      scenarioOverride = mode;
-      const banner = document.getElementById("scenario-banner");
-      const bannerText = document.getElementById("scenario-banner-text");
-      if (mode === "actual") banner.classList.add("hidden");
-      else {
-        banner.classList.remove("hidden");
-        bannerText.textContent = mode === "drop" ? "Scenario Preview: Falling market" : "Scenario Preview: Rising market";
-      }
-      recomputeAndRender();
-    }
-
-    function getActiveHistoryRows() {
-      const baseRows = appState.history;
-      if (!baseRows || baseRows.length === 0) return [];
-      if (scenarioOverride === "actual") return baseRows;
-      const anchor24 = Number(baseRows[0].rate_24k_gram) || 12458.00;
-      const now = Date.now();
-      const simRows = [];
-      for (let i = 23; i >= 0; i--) {
-        const ts = new Date(now - i * 4 * 60 * 60 * 1000).toISOString();
-        const progress = (23 - i) / 23;
-        const factor = scenarioOverride === "drop" ? 1.018 - 0.018 * progress : 0.981 + 0.019 * progress;
-        const r24 = Number((anchor24 * factor).toFixed(2));
-        const r22 = Number((r24 * (22 / 24)).toFixed(2));
-        simRows.push({
-          ...baseRows[0],
-          id: 9000 + i,
-          rate_24k_gram: r24,
-          rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
-          rate_22k_gram: r22,
-          rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
-          ai_analysis: null,
-          fetched_at: ts,
-        });
-      }
-      return simRows.reverse();
-    }
-
-    function buildDemoDataset() {
-      const now = Date.now();
-      const rows = [];
-      for (let i = 47; i >= 0; i--) {
-        const ts = new Date(now - i * 2.5 * 60 * 60 * 1000).toISOString();
-        const progress = (47 - i) / 47;
-        const trendPrice = 12780 + (12458 - 12780) * progress;
-        const wave = i === 0 ? 0 : Math.sin(i / 3.5) * 24;
-        const r24 = Number((trendPrice + wave).toFixed(2));
-        const r22 = Number((r24 * (22 / 24)).toFixed(2));
-        rows.push({
-          id: 48 - i,
-          xau_usd: 3543.90,
-          usd_inr: 92.78,
-          rate_24k_gram: r24,
-          rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
-          rate_22k_gram: r22,
-          rate_22k_with_gst: Number((r22 * 1.03).toFixed(2)),
-          ai_analysis: null,
-          fetched_at: ts,
-        });
-      }
-      return {
-        history: [...rows].reverse(),
-        tranches: [
-          { id: "demo-1", label: "Part 1 (30%) — Buy Today on Dip", karat: "22K", target_rate_gram: 11395.00, allocation_inr: 45000.00, status: "active" },
-          { id: "demo-2", label: "Part 2 (40%) — Buy on Small Drop", karat: "22K", target_rate_gram: 11280.00, allocation_inr: 60000.00, status: "active" },
-          { id: "demo-3", label: "Part 3 (30%) — Buy on Bigger Dip", karat: "22K", target_rate_gram: 11145.00, allocation_inr: 45000.00, status: "active" },
-        ],
-        alerts: [],
-      };
-    }
-
-    function calculatePriceStats(historyRows, karat = "22K") {
-      if (!historyRows || historyRows.length === 0) return null;
-      const field = karat === "24K" ? (includeGst ? "rate_24k_with_gst" : "rate_24k_gram") : (includeGst ? "rate_22k_with_gst" : "rate_22k_gram");
-      const fiveDaysAgo = Date.now() - 5 * 24 * 60 * 60 * 1000;
-      const recent = historyRows.filter((r) => new Date(r.fetched_at).getTime() >= fiveDaysAgo);
-      const sample = recent.length > 0 ? recent : historyRows;
-      const prices = sample.map((r) => Number(r[field]));
-      const latestPrice = Number(historyRows[0][field]);
-      const oldestPrice = Number(sample[sample.length - 1][field]);
-      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
-      const minPrice = Math.min(...prices);
-      const maxPrice = Math.max(...prices);
-      const bargainPrice = Number(Math.min(minPrice, avgPrice * 0.992).toFixed(2));
-      const highPrice = Number(Math.max(maxPrice, avgPrice * 1.008).toFixed(2));
-      const pctVsAvg = Number((((latestPrice - avgPrice) / avgPrice) * 100).toFixed(2));
-      const trendPct = oldestPrice > 0 ? Number((((latestPrice - oldestPrice) / oldestPrice) * 100).toFixed(2)) : 0;
-      return { karat, latestPrice, avgPrice: Number(avgPrice.toFixed(2)), bargainPrice, highPrice, pctVsAvg, trendPct, isRising: trendPct > 0.25 || pctVsAvg > 0.25 };
-    }
-
-    function cleanSupabaseUrl(rawUrl) {
-      if (!rawUrl) return "";
-      return rawUrl.trim().replace(/\/+$/, "").replace(/\/(rest|functions|auth|realtime)\/v1.*$/i, "");
-    }
-
-    function getDailyFetchKey() {
-      const uid = currentUser?.id || "guest";
-      const today = new Date().toISOString().slice(0, 10);
-      return `goldbuddy_daily_fetches_${uid}_${today}`;
-    }
-
-    function getDailyFetchCount() {
-      return Number(localStorage.getItem(getDailyFetchKey()) || 0);
-    }
-
-    function incrementDailyFetchCount() {
-      const next = getDailyFetchCount() + 1;
-      localStorage.setItem(getDailyFetchKey(), String(next));
-      return next;
-    }
-
-    function getRemainingCooldownMins() {
-      if (isDemoMode || !supabaseClient) return 0;
-      const latestRow = appState.history?.[0];
-      const lastDbTs = latestRow?.fetched_at ? new Date(latestRow.fetched_at).getTime() : 0;
-      const lastLocalTs = Number(localStorage.getItem("goldbuddy_last_fetch_ts") || 0);
-      const newestTs = Math.max(lastDbTs, lastLocalTs);
-      if (!newestTs) return 0;
-      const elapsed = Date.now() - newestTs;
-      if (elapsed >= FETCH_COOLDOWN_MS) return 0;
-      return Math.max(1, Math.ceil((FETCH_COOLDOWN_MS - elapsed) / 60000));
-    }
-
-    function renderDuckPushingEggIcon(minsLeft) {
-      const progress = Math.min(1, Math.max(0.05, (30 - minsLeft) / 30));
-      const almostReady = minsLeft <= 5;
-      const eggX = (12.5 - progress * 4.5).toFixed(1);
-      const eggColor = almostReady ? "#FEF08A" : "#FDE047";
-      return `
-        <svg viewBox="0 0 32 22" class="w-6 h-4 overflow-visible" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <g class="egg-peek">
-            <ellipse cx="${eggX}" cy="15.2" rx="3.8" ry="2.9" fill="${eggColor}" stroke="#78350F" stroke-width="1.1"/>
-            <path d="M${(Number(eggX)-1.5).toFixed(1)} 14.1 Q${eggX} 13.1 ${(Number(eggX)+1.5).toFixed(1)} 14.1" stroke="#FFFBEB" stroke-width="0.9" stroke-linecap="round"/>
-          </g>
-          <g class="duck-strain">
-            <path d="M16.5 18 L15 20.5 M20.5 18 L22 20.5" stroke="#78350F" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M12.5 11.5 L15.5 13.5 L15.5 16.5 C13.5 16.5 12.5 14.5 12.5 11.5 Z" fill="#1E293B"/>
-            <ellipse cx="19" cy="14.8" rx="5.5" ry="3.9" fill="#1E293B"/>
-            <path d="M16.5 13.8 Q19 12.5 21.5 14.8" stroke="#475569" stroke-width="1.1" stroke-linecap="round"/>
-            <circle cx="23" cy="8.8" r="3.2" fill="#1E293B"/>
-            <circle cx="24" cy="8.2" r="0.7" fill="#FFFBEB"/>
-            <path d="M25.8 8.4 L29.2 9.4 L25.8 10.4 Z" fill="#F97316"/>
-          </g>
-        </svg>
-      `;
-    }
-
-    function updateRefreshCooldownUI() {
-      const btn = document.getElementById("refresh-btn");
-      const spinner = document.getElementById("refresh-spinner");
-      const label = document.getElementById("refresh-btn-text");
-      if (!btn || !label) return;
-      const dailyUsed = (!isDemoMode && currentUser) ? getDailyFetchCount() : 0;
-      const minsLeft = getRemainingCooldownMins();
-      btn.removeAttribute("title");
-
-      if (!isDemoMode && currentUser && dailyUsed >= MAX_DAILY_MANUAL_FETCHES) {
-        btn.disabled = true;
-        btn.classList.add("opacity-60", "cursor-not-allowed");
-        label.textContent = "Limit (5/5)";
-        if (spinner) spinner.innerHTML = `<i data-lucide="lock" class="w-3.5 h-3.5"></i>`;
-        wasInCooldown = false;
-      } else if (minsLeft > 0) {
-        btn.disabled = true;
-        btn.classList.add("opacity-75", "cursor-not-allowed");
-        label.textContent = `Wait ${minsLeft}m`;
-        if (spinner) spinner.innerHTML = renderDuckPushingEggIcon(minsLeft);
-        wasInCooldown = true;
-      } else {
-        if (wasInCooldown && spinner) {
-          wasInCooldown = false;
-          spinner.innerHTML = `
-            <svg viewBox="0 0 24 24" class="w-4 h-4 egg-hatch" fill="none">
-              <path d="M6 13 L9 10 L12 13 L15 10 L18 13 C18 17 15.5 20 12 20 C8.5 20 6 17 6 13 Z" fill="#FEF08A" stroke="#78350F" stroke-width="1.4"/>
-              <path d="M7 9 L10 6 L12 8.5 L14.5 6 L17 9" stroke="#FEF08A" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          `;
-          const rect = btn.getBoundingClientRect();
-          burstGoldenCrackers(rect.left + rect.width / 2, rect.top + rect.height / 2);
-          setTimeout(() => {
-            if (!btn.disabled && spinner) {
-              spinner.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>`;
-              try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
-            }
-          }, 600);
-          return;
-        }
-        btn.disabled = false;
-        btn.classList.remove("opacity-60", "opacity-75", "cursor-not-allowed");
-        label.textContent = "Update Price";
-        if (spinner) spinner.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>`;
-        try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
-      }
-
-      const hgStage = document.getElementById("tooltip-hourglass-stage");
-      const hgSvg = document.getElementById("tooltip-hourglass-svg");
-      const hgSub = document.getElementById("tooltip-hourglass-sub");
-      if (hgStage && hgSvg) {
-        if (minsLeft > 0) {
-          hgStage.classList.remove("hidden");
-          hgStage.classList.add("flex");
-          const progress = Math.min(1, Math.max(0.08, (30 - minsLeft) / 30));
-          const almostReady = minsLeft <= 5;
-          const topH = (1 - progress) * 10;
-          const botH = progress * 11;
-          const botY = 39 - botH;
-          hgSvg.innerHTML = `
-            <svg viewBox="0 0 40 48" class="w-10 h-12 hg-alive ${almostReady ? "drop-shadow-[0_0_10px_rgba(254,240,138,0.95)]" : ""}" fill="none">
-              <line x1="8" y1="5" x2="32" y2="5" stroke="#F59E0B" stroke-width="2.6" stroke-linecap="round"/>
-              <line x1="8" y1="43" x2="32" y2="43" stroke="#F59E0B" stroke-width="2.6" stroke-linecap="round"/>
-              <path d="M11 6.5 C11 16 18.5 21 18.5 24 C18.5 27 11 32 11 41.5 L29 41.5 C29 32 21.5 27 21.5 24 C21.5 21 29 16 29 6.5 Z"
-                fill="rgba(255,251,235,0.06)" stroke="#FBBF24" stroke-width="1.5" stroke-linejoin="round"/>
-              <rect x="13.5" y="${20.5 - topH}" width="13" height="${topH.toFixed(1)}" rx="1.5" fill="${almostReady ? "#FEF08A" : "#F59E0B"}" opacity="0.88"/>
-              <line x1="20" y1="22.5" x2="20" y2="39" stroke="#FEF08A" stroke-width="1.5" stroke-linecap="round" class="hg-sand-stream"/>
-              <path d="M12.5 40 Q20 ${botY.toFixed(1)} 27.5 40 Z" fill="${almostReady ? "#FEF08A" : "#FBBF24"}"/>
-              <circle cx="20" cy="31" r="1" fill="#FFFBEB" opacity="0.9"/>
-              ${almostReady ? `<circle cx="17" cy="35" r="1.2" fill="#FFFBEB"/>` : ""}
-            </svg>
-          `;
-          if (hgSub) hgSub.textContent = almostReady ? "Almost ready — gold glow intensifying!" : `${minsLeft}m remaining until next live unlock.`;
-        } else {
-          hgStage.classList.add("hidden");
-          hgStage.classList.remove("flex");
-        }
-      }
-
-      const pill = document.getElementById("tooltip-quota-pill");
-      const bar = document.getElementById("tooltip-quota-bar");
-      const msg = document.getElementById("tooltip-quota-msg");
-      if (pill && bar && msg) {
-        if (isDemoMode) {
-          pill.textContent = "Sample Mode";
-          bar.style.width = "0%";
-          msg.textContent = "Unlimited sample refreshes in preview mode.";
-        } else if (!currentUser) {
-          pill.textContent = "Sign In Needed";
-          bar.style.width = "0%";
-          msg.textContent = "Sign in to get 5 manual live updates/day (auto-updates every 30m).";
-        } else {
-          const remaining = Math.max(0, MAX_DAILY_MANUAL_FETCHES - dailyUsed);
-          pill.textContent = `${dailyUsed} / ${MAX_DAILY_MANUAL_FETCHES} used`;
-          bar.style.width = `${Math.min(100, (dailyUsed / MAX_DAILY_MANUAL_FETCHES) * 100)}%`;
-          bar.className = remaining === 0 ? "h-full bg-rose-400 transition-all duration-300" : "h-full bg-amber-400 transition-all duration-300";
-          if (remaining === 0) msg.textContent = "0 remaining today. Live rates still auto-update every 30 mins.";
-          else if (minsLeft > 0) msg.textContent = `${remaining} left today • Cooldown: ${minsLeft}m.`;
-          else msg.textContent = `${remaining} of ${MAX_DAILY_MANUAL_FETCHES} manual updates remaining today.`;
-        }
-      }
-    }
-
-    async function fetchDashboardData() {
-      if (isDemoMode || !supabaseClient) {
-        if (appState.history.length === 0) {
-          const demo = buildDemoDataset();
-          appState.history = demo.history;
-          appState.tranches = demo.tranches;
-          appState.alerts = demo.alerts;
-        }
-        recomputeAndRender();
-        return;
-      }
-
-      // Render cached rates immediately (0ms) while fresh Supabase data loads
-      if (appState.history.length === 0) {
-        try {
-          const cachedHist = JSON.parse(localStorage.getItem("goldbuddy_cached_history") || "[]");
-          if (Array.isArray(cachedHist) && cachedHist.length > 0) {
-            appState.history = cachedHist;
-            recomputeAndRender();
-          }
-        } catch (_e) {}
-      }
-
-      try {
-        const { data: sessionData } = await supabaseClient.auth.getSession();
-        currentUser = sessionData?.session?.user ?? null;
-        updateAuthHeaderUI();
-
-        const ratesRes = await supabaseClient.from("gold_rates_history").select("*").order("fetched_at", { ascending: false }).limit(120);
-        if (ratesRes.error) throw ratesRes.error;
-        appState.history = ratesRes.data ?? [];
-        try {
-          localStorage.setItem("goldbuddy_cached_history", JSON.stringify(appState.history.slice(0, 60)));
-        } catch (_e) {}
-        } else {
-          try {
-            appState.tranches = JSON.parse(localStorage.getItem("goldbuddy_guest_tranches") || "[]");
-          } catch (_e) {
-            appState.tranches = [];
-          }
-          appState.alerts = [];
-        }
-
-        recomputeAndRender();
-
-        if (!syncInitialized) {
-          syncInitialized = true;
-          setupBackgroundSync();
-        }
-      } catch (err) {
-        console.error("Supabase fetch error:", err);
-        showToast("Connection Issue", err.message || "Please check your connection.", "error");
-      }
-    }
-
-    function setupBackgroundSync() {
-      if (!supabaseClient) return;
-      try {
-        supabaseClient
-          .channel("goldbuddy-live")
-          .on("postgres_changes", { event: "INSERT", schema: "public", table: "gold_rates_history" }, () => fetchDashboardData())
-          .on("postgres_changes", { event: "INSERT", schema: "public", table: "alert_logs" }, (payload) => {
-            if (payload.new?.message) showToast("Price Drop Alert!", payload.new.message, "alert");
-            fetchDashboardData();
-          })
-          .subscribe((status) => {
-            if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") startPollingFallback();
-          });
-      } catch (_err) {
-        startPollingFallback();
-      }
-    }
-
-    function startPollingFallback() {
-      if (pollingFallbackInterval) return;
-      pollingFallbackInterval = setInterval(() => {
-        if (!isDemoMode && supabaseClient) fetchDashboardData();
-      }, 60000);
-    }
-
-    function setRefreshLoading(isLoading) {
-      const btn = document.getElementById("refresh-btn");
-      const spinner = document.getElementById("refresh-spinner");
-      const label = document.getElementById("refresh-btn-text");
-      if (!btn) return;
-      btn.disabled = isLoading;
-      if (isLoading) {
-        if (spinner) spinner.classList.add("animate-spin");
-        if (label) label.textContent = "Retrieving Gold Intelligence...";
-      } else {
-        if (spinner) spinner.classList.remove("animate-spin");
-        updateRefreshCooldownUI();
-      }
-    }
-
-    function sleep(ms) {
-      return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
-    function animatePriceRoll(elId, finalValue) {
-      const el = document.getElementById(elId);
-      if (!el || isNaN(finalValue)) return;
-      const targetStr = formatINR(finalValue, 0);
-      const startVal = Math.max(1000, Math.round(finalValue * 0.96));
-      const steps = 14;
-      let step = 0;
-      const timer = setInterval(() => {
-        step++;
-        if (step >= steps) {
-          el.textContent = targetStr;
-          clearInterval(timer);
-        } else {
-          const cur = Math.round(startVal + ((finalValue - startVal) * (step / steps)));
-          el.textContent = formatINR(cur, 0);
-        }
-      }, 32);
-    }
-
-    async function runGoldExpedition(fetchPromise) {
-      const overlay = document.getElementById("expedition-overlay");
-      const canvas = document.getElementById("expedition-canvas");
-      const statusText = document.getElementById("expedition-status-text");
-      const subText = document.getElementById("expedition-sub-text");
-      if (!overlay || !canvas) return await fetchPromise;
-
-      overlay.classList.remove("hidden", "opacity-0");
-      overlay.classList.add("flex");
-
-      const ctx = canvas.getContext("2d");
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const W = window.innerWidth;
-      const H = window.innerHeight;
-      canvas.width = W * dpr;
-      canvas.height = H * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const el22 = document.getElementById("icon-22k") || document.getElementById("price-22k");
-      const el24 = document.getElementById("icon-24k") || document.getElementById("price-24k");
-      const r22 = el22 ? el22.getBoundingClientRect() : { left: W * 0.35, top: H * 0.28, width: 80, height: 64 };
-      const r24 = el24 ? el24.getBoundingClientRect() : { left: W * 0.75, top: H * 0.28, width: 80, height: 64 };
-      const targetCoin = { x: r22.left + r22.width / 2, y: r22.top + r22.height / 2 };
-      const targetBar = { x: r24.left + r24.width / 2, y: r24.top + r24.height / 2 };
-
-      let phase = 1;
-      let running = true;
-      let fetchDone = false;
-      const startTs = performance.now();
-      let phase3Start = 0;
-      let phase4Start = 0;
-      const cx = W * 0.5;
-      const baseMtnY = H * 0.68;
-      const scale = Math.max(0.65, Math.min(1.25, W / 640));
-
-      const sparks = [];
-      function spawnSparks(sx, sy, count) {
-        for (let i = 0; i < count; i++) {
-          sparks.push({ x: sx, y: sy, vx: (Math.random() - 0.5) * 4.6, vy: -2.0 - Math.random() * 3.4, alpha: 1, size: 1.8 + Math.random() * 2.6 });
-        }
-      }
-
-      function drawMiner(mx, my, dir, swingPhase) {
-        ctx.save();
-        ctx.translate(mx, my);
-        ctx.scale(dir * scale * 1.45, scale * 1.45);
-        const coneGrad = ctx.createRadialGradient(4, -25, 1, 22, -22, 36);
-        coneGrad.addColorStop(0, "rgba(254, 240, 138, 0.45)");
-        coneGrad.addColorStop(1, "rgba(254, 240, 138, 0)");
-        ctx.fillStyle = coneGrad;
-        ctx.beginPath();
-        ctx.moveTo(4, -25); ctx.lineTo(42, -36); ctx.lineTo(42, -10); ctx.closePath(); ctx.fill();
-        ctx.strokeStyle = "#334155"; ctx.lineWidth = 4.5; ctx.lineCap = "round";
-        ctx.beginPath(); ctx.moveTo(-4, 0); ctx.lineTo(-8, 17); ctx.moveTo(4, 0); ctx.lineTo(9, 17); ctx.stroke();
-        ctx.fillStyle = "#1E293B"; ctx.strokeStyle = "#64748B"; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.roundRect(-7, -19, 14, 20, 4); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "#475569"; ctx.beginPath(); ctx.arc(0, -24, 5.5, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#FBBF24"; ctx.beginPath(); ctx.arc(0, -25.5, 6.2, Math.PI, 0); ctx.fill();
-        ctx.fillStyle = "#FFFBEB"; ctx.shadowBlur = 10; ctx.shadowColor = "#FEF08A";
-        ctx.beginPath(); ctx.arc(5, -26, 2.2, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
-        const armAngle = -0.85 + Math.sin(swingPhase) * 0.95;
-        ctx.save(); ctx.translate(3, -14); ctx.rotate(armAngle);
-        ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2.8; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(20, -7); ctx.stroke();
-        ctx.strokeStyle = "#FDE047"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(20, -7, 10, -0.95, 0.95); ctx.stroke();
-        ctx.restore();
-        ctx.restore();
-      }
-
-      function drawMintedCoin(x, y, s) {
-        ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
-        const grad = ctx.createRadialGradient(-6, -6, 2, 0, 0, 25);
-        grad.addColorStop(0, "#FEF9C3"); grad.addColorStop(0.55, "#FBBF24"); grad.addColorStop(1, "#B45309");
-        ctx.shadowBlur = 24; ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
-        ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(0, 0, 25, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#FEF08A"; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = "#78350F"; ctx.font = "bold 10px monospace"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-        ctx.fillText("22K", 0, 1); ctx.restore();
-      }
-
-      function drawMintedBar(x, y, s) {
-        ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
-        ctx.shadowBlur = 24; ctx.shadowColor = "rgba(251, 191, 36, 0.9)";
-        ctx.fillStyle = "#92400E"; ctx.beginPath(); ctx.roundRect(-21, -27, 44, 56, 12); ctx.fill();
-        const bodyGrad = ctx.createLinearGradient(-22, -28, 22, 28);
-        bodyGrad.addColorStop(0, "#FEF9C3"); bodyGrad.addColorStop(0.3, "#FACC15"); bodyGrad.addColorStop(0.75, "#D97706"); bodyGrad.addColorStop(1, "#92400E");
-        ctx.fillStyle = bodyGrad; ctx.beginPath(); ctx.roundRect(-22, -29, 44, 56, 12); ctx.fill();
-        ctx.strokeStyle = "#FEF08A"; ctx.lineWidth = 1.4; ctx.stroke();
-        ctx.fillStyle = "rgba(251, 191, 36, 0.45)"; ctx.beginPath(); ctx.roundRect(-17, -24, 34, 46, 9); ctx.fill();
-        ctx.fillStyle = "#78350F"; ctx.textAlign = "center";
-        ctx.font = "bold 9px monospace"; ctx.fillText("24K", 0, -7);
-        ctx.font = "bold 6px monospace"; ctx.fillText("FINE GOLD", 0, 3); ctx.fillText("999.9", 0, 12);
-        ctx.restore();
-      }
-
-      let lastSparkBeat = 0;
-      function renderScene(now) {
-        if (!running) return;
-        const t = (now - startTs) / 1000;
-        ctx.clearRect(0, 0, W, H);
-        const mtnAlpha = phase === 4 ? Math.max(0, 1 - (now - phase4Start) / 650) : 1;
-        ctx.save(); ctx.globalAlpha = mtnAlpha;
-        const horizonGlow = ctx.createRadialGradient(cx, baseMtnY - 80 * scale, 10, cx, baseMtnY - 40 * scale, 340 * scale);
-        horizonGlow.addColorStop(0, "rgba(245, 158, 11, 0.28)"); horizonGlow.addColorStop(1, "rgba(15, 23, 42, 0)");
-        ctx.fillStyle = horizonGlow; ctx.fillRect(0, 0, W, H);
-
-        const farGrad = ctx.createLinearGradient(0, baseMtnY - 170 * scale, 0, H);
-        farGrad.addColorStop(0, "#475569"); farGrad.addColorStop(0.55, "#1E293B"); farGrad.addColorStop(1, "#0B0F17");
-        ctx.fillStyle = farGrad;
-        ctx.beginPath(); ctx.moveTo(0, H); ctx.lineTo(0, baseMtnY - 20);
-        ctx.lineTo(cx - 320 * scale, baseMtnY - 95 * scale); ctx.lineTo(cx - 170 * scale, baseMtnY - 30 * scale);
-        ctx.lineTo(cx - 20 * scale, baseMtnY - 155 * scale); ctx.lineTo(cx + 150 * scale, baseMtnY - 50 * scale);
-        ctx.lineTo(cx + 310 * scale, baseMtnY - 115 * scale); ctx.lineTo(W, baseMtnY - 25); ctx.lineTo(W, H); ctx.closePath(); ctx.fill();
-
-        const heroGrad = ctx.createLinearGradient(cx - 180 * scale, baseMtnY - 150 * scale, cx + 180 * scale, baseMtnY + 40);
-        heroGrad.addColorStop(0, "#64748B"); heroGrad.addColorStop(0.5, "#334155"); heroGrad.addColorStop(1, "#1E293B");
-        ctx.fillStyle = heroGrad;
-        ctx.beginPath(); ctx.moveTo(cx - 240 * scale, H); ctx.lineTo(cx - 140 * scale, baseMtnY - 40 * scale);
-        ctx.lineTo(cx, baseMtnY - 155 * scale); ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale); ctx.lineTo(cx + 250 * scale, H); ctx.closePath(); ctx.fill();
-
-        ctx.strokeStyle = "rgba(226, 232, 240, 0.45)"; ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.moveTo(cx - 140 * scale, baseMtnY - 40 * scale); ctx.lineTo(cx, baseMtnY - 155 * scale); ctx.lineTo(cx + 155 * scale, baseMtnY - 35 * scale); ctx.stroke();
-
-        const veinGlow = 0.65 + 0.35 * Math.sin(t * 3.5);
-        ctx.strokeStyle = `rgba(253, 224, 71, ${veinGlow})`; ctx.lineWidth = 4.2; ctx.lineCap = "round"; ctx.lineJoin = "round";
-        ctx.shadowBlur = 18; ctx.shadowColor = "rgba(251, 191, 36, 0.95)";
-        ctx.beginPath(); ctx.moveTo(cx, baseMtnY - 150 * scale); ctx.lineTo(cx - 26 * scale, baseMtnY - 92 * scale);
-        ctx.lineTo(cx + 18 * scale, baseMtnY - 42 * scale); ctx.lineTo(cx - 32 * scale, baseMtnY + 18 * scale); ctx.stroke();
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(cx - 26 * scale, baseMtnY - 92 * scale); ctx.lineTo(cx - 86 * scale, baseMtnY - 46 * scale);
-        ctx.lineTo(cx - 115 * scale, baseMtnY - 12 * scale); ctx.moveTo(cx + 18 * scale, baseMtnY - 42 * scale); ctx.lineTo(cx + 84 * scale, baseMtnY - 8 * scale); ctx.stroke();
-        ctx.shadowBlur = 0;
-
-        if (phase >= 2) {
-          const swingA = t * 4.8; const swingB = t * 4.8 + 2.0;
-          drawMiner(cx - 64 * scale, baseMtnY - 46 * scale, 1, swingA);
-          drawMiner(cx + 58 * scale, baseMtnY - 36 * scale, -1, swingB);
-          if (Math.sin(swingA) > 0.9 && now - lastSparkBeat > 320) {
-            lastSparkBeat = now;
-            spawnSparks(cx - 22 * scale, baseMtnY - 62 * scale, 11);
-            spawnSparks(cx + 18 * scale, baseMtnY - 48 * scale, 9);
-          }
-          for (let i = sparks.length - 1; i >= 0; i--) {
-            const sp = sparks[i];
-            sp.x += sp.vx; sp.y += sp.vy; sp.vy += 0.08; sp.alpha -= 0.025;
-            if (sp.alpha <= 0) { sparks.splice(i, 1); continue; }
-            ctx.fillStyle = `rgba(254, 240, 138, ${sp.alpha})`; ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.size, 0, Math.PI * 2); ctx.fill();
-          }
-        }
-        ctx.restore();
-
-        const moldLeftX = cx - 82 * scale; const moldRightX = cx + 82 * scale; const moldY = baseMtnY + 62 * scale;
-        if (phase === 3) {
-          const p3 = Math.min(1, (now - phase3Start) / 2000);
-          const pulse = 0.97 + 0.03 * Math.sin(t * 5);
-          ctx.save(); ctx.strokeStyle = "rgba(251, 191, 36, 0.8)"; ctx.lineWidth = 2.6; ctx.setLineDash([6, 6]); ctx.lineDashOffset = -t * 50;
-          ctx.beginPath();
-          ctx.moveTo(cx - 18 * scale, baseMtnY - 12 * scale); ctx.quadraticCurveTo(moldLeftX, baseMtnY + 18 * scale, moldLeftX, moldY - 24);
-          ctx.moveTo(cx + 18 * scale, baseMtnY - 12 * scale); ctx.quadraticCurveTo(moldRightX, baseMtnY + 18 * scale, moldRightX, moldY - 24);
-          ctx.stroke(); ctx.restore();
-          drawMintedCoin(moldLeftX, moldY, (0.35 + p3 * 0.65) * pulse);
-          drawMintedBar(moldRightX, moldY, (0.35 + p3 * 0.65) * pulse);
-        }
-        if (phase === 4) {
-          const p4 = Math.min(1, (now - phase4Start) / 1350);
-          const ease = 1 - Math.pow(1 - p4, 3);
-          drawMintedCoin(moldLeftX + (targetCoin.x - moldLeftX) * ease, moldY + (targetCoin.y - moldY) * ease, 1 + Math.sin(ease * Math.PI) * 0.25);
-          drawMintedBar(moldRightX + (targetBar.x - moldRightX) * ease, moldY + (targetBar.y - moldY) * ease, 1 + Math.sin(ease * Math.PI) * 0.25);
-        }
-        requestAnimationFrame(renderScene);
-      }
-      requestAnimationFrame(renderScene);
-
-      const timeoutGuard = new Promise((_, reject) => setTimeout(() => reject(new Error("Market server took too long to respond.")), 25000));
-      const safeFetch = Promise.race([fetchPromise, timeoutGuard]).then((res) => { fetchDone = true; return res; });
-
-      statusText.textContent = "Discovering gold veins in the mountains..."; subText.textContent = "Scanning Global Bullion Markets";
-      await sleep(1500);
-      phase = 2; statusText.textContent = "Miners extracting gold from the vein..."; subText.textContent = "Gathering Live Market Data";
-      await sleep(1700);
-      phase = 3; phase3Start = performance.now(); statusText.textContent = "Molding 22K Coin & 24K Fine Gold Bar..."; subText.textContent = "Refining Indian Retail Rates";
-      const slowTimer = setTimeout(() => { if (!fetchDone && running) { statusText.textContent = "Still refining your 22K Coin & 24K Bar..."; subText.textContent = "Waiting for Live Market Feed"; } }, 3000);
-      const [fetchResult] = await Promise.all([safeFetch, sleep(2200)]);
-      clearTimeout(slowTimer);
-      phase = 4; phase4Start = performance.now(); statusText.textContent = "Populating your live gold board..."; subText.textContent = "22K Coin & 24K Bar Ready";
-      await sleep(1400);
-      overlay.classList.add("opacity-0"); await sleep(450); running = false; overlay.classList.add("hidden"); overlay.classList.remove("flex", "opacity-0");
-      return fetchResult;
-    }
-
-    async function handleManualRefresh() {
-      const btn = document.getElementById("refresh-btn");
-      if (btn && btn.disabled) return;
-      if (!isDemoMode && supabaseClient && !currentUser) {
-        showToast("Sign In Required", "Please sign in or create an account to fetch fresh live rates.", "info");
-        openAuthModal();
-        return;
-      }
-      if (!isDemoMode && supabaseClient && currentUser && getDailyFetchCount() >= MAX_DAILY_MANUAL_FETCHES) {
-        updateRefreshCooldownUI();
-        showToast("Daily Limit Reached (5/5)", "You've used all 5 manual updates today. Live rates still auto-update every 30 mins!", "info");
-        return;
-      }
-      const minsLeft = getRemainingCooldownMins();
-      if (minsLeft > 0) {
-        updateRefreshCooldownUI();
-        showToast("Cooldown Active", `Gold rate was updated recently. Next live fetch in ${minsLeft} min.`, "info");
-        return;
-      }
-
-      setRefreshLoading(true);
-      const safetyTimer = setTimeout(() => setRefreshLoading(false), 26000);
-      try {
-        const fetchTask = (async () => {
-          if (isDemoMode || !supabaseClient) {
-            const prev = appState.history[0];
-            const deltaPct = (Math.random() - 0.52) * 0.006;
-            const new24 = Number((Number(prev.rate_24k_gram) * (1 + deltaPct)).toFixed(2));
-            const new22 = Number((new24 * (22 / 24)).toFixed(2));
-            appState.history.unshift({ id: prev.id + 1, xau_usd: prev.xau_usd, usd_inr: prev.usd_inr, rate_24k_gram: new24, rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)), rate_22k_gram: new22, rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)), ai_analysis: null, fetched_at: new Date().toISOString() });
-            return { mode: "demo", new22, new24 };
-          } else {
-            incrementDailyFetchCount();
-            updateRefreshCooldownUI();
-            const { error } = await supabaseClient.functions.invoke("fetch-gold-rate");
-            localStorage.setItem("goldbuddy_last_fetch_ts", String(Date.now()));
-            if (error) console.warn("Edge function invoke fallback to cached DB:", error.message);
-            await fetchDashboardData();
-            return { mode: "live" };
-          }
-        })();
-
-        const res = await runGoldExpedition(fetchTask);
-        recomputeAndRender();
-        const latest = getActiveHistoryRows()?.[0];
-        if (latest) {
-          animatePriceRoll("price-22k", includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram);
-          animatePriceRoll("price-24k", includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram);
-        }
-        ["card-22k", "card-24k"].forEach((id) => {
-          const card = document.getElementById(id);
-          if (card) { card.classList.remove("card-reveal-flash"); void card.offsetWidth; card.classList.add("card-reveal-flash"); }
-        });
-        document.querySelectorAll("#drivers-list > div").forEach((el, idx) => { el.classList.add("driver-stagger"); el.style.animationDelay = `${idx * 110}ms`; });
-        showToast("Gold Price Updated", res?.mode === "demo" ? `22K: ${formatINR(res.new22, 0)}/g` : "Fetched today's latest rate & market summary.", "info");
-      } catch (err) {
-        const overlay = document.getElementById("expedition-overlay");
-        if (overlay) { overlay.classList.add("hidden"); overlay.classList.remove("flex", "opacity-0"); }
-        showToast("Update Failed", err.message || "Could not fetch latest price.", "error");
-      } finally {
-        clearTimeout(safetyTimer);
-        setRefreshLoading(false);
-      }
-    }
-
-    function recomputeAndRender() {
-      const activeRows = getActiveHistoryRows();
-      appState.stats22K = calculatePriceStats(activeRows, "22K");
-      appState.stats24K = calculatePriceStats(activeRows, "24K");
-      renderConnectionBadge();
-      renderTopCards(activeRows);
-      recalculateGoldWorth();
-      renderMarketStory(activeRows);
-      renderDateForecast();
-      renderChart(activeRows);
-      renderTranches(activeRows);
-      renderAlerts();
-      renderAffiliatePartners();
-      updateRefreshCooldownUI();
-      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
-    }
-
-    function renderConnectionBadge() {
-      const dot = document.getElementById("status-dot");
-      const text = document.getElementById("status-text");
-      const demoBanner = document.getElementById("demo-banner");
-      const emptyBanner = document.getElementById("empty-db-banner");
-      if (isDemoMode) {
-        dot.className = "w-2 h-2 rounded-full bg-amber-400"; text.textContent = "Sample Mode";
-        demoBanner.classList.remove("hidden"); emptyBanner.classList.add("hidden");
-      } else {
-        dot.className = "w-2 h-2 rounded-full bg-emerald-400 animate-pulse"; text.textContent = "Live Rates";
-        demoBanner.classList.add("hidden"); emptyBanner.classList.toggle("hidden", appState.history.length > 0);
-      }
-    }
-
-    function renderTopCards(activeRows) {
-      const latest = activeRows?.[0]; const s22 = appState.stats22K; const s24 = appState.stats24K;
-      document.getElementById("board-date-badge").textContent = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" });
-      if (!latest || !s22 || !s24) return;
-      const meta = latest?.ai_analysis?.meta || {};
-      const sourceLabel = document.getElementById("board-source-label");
-      if (sourceLabel) sourceLabel.textContent = meta.source ? `India Retail Gold Rate • ${meta.source}` : "India Retail Gold Rate";
-
-      document.getElementById("board-usd").textContent = `₹${Number(latest.usd_inr || 92.78).toFixed(2)}`;
-      document.getElementById("board-xau").textContent = `$${Number(latest.xau_usd || 3544).toLocaleString("en-US")}/oz`;
-      document.getElementById("updated-time-badge").textContent = scenarioOverride !== "actual" ? "Preview Mode" : timeAgo(latest.fetched_at);
-
-      const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
-      const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
-      const diff22 = typeof meta.change_22k === "number" && meta.change_22k !== 0 ? meta.change_22k : Number((main22 - s22.avgPrice).toFixed(0));
-      document.getElementById("price-22k").textContent = formatINR(main22, 0);
-      document.getElementById("badge-22k").textContent = `${diff22 <= 0 ? "" : "+"}${diff22} ${diff22 <= 0 ? "▼" : "▲"}`;
-      document.getElementById("badge-22k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff22 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
-      document.getElementById("subprice-22k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
-      document.getElementById("pavan-22k").textContent = formatINR(main22 * 8, 0);
-
-      const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
-      const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
-      const diff24 = typeof meta.change_24k === "number" && meta.change_24k !== 0 ? meta.change_24k : Number((main24 - s24.avgPrice).toFixed(0));
-      document.getElementById("price-24k").textContent = formatINR(main24, 0);
-      document.getElementById("badge-24k").textContent = `${diff24 <= 0 ? "" : "+"}${diff24} ${diff24 <= 0 ? "▼" : "▲"}`;
-      document.getElementById("badge-24k").className = `px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold ${diff24 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
-      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
-      document.getElementById("ten-gram-24k").textContent = formatINR(main24 * 10, 0);
-    }
-
-    function switchCalcMode(mode) {
-      calcMode = mode;
-      const btnBudget = document.getElementById("mode-budget-btn"); const btnGrams = document.getElementById("mode-grams-btn");
-      const budgetWrap = document.getElementById("calc-budget-wrapper"); const gramsWrap = document.getElementById("calc-grams-wrapper");
-      if (mode === "budget") {
-        btnBudget.className = "px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
-        btnGrams.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        budgetWrap.classList.remove("hidden"); gramsWrap.classList.add("hidden");
-      } else {
-        btnGrams.className = "px-3 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
-        btnBudget.className = "px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        gramsWrap.classList.remove("hidden"); budgetWrap.classList.add("hidden");
-      }
-      recalculateGoldWorth();
-    }
-
-    function recalculateGoldWorth() {
-      const latest = getActiveHistoryRows()?.[0];
-      if (!latest) return;
-      const karat = document.getElementById("calc-karat").value;
-      const makingPct = Math.max(0, Number(document.getElementById("calc-making").value) || 0);
-      const ratePerGram = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
-      const effectiveCostPerGram = ratePerGram * (1 + makingPct / 100) * 1.03;
-      let goldVal = 0, makingVal = 0, gstVal = 0, totalAmt = 0;
-      if (calcMode === "budget") {
-        totalAmt = Math.max(0, Number(document.getElementById("calc-budget-inr").value) || 0);
-        const buyableGrams = effectiveCostPerGram > 0 ? totalAmt / effectiveCostPerGram : 0;
-        goldVal = buyableGrams * ratePerGram; makingVal = goldVal * (makingPct / 100); gstVal = (goldVal + makingVal) * 0.03;
-        document.getElementById("res-primary-label").textContent = `Gold You Can Buy (${karat})`;
-        document.getElementById("res-primary-val").textContent = `${buyableGrams.toFixed(3)} g`;
-      } else {
-        const grams = Math.max(0.1, Number(document.getElementById("calc-grams").value) || 0);
-        goldVal = ratePerGram * grams; makingVal = goldVal * (makingPct / 100); gstVal = (goldVal + makingVal) * 0.03; totalAmt = goldVal + makingVal + gstVal;
-        document.getElementById("res-primary-label").textContent = `Final Showroom Bill (${karat})`;
-        document.getElementById("res-primary-val").textContent = formatINR(totalAmt, 0);
-      }
-      document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
-      document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
-      document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
-      if (totalAmt > 0) {
-        const goldPct = Math.max(5, Math.round((goldVal / totalAmt) * 100));
-        const makingBarPct = Math.max(0, Math.round((makingVal / totalAmt) * 100));
-        const gstBarPct = Math.max(0, 100 - goldPct - makingBarPct);
-        document.getElementById("bar-gold-pct").style.width = `${goldPct}%`;
-        document.getElementById("bar-making-pct").style.width = `${makingBarPct}%`;
-        document.getElementById("bar-gst-pct").style.width = `${gstBarPct}%`;
-      }
-    }
-
-    const fxCanvas = document.getElementById("fx-canvas");
-    const fxCtx = fxCanvas.getContext("2d");
-    let fxParticles = []; let fxAnimId = null; let isRocketLaunching = false;
-    function resizeFxCanvas() { if (!fxCanvas) return; fxCanvas.width = window.innerWidth; fxCanvas.height = window.innerHeight; }
-    window.addEventListener("resize", resizeFxCanvas); resizeFxCanvas();
-
-    class GoldSpark {
-      constructor(x, y, vx, vy, color, size, decay, gravity = 0.065, isStreak = false) {
-        this.x = x; this.y = y; this.prevX = x; this.prevY = y; this.vx = vx; this.vy = vy;
-        this.color = color; this.size = size; this.alpha = 1; this.decay = decay; this.gravity = gravity; this.isStreak = isStreak;
-      }
-      update() { this.prevX = this.x; this.prevY = this.y; this.vx *= 0.97; this.vy = this.vy * 0.97 + this.gravity; this.x += this.vx; this.y += this.vy; this.alpha -= this.decay; }
-      draw(ctx) {
-        if (this.alpha <= 0) return;
-        ctx.save(); ctx.globalAlpha = Math.max(0, this.alpha); ctx.strokeStyle = this.color; ctx.fillStyle = this.color; ctx.shadowBlur = 10; ctx.shadowColor = "#FBBF24";
-        if (this.isStreak) { ctx.lineWidth = this.size; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(this.prevX, this.prevY); ctx.lineTo(this.x, this.y); ctx.stroke(); }
-        else { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
-        ctx.restore();
-      }
-    }
-    function stepFxLoop() {
-      fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
-      fxParticles = fxParticles.filter((p) => p.alpha > 0);
-      for (const p of fxParticles) { p.update(); p.draw(fxCtx); }
-      fxAnimId = fxParticles.length > 0 ? requestAnimationFrame(stepFxLoop) : null;
-    }
-    function startFxLoop() { if (!fxAnimId) fxAnimId = requestAnimationFrame(stepFxLoop); }
-    function burstGoldenCrackers(cx, cy) {
-      const palette = ["#FFFBEB", "#FEF08A", "#FDE047", "#FBBF24", "#F59E0B", "#FB923C"];
-      for (let i = 0; i < 48; i++) {
-        const angle = (Math.PI * 2 * i) / 48 + (Math.random() - 0.5) * 0.08; const speed = 4.5 + Math.random() * 6.5;
-        fxParticles.push(new GoldSpark(cx, cy, Math.cos(angle) * speed, Math.sin(angle) * speed, palette[Math.floor(Math.random() * palette.length)], 2.1 + Math.random() * 1.4, 0.016 + Math.random() * 0.01, 0.075, true));
-      }
-      for (let i = 0; i < 90; i++) {
-        const angle = Math.random() * Math.PI * 2; const speed = 1.2 + Math.random() * 8.5;
-        fxParticles.push(new GoldSpark(cx, cy, Math.cos(angle) * speed, Math.sin(angle) * speed, palette[Math.floor(Math.random() * palette.length)], 1.2 + Math.random() * 2.0, 0.018 + Math.random() * 0.018, 0.055, false));
-      }
-      startFxLoop();
-    }
-
-    function syncCalculatorToPlan(evt) {
-      let amt = calcMode === "budget" ? Math.round(Number(document.getElementById("calc-budget-inr").value) || 0) : Math.round(Number(document.getElementById("res-primary-val").textContent.replace(/[₹,]/g, "")) || 0);
-      if (amt < 1000) { showToast("Enter Higher Amount", "Please enter at least ₹1,000.", "error"); return; }
-      if (isRocketLaunching) return;
-      const sourceBtn = (evt && evt.currentTarget) || document.getElementById("use-in-plan-btn");
-      const targetInput = document.getElementById("auto-budget-inr");
-      const rocketEl = document.getElementById("budget-rocket");
-      const initialTargetRect = targetInput.getBoundingClientRect();
-      if (initialTargetRect.top < 80 || initialTargetRect.bottom > window.innerHeight - 60) targetInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      isRocketLaunching = true; rocketEl.style.display = "block";
-      const startTime = performance.now();
-      function animateRocket(now) {
-        const t = Math.min(1, (now - startTime) / 880);
-        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-        const startRect = sourceBtn.getBoundingClientRect(); const startX = startRect.left + startRect.width / 2; const startY = startRect.top + startRect.height / 2;
-        const endRect = targetInput.getBoundingClientRect(); const endX = endRect.left + Math.min(95, endRect.width * 0.45); const endY = endRect.top + endRect.height / 2;
-        const ctrlX = (startX + endX) / 2 + 90; const ctrlY = Math.min(startY, endY) - 95; const invT = 1 - ease;
-        const curX = invT * invT * startX + 2 * invT * ease * ctrlX + ease * ease * endX;
-        const curY = invT * invT * startY + 2 * invT * ease * ctrlY + ease * ease * endY;
-        const dx = 2 * invT * (ctrlX - startX) + 2 * ease * (endX - ctrlX); const dy = 2 * invT * (ctrlY - startY) + 2 * ease * (endY - ctrlY);
-        rocketEl.style.left = `${curX - 21}px`; rocketEl.style.top = `${curY - 21}px`;
-        rocketEl.style.transform = `rotate(${(Math.atan2(dy, dx) * 180) / Math.PI + 45}deg) scale(${1 + Math.sin(t * Math.PI) * 0.25})`;
-        for (let i = 0; i < 3; i++) fxParticles.push(new GoldSpark(curX - dx * 0.035, curY - dy * 0.035, -dx * 0.014, -dy * 0.014, "#FBBF24", 1.8, 0.045, 0.02, false));
-        startFxLoop();
-        if (t < 1) requestAnimationFrame(animateRocket);
-        else {
-          rocketEl.style.display = "none"; isRocketLaunching = false; targetInput.value = amt;
-          targetInput.classList.remove("budget-burst-flash"); void targetInput.offsetWidth; targetInput.classList.add("budget-burst-flash");
-          burstGoldenCrackers(endX, endY);
-        }
-      }
-      requestAnimationFrame(animateRocket);
-    }
-
-    function updateBuyConfidenceGauge(pct, badgeText, captionText, tone) {
-      const clampedPct = Math.max(5, Math.min(98, pct));
-      const angle = Math.PI * (1 - clampedPct / 100);
-      const cx = 110 + 84 * Math.cos(angle); const cy = 104 - 84 * Math.sin(angle);
-      const dot = document.getElementById("confidence-dot"); const halo = document.getElementById("confidence-dot-halo");
-      const pctEl = document.getElementById("outlook-confidence-pct"); const badgeEl = document.getElementById("outlook-confidence-badge"); const capEl = document.getElementById("outlook-confidence-caption");
-      if (dot && halo) { dot.setAttribute("cx", cx.toFixed(1)); dot.setAttribute("cy", cy.toFixed(1)); halo.setAttribute("cx", cx.toFixed(1)); halo.setAttribute("cy", cy.toFixed(1)); }
-      if (pctEl) pctEl.textContent = tone === "high" ? "Dip Zone" : "Elevated Zone"; if (capEl) capEl.textContent = captionText;
-      if (tone === "high") {
-        if (dot) dot.setAttribute("stroke", "#10B981"); if (halo) halo.setAttribute("fill", "rgba(16, 185, 129, 0.35)");
-        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"; }
-      } else {
-        if (dot) dot.setAttribute("stroke", "#EF4444"); if (halo) halo.setAttribute("fill", "rgba(239, 68, 68, 0.35)");
-        if (badgeEl) { badgeEl.textContent = badgeText; badgeEl.className = "mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/15 text-rose-400 border border-rose-500/30"; }
-      }
-    }
-
-    function renderMarketStory(activeRows) {
-      const s22 = appState.stats22K; const latest = activeRows?.[0];
-      const pill = document.getElementById("trend-pill"); const headlineEl = document.getElementById("verdict-headline");
-      const story = document.getElementById("plain-english-story"); const driversEl = document.getElementById("drivers-list");
-      const aiBadge = document.getElementById("ai-badge"); const recText = document.getElementById("ai-recommendation-text");
-      const outlookTrend = document.getElementById("outlook-trend-badge"); const outlookExpected = document.getElementById("outlook-expected-band");
-      const outlookDip = document.getElementById("outlook-dip-band"); const outlookBounce = document.getElementById("outlook-bounce-band");
-      if (!s22) return;
-
-      const base22 = s22.latestPrice;
-      const expLow = Math.round(base22 * (s22.isRising ? 0.995 : 0.988)); const expHigh = Math.round(base22 * (s22.isRising ? 1.015 : 1.006));
-      const dipLow = Math.round(s22.avgPrice * 0.975); const dipHigh = Math.round(s22.avgPrice * 0.985);
-      const bounceLow = Math.round(s22.avgPrice * 1.012); const bounceHigh = Math.round(s22.avgPrice * 1.024);
-
-      outlookExpected.textContent = `${formatINR(expLow, 0)}–${formatINR(expHigh, 0)}/g`;
-      outlookDip.textContent = `${formatINR(dipLow, 0)}–${formatINR(dipHigh, 0)}/g`;
-      outlookBounce.textContent = `${formatINR(bounceLow, 0)}–${formatINR(bounceHigh, 0)}/g`;
-
-      if (s22.isRising) {
-        outlookTrend.textContent = "Mildly Higher"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-500/15 text-rose-400 whitespace-nowrap";
-        updateBuyConfidenceGauge(Math.max(24, Math.min(52, Math.round(46 - s22.pctVsAvg * 8))), "Above Recent Average", "Relative price signal only — does not predict future direction", "low");
-      } else {
-        outlookTrend.textContent = "Stable to Mildly Lower"; outlookTrend.className = "px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 whitespace-nowrap";
-        updateBuyConfidenceGauge(Math.min(92, Math.max(64, Math.round(72 + Math.abs(s22.pctVsAvg) * 6))), "Below Recent Average", "Relative price signal only — not a guarantee of further drops", "high");
-      }
-
-      const badgeColors = ["bg-amber-500/15 text-amber-400", "bg-sky-500/15 text-sky-400", "bg-emerald-500/15 text-emerald-400", "bg-purple-500/15 text-purple-300"];
-      if (latest?.ai_analysis?.drivers && scenarioOverride === "actual") {
-        aiBadge.classList.remove("hidden");
-        pill.textContent = s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : `Prices Rising (+${s22.pctVsAvg}%)`;
-        pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s22.pctVsAvg < 0 ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" : "bg-rose-500/15 text-rose-400 border-rose-500/30"}`;
-        headlineEl.textContent = latest.ai_analysis.headline;
-        headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.pctVsAvg <= 0 ? "text-emerald-400" : "text-rose-400"}`;
-        story.textContent = latest.ai_analysis.story;
-        const drivers = latest.ai_analysis.drivers.slice(0, 3);
-        driversEl.innerHTML = drivers.map((d, idx) => `
-          <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-3 flex items-start gap-2.5">
-            <span class="w-5 h-5 rounded-full ${badgeColors[idx % 4]} text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">${idx + 1}</span>
-            <div>
-              <div class="text-xs font-semibold text-white">${escapeHtml(d.title)}</div>
-              <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${escapeHtml(d.detail)}</p>
-            </div>
-          </div>
-        `).join("");
-        recText.textContent = s22.pctVsAvg <= 0
-          ? `Prices are slightly below the 5-day average. If buying for a long-term need, consider a staggered first part and watch ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`
-          : `Prices are above the 5-day average. Consider waiting or setting staggered alerts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g.`;
-        return;
-      }
-
-      aiBadge.classList.add("hidden");
-      pill.textContent = s22.isRising ? `Prices Rising (+${Math.abs(s22.pctVsAvg)}%)` : (s22.pctVsAvg < 0 ? `Prices Dropping (${s22.pctVsAvg}%)` : "Prices Steady");
-      pill.className = `px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s22.isRising ? "bg-rose-500/15 text-rose-400 border-rose-500/30" : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"}`;
-      headlineEl.textContent = s22.isRising ? "Elevated Momentum — Watch for Pullbacks" : "Below 5-Day Average — Staggered Entry Window";
-      headlineEl.className = `text-sm sm:text-base font-bold mb-1.5 ${s22.isRising ? "text-rose-400" : "text-emerald-400"}`;
-      story.textContent = `22K gold is ${Math.abs(s22.pctVsAvg)}% ${s22.isRising ? "above" : "below"} its 5-day average (${formatINR(s22.avgPrice, 0)}/g). These signals describe recent movement and do not guarantee future prices:`;
-      driversEl.innerHTML = `
-        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-          <span class="w-5 h-5 rounded-full bg-amber-500/15 text-amber-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
-          <div><div class="text-xs font-semibold text-white">Global bullion &amp; USD rates</div><p class="text-[11px] text-slate-400 mt-0.5">International spot XAU/USD and US interest expectations influence daily Indian rates.</p></div>
-        </div>
-        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-          <span class="w-5 h-5 rounded-full bg-sky-500/15 text-sky-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
-          <div><div class="text-xs font-semibold text-white">USD/INR exchange movement</div><p class="text-[11px] text-slate-400 mt-0.5">Rupee strength or weakness directly affects landed gold prices in India.</p></div>
-        </div>
-        <div class="rounded-xl bg-slate-900/80 border border-slate-800 p-2.5 flex items-start gap-2.5">
-          <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
-          <div><div class="text-xs font-semibold text-white">Staggered buying reduces timing risk</div><p class="text-[11px] text-slate-400 mt-0.5">Splitting purchases across 3 levels helps average out short-term volatility.</p></div>
-        </div>
-      `;
-      recText.textContent = `If you are buying for a planned occasion, consider splitting your budget into 3 parts near ${formatINR(dipLow, 0)} – ${formatINR(dipHigh, 0)}/g rather than relying on a single day's rate.`;
-    }
-
-    function renderDateForecast() {
-      const daysSelect = document.getElementById("forecast-days-select");
-      const karat = document.getElementById("forecast-karat").value;
-      const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
-      if (!stats || !daysSelect) return;
-      const daysAhead = Math.min(MAX_FORECAST_DAYS, Math.max(1, Number(daysSelect.value || 5)));
-      const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0035;
-      const clampedDailyRate = Math.max(-0.0045, Math.min(0.0045, rawDailyRate));
-      const supportFloor = stats.avgPrice * 0.965; const rallyCeiling = stats.avgPrice * 1.035;
-      const expectedPrice = Math.min(rallyCeiling, Math.max(supportFloor, stats.latestPrice * (1 + clampedDailyRate * Math.sqrt(daysAhead))));
-      const lowestPrice = Math.max(supportFloor * 0.992, Math.min(stats.latestPrice, expectedPrice) * (1 - 0.003 * Math.sqrt(daysAhead)));
-      const highestPrice = Math.min(rallyCeiling * 1.008, Math.max(stats.latestPrice, expectedPrice) * (1 + 0.004 * Math.sqrt(daysAhead)));
-      document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice, 0)} / g`;
-      document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice, 0)} / g`;
-      document.getElementById("forecast-ceil-price").textContent = `${formatINR(highestPrice, 0)} / g`;
-    }
-
-    async function generateSmartTranches() {
-      const totalBudget = Number(document.getElementById("auto-budget-inr").value);
-      const karat = document.getElementById("forecast-karat").value;
-      const activeRows = getActiveHistoryRows();
-      const latest = activeRows?.[0];
-      if (!totalBudget || totalBudget < 1000) { showToast("Enter Budget", "Please enter at least ₹1,000.", "error"); return; }
-      if (!latest) { showToast("No Price Yet", "Click Update Price first.", "error"); return; }
-      const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
-      const plan = [
-        { label: `Part 1 (30%) — Buy Today on Dip`, karat, target_rate_gram: Number((currentBase * 0.998).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
-        { label: `Part 2 (40%) — Buy on Small Drop`, karat, target_rate_gram: Number((currentBase * 0.988).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
-        { label: `Part 3 (30%) — Buy on Bigger Dip`, karat, target_rate_gram: Number((currentBase * 0.976).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
-      ];
-      if (isDemoMode || !supabaseClient || !currentUser) {
-        appState.tranches = plan.map((t, idx) => ({ id: `part-${Date.now()}-${idx}`, ...t }));
-        if (!isDemoMode && supabaseClient && !currentUser) {
-          localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
-          showToast("Plan Saved Locally", "Sign in to sync your 3-part plan & receive cloud alerts.", "info");
-        } else showToast("3-Part Plan Ready!", `Split ${formatINR(totalBudget, 0)} into 3 steps.`, "info");
-        renderTranches(activeRows); return;
-      }
-      try {
-        const { error } = await supabaseClient.from("buy_tranches").insert(plan.map((r) => ({ ...r, user_id: currentUser.id })));
-        if (error) throw error;
-        await fetchDashboardData();
-        showToast("3-Part Plan Saved!", `We will alert you as ${karat} gold drops to each target.`, "info");
-      } catch (err) { showToast("Could Not Save Plan", err.message, "error"); }
-    }
-
-    function renderChart(activeRows) {
-      const stats = activeChartKarat === "24K" ? appState.stats24K : appState.stats22K;
-      if (!stats || !activeRows || activeRows.length === 0 || typeof Chart === "undefined") return;
-      document.getElementById("band-lower").textContent = formatINR(stats.bargainPrice, 0);
-      document.getElementById("band-mean").textContent = formatINR(stats.avgPrice, 0);
-      document.getElementById("band-upper").textContent = formatINR(stats.highPrice, 0);
-      const field = activeChartKarat === "24K" ? (includeGst ? "rate_24k_with_gst" : "rate_24k_gram") : (includeGst ? "rate_22k_with_gst" : "rate_22k_gram");
-      const chrono = [...activeRows].slice(0, 60).sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
-      const labels = chrono.map((r) => { const d = new Date(r.fetched_at); return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) + " " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }); });
-      const canvas = document.getElementById("goldChart"); if (!canvas) return;
-      const ctx = canvas.getContext("2d"); if (chartInstance) chartInstance.destroy();
-      const gradient = ctx.createLinearGradient(0, 0, 0, 260); gradient.addColorStop(0, "rgba(245, 158, 11, 0.25)"); gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
-      chartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [
-            { label: `${activeChartKarat} Gold Price (₹/g)`, data: chrono.map((r) => Number(r[field])), borderColor: "#FBBF24", backgroundColor: gradient, borderWidth: 2.5, pointRadius: chrono.length > 30 ? 1 : 4, pointBackgroundColor: "#FBBF24", fill: true, tension: 0.25 },
-            { label: "5-Day Average", data: chrono.map(() => stats.avgPrice), borderColor: "rgba(148, 163, 184, 0.55)", borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: false },
-            { label: "Good Bargain Price", data: chrono.map(() => stats.bargainPrice), borderColor: "rgba(16, 185, 129, 0.75)", borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0, fill: false },
-          ],
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
-          plugins: { legend: { labels: { color: "#94A3B8", font: { size: 11, family: "Inter" }, boxWidth: 12 } }, tooltip: { backgroundColor: "#0F172A", titleColor: "#F8FAFC", bodyColor: "#CBD5E1", borderColor: "#334155", borderWidth: 1, callbacks: { label: (c) => `${c.dataset.label}: ${formatINR(c.parsed.y, 0)}` } } },
-          scales: { x: { grid: { color: "rgba(30, 41, 59, 0.4)" }, ticks: { color: "#64748B", font: { size: 10 }, maxTicksLimit: 6 } }, y: { grid: { color: "rgba(30, 41, 59, 0.4)" }, ticks: { color: "#94A3B8", font: { size: 11, family: "JetBrains Mono" }, callback: (v) => "₹" + Number(v).toLocaleString("en-IN") } } },
-        },
-      });
-    }
-
-    function renderTranches(activeRows) {
-      const container = document.getElementById("tranches-list");
-      const latest = activeRows?.[0];
-      if (!container) return;
-      const tranches = appState.tranches || [];
-      const totalBudget = tranches.reduce((sum, t) => sum + (Number(t.allocation_inr) || 0), 0);
-      const totalGrams = tranches.reduce((sum, t) => { const tb = Number(t.target_rate_gram) || 0; const dt = includeGst ? tb * 1.03 : tb; return sum + (dt > 0 ? (Number(t.allocation_inr) || 0) / dt : 0); }, 0);
-      document.getElementById("overview-parts").textContent = String(tranches.length);
-      document.getElementById("overview-budget").textContent = formatINR(totalBudget, 0);
-      document.getElementById("overview-grams").textContent = `≈ ${totalGrams.toFixed(2)} g`;
-      document.getElementById("overview-avg-price").textContent = totalGrams > 0 ? `${formatINR(totalBudget / totalGrams, 0)} / g` : "—";
-
-      if (tranches.length === 0) {
-        container.innerHTML = `<div class="sm:col-span-3 rounded-xl border border-dashed border-slate-800 p-6 text-center text-xs text-slate-400">Enter your total gold budget above and click <strong class="text-amber-400">Split Into 3 Smart Parts</strong> to create your plan.</div>`;
-        return;
-      }
-
-      const themes = [
-        { border: "border-emerald-500/35", bg: "from-emerald-500/12 via-slate-900/95 to-slate-950", ringStroke: "#10B981", waveStroke: "rgba(16, 185, 129, 0.35)", iconName: "sprout", iconColor: "text-emerald-400", bellColor: "text-emerald-400" },
-        { border: "border-sky-500/35", bg: "from-sky-500/12 via-slate-900/95 to-slate-950", ringStroke: "#38BDF8", waveStroke: "rgba(56, 189, 248, 0.35)", iconName: "zap", iconColor: "text-sky-400", bellColor: "text-sky-400" },
-        { border: "border-amber-500/35", bg: "from-amber-500/12 via-slate-900/95 to-slate-950", ringStroke: "#FBBF24", waveStroke: "rgba(251, 191, 36, 0.35)", iconName: "crown", iconColor: "text-amber-400", bellColor: "text-amber-400" },
-      ];
-      const radius = 15; const circumference = 2 * Math.PI * radius;
-
-      container.innerHTML = tranches.map((t, idx) => {
-        const theme = themes[idx % 3];
-        const baseSpot = latest ? (t.karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) : null;
-        const targetBase = Number(t.target_rate_gram);
-        const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
-        const displaySpot = baseSpot ? (includeGst ? baseSpot * 1.03 : baseSpot) : null;
-        const allocPct = totalBudget > 0 ? Math.round((Number(t.allocation_inr) / totalBudget) * 100) : Math.round(100 / tranches.length);
-        const dashOffset = circumference * (1 - Math.min(100, Math.max(0, allocPct)) / 100);
-        const parts = String(t.label || "").split("—").map((s) => s.trim());
-        const cardTitle = parts[0] ? parts[0].replace(/\s*\(\d+%\)\s*/g, "").trim() : `Part ${idx + 1}`;
-        const cardSubtitle = parts[1] || "Custom Alert";
-        let distanceHtml = `<span class="text-slate-400">Waiting for rate</span>`;
-        if (displaySpot) {
-          const diff = displaySpot - displayTarget;
-          distanceHtml = diff <= 0 ? `<span class="text-emerald-400 font-semibold">Target Hit!</span>` : `<span class="text-slate-300">Drop <strong class="font-mono text-amber-300">${formatINR(diff, 0)}/g</strong> more</span>`;
-        }
-        const statusLabels = {
-          active: { text: "Watching", icon: "eye", cls: "bg-sky-500/15 text-sky-300 border-sky-500/35" },
-          triggered: { text: "Ready!", icon: "check-circle-2", cls: "bg-emerald-500/15 text-emerald-300 border-emerald-500/35" },
-          executed: { text: "Bought", icon: "check", cls: "bg-purple-500/15 text-purple-300 border-purple-500/35" },
-          paused: { text: "Paused", icon: "pause-circle", cls: "bg-slate-800 text-slate-400 border-slate-700" },
-        };
-        const st = statusLabels[t.status] || statusLabels.active;
-        const estGrams = displayTarget > 0 ? (Number(t.allocation_inr) / displayTarget).toFixed(2) : "0.00";
-        const safeId = escapeHtml(t.id);
-
-        return `
-          <div class="rounded-xl bg-gradient-to-b ${theme.bg} border ${theme.border} p-3 flex flex-col justify-between relative overflow-hidden">
-            <div>
-              <div class="flex items-center justify-between gap-1 mb-2">
-                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-400 text-slate-950">₹${escapeHtml(t.karat)}</span>
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold border ${st.cls}">
-                  <i data-lucide="${st.icon}" class="w-2.5 h-2.5"></i>
-                  ${st.text}
+                <span id="gauge-pill" class="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                  Below Recent Average
                 </span>
               </div>
-              <div class="flex items-center justify-between gap-1.5">
-                <div class="flex items-center gap-1.5 min-w-0">
-                  <span class="w-6 h-6 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-center ${theme.iconColor} shrink-0"><i data-lucide="${theme.iconName}" class="w-3.5 h-3.5"></i></span>
-                  <div class="min-w-0">
-                    <div class="text-xs font-bold text-white truncate">${escapeHtml(cardTitle)}</div>
-                    <div class="text-[10px] text-slate-400 truncate">${escapeHtml(cardSubtitle)}</div>
-                  </div>
-                </div>
-                <div class="relative w-9 h-9 shrink-0 flex items-center justify-center">
-                  <svg class="w-9 h-9 -rotate-90" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="${radius}" fill="none" stroke="rgba(30,41,59,0.9)" stroke-width="3.5" />
-                    <circle cx="18" cy="18" r="${radius}" fill="none" stroke="${theme.ringStroke}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${circumference.toFixed(2)}" stroke-dashoffset="${dashOffset.toFixed(2)}" />
-                  </svg>
-                  <span class="absolute text-[9px] font-mono font-bold text-white">${allocPct}%</span>
-                </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-white/10 space-y-2 text-xs">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-400 whitespace-nowrap">Trend</span>
+                <span id="scenario-trend" class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-semibold whitespace-nowrap">Stable / Dip</span>
               </div>
-              <svg viewBox="0 0 200 14" preserveAspectRatio="none" class="w-full h-3 my-1.5 opacity-80"><path d="M0,8 Q35,1 70,8 T140,7 T200,8" fill="none" stroke="${theme.waveStroke}" stroke-width="1.3" /></svg>
-              <div class="space-y-1 text-[11px]">
-                <div class="flex items-center justify-between gap-1"><span class="text-slate-400">Buy at</span><span class="font-mono font-bold text-amber-300">${formatINR(displayTarget, 0)}<span class="text-[9px] text-slate-400">/g</span></span></div>
-                <div class="flex items-center justify-between gap-1"><span class="text-slate-400">Budget</span><span class="font-mono font-semibold text-white">${formatINR(t.allocation_inr, 0)}</span></div>
-                <div class="flex items-center justify-between gap-1"><span class="text-slate-400">Est. Qty</span><span class="font-mono text-slate-300">≈ ${estGrams} g</span></div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-400 whitespace-nowrap">Trend Band</span>
+                <span id="scenario-band" class="font-semibold text-amber-300 whitespace-nowrap">—</span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-400 whitespace-nowrap">Dip Zone</span>
+                <span id="scenario-dip" class="font-semibold text-emerald-300 whitespace-nowrap">—</span>
+              </div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-400 whitespace-nowrap">Risk Zone</span>
+                <span id="scenario-risk" class="font-semibold text-rose-300 whitespace-nowrap">—</span>
               </div>
             </div>
-            <div class="mt-2.5 rounded-lg bg-slate-950/85 border border-slate-800/90 px-2 py-1.5 flex items-center justify-between gap-1.5">
-              <div class="flex items-center gap-1 min-w-0"><i data-lucide="bell" class="w-3 h-3 ${theme.bellColor} shrink-0"></i><div class="text-[10px] truncate">${distanceHtml}</div></div>
-              <div class="flex items-center gap-1 shrink-0">
-                ${t.status === "triggered" ? `<button type="button" onclick="updateTrancheStatus('${safeId}', 'executed')" title="Mark Bought" class="w-5 h-5 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 flex items-center justify-center cursor-pointer"><i data-lucide="check" class="w-3 h-3"></i></button>` : ""}
-                ${t.status === "active"
-                  ? `<button type="button" onclick="updateTrancheStatus('${safeId}', 'paused')" title="Pause" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center cursor-pointer"><i data-lucide="pause" class="w-2.5 h-2.5"></i></button>`
-                  : (t.status === "paused" || t.status === "triggered")
-                    ? `<button type="button" onclick="updateTrancheStatus('${safeId}', 'active')" title="Watch Again" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-300 flex items-center justify-center cursor-pointer"><i data-lucide="play" class="w-2.5 h-2.5"></i></button>`
-                    : ""}
-                <button type="button" onclick="deleteTranche('${safeId}')" title="Delete" class="w-5 h-5 rounded-full bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center cursor-pointer"><i data-lucide="trash-2" class="w-2.5 h-2.5"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3-Part Staggered Buying Plan -->
+    <section class="glass-card rounded-2xl p-6 space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-bold text-white">3-Part Staggered Gold Buying Plan</h2>
+          <p class="text-xs sm:text-sm text-slate-400">Split your target budget across 3 tranches instead of risking a single-day price peak</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-slate-400">Planned Budget:</span>
+          <strong id="plan-total-display" class="text-amber-400 text-sm">₹1,00,000</strong>
+        </div>
+      </div>
+
+      <div id="tranches-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- Partner Links Disclosure Banner -->
+    <section class="glass-card rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h3 class="text-sm font-bold text-white">Explore Gold Buying Options</h3>
+        <p class="text-xs text-slate-400">Compare hallmarked coins, digital gold, and sovereign options. Verify seller purity & making charges independently.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2.5 text-xs">
+        <a href="guides.html" class="px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold transition">
+          Read Gold Buying Guides →
+        </a>
+        <a href="gold-profit-calculator.html" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 font-semibold transition">
+          Check Profit / Loss →
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sign-In Modal -->
+  <div id="auth-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+    <div class="glass-card rounded-2xl max-w-md w-full p-6 space-y-4 relative">
+      <button id="close-auth-btn" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">✕</button>
+      <h3 class="text-lg font-bold text-white">Sign In to GoldBuddy</h3>
+      <p class="text-xs text-slate-400">Sign in to trigger on-demand gold rate updates and save your 3-part buying plan.</p>
+      <button id="google-signin-btn" type="button"
+        class="w-full py-2.5 px-4 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 transition cursor-pointer">
+        Continue with Google
+      </button>
+      <div class="relative flex py-1 items-center">
+        <div class="flex-grow border-t border-white/10"></div>
+        <span class="flex-shrink mx-3 text-xs text-slate-500">or email magic link</span>
+        <div class="flex-grow border-t border-white/10"></div>
+      </div>
+      <form id="magic-link-form" class="space-y-3">
+        <input id="auth-email" type="email" required placeholder="you@example.com"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white text-sm focus:outline-none focus:border-amber-400" />
+        <button type="submit"
+          class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition cursor-pointer">
+          Send Sign-In Link
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-[#080B12] py-8 px-4 sm:px-6 text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto space-y-4">
+      <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-slate-300 font-medium">
+        <a href="index.html" class="hover:text-amber-300">Dashboard</a>
+        <a href="gold-profit-calculator.html" class="hover:text-amber-300">Profit Calculator</a>
+        <a href="22k-to-24k-converter.html" class="hover:text-amber-300">22K/24K Converter</a>
+        <a href="guides.html" class="hover:text-amber-300">Gold Guides</a>
+        <a href="about.html" class="hover:text-amber-300">About</a>
+        <a href="methodology.html" class="hover:text-amber-300">Data Sources & Methodology</a>
+        <a href="disclaimer.html" class="hover:text-amber-300">Financial Disclaimer</a>
+        <a href="privacy.html" class="hover:text-amber-300">Privacy Policy</a>
+        <a href="terms.html" class="hover:text-amber-300">Terms of Use</a>
+        <a href="contact.html" class="hover:text-amber-300">Contact</a>
+      </div>
+      <p class="leading-relaxed text-slate-500">
+        <strong>Financial Disclaimer:</strong> Gold rates, GST/making charge calculations, and 15-day trend scenarios are provided for educational and planning purposes only and do not constitute investment or financial advice. Verify final rates and purity with your BIS-hallmarked jeweller before purchasing.
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // =========================================================
+    // 1. SUPABASE CONFIGURATION & STATE
+    // =========================================================
+    const SUPABASE_URL = "https://qcwangaymlurglvamjsq.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFjd2FuZ2F5bWx1cmdsdmFtanNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4OTk4MjksImV4cCI6MjA3NzQ3NTgyOX0.l1l6182c-l_9H64A9b89i80S42473x5x7m_n5B8q-eI";
+    const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    let currentUser = null;
+    let latestRate = {
+      rate_22k_gram: 11420,
+      rate_24k_gram: 12458,
+      xau_usd: 3543.9,
+      usd_inr: 92.78,
+      fetched_at: new Date().toISOString(),
+      ai_analysis: null
+    };
+    let historyRows = [];
+    let calcMode = "budget"; // "budget" or "weight"
+    let planBudget = 100000;
+    let completedTranches = JSON.parse(localStorage.getItem("goldbuddy_tranches") || "[false, false, false]");
+
+    function formatINR(num) {
+      if (num === null || num === undefined || isNaN(num)) return "—";
+      return "₹" + Math.round(Number(num)).toLocaleString("en-IN");
+    }
+
+    function showToast(title, message, type = "info") {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+      const borderClass = type === "error" ? "border-rose-500/40" : type === "success" ? "border-emerald-500/40" : "border-amber-500/40";
+      const el = document.createElement("div");
+      el.className = `pointer-events-auto max-w-sm rounded-xl bg-slate-900/95 border ${borderClass} p-3.5 shadow-2xl text-xs transition-all`;
+      el.innerHTML = `<div class="font-bold text-white mb-0.5">${title}</div><div class="text-slate-300">${message}</div>`;
+      container.appendChild(el);
+      setTimeout(() => el.remove(), 4500);
+    }
+
+    // =========================================================
+    // 2. CALCULATOR & 3-PART BUYING PLAN
+    // =========================================================
+    function recalculateGoldWorth() {
+      const karatEl = document.getElementById("calc-karat");
+      const makingEl = document.getElementById("calc-making");
+      const budgetEl = document.getElementById("calc-budget");
+      const gramsEl = document.getElementById("calc-grams");
+      if (!karatEl || !makingEl || !budgetEl || !gramsEl) return;
+
+      const karat = Number(karatEl.value) || 22;
+      const makingPct = Math.max(0, Number(makingEl.value) || 0);
+      const ratePerGram = karat === 24 ? Number(latestRate.rate_24k_gram) : Number(latestRate.rate_22k_gram);
+      if (!ratePerGram) return;
+
+      let grams = 0;
+      let baseGold = 0;
+      let makingAmt = 0;
+      let gstAmt = 0;
+      let totalBill = 0;
+
+      if (calcMode === "budget") {
+        const budget = Math.max(0, Number(budgetEl.value) || 0);
+        const effectivePerGram = ratePerGram * (1 + makingPct / 100) * 1.03;
+        grams = budget / effectivePerGram;
+        baseGold = grams * ratePerGram;
+        makingAmt = baseGold * (makingPct / 100);
+        gstAmt = (baseGold + makingAmt) * 0.03;
+        totalBill = baseGold + makingAmt + gstAmt;
+      } else {
+        grams = Math.max(0, Number(gramsEl.value) || 0);
+        baseGold = grams * ratePerGram;
+        makingAmt = baseGold * (makingPct / 100);
+        gstAmt = (baseGold + makingAmt) * 0.03;
+        totalBill = baseGold + makingAmt + gstAmt;
+      }
+
+      document.getElementById("res-grams").textContent = `${grams.toFixed(2)} g`;
+      document.getElementById("res-base").textContent = formatINR(baseGold);
+      document.getElementById("res-making").textContent = formatINR(makingAmt);
+      document.getElementById("res-gst").textContent = formatINR(gstAmt);
+      document.getElementById("res-total").textContent = formatINR(totalBill);
+    }
+
+    function renderTranches() {
+      const grid = document.getElementById("tranches-grid");
+      if (!grid) return;
+      document.getElementById("plan-total-display").textContent = formatINR(planBudget);
+
+      const r22 = Number(latestRate.rate_22k_gram) || 11420;
+      const tranches = [
+        {
+          title: "Part 1 • Deploy Today (40%)",
+          pct: 0.4,
+          targetRate: r22,
+          hint: "Lock in today's market rate immediately"
+        },
+        {
+          title: "Part 2 • 1.5% Dip Target (35%)",
+          pct: 0.35,
+          targetRate: Math.round(r22 * 0.985),
+          hint: "Buy on a mild pullback over the next 7–10 days"
+        },
+        {
+          title: "Part 3 • 3% Deep Dip Reserve (25%)",
+          pct: 0.25,
+          targetRate: Math.round(r22 * 0.97),
+          hint: "Keep cash ready for a deeper market dip"
+        }
+      ];
+
+      grid.innerHTML = tranches.map((t, idx) => {
+        const amount = Math.round(planBudget * t.pct);
+        const estGrams = (amount / (t.targetRate * 1.03)).toFixed(2);
+        const done = Boolean(completedTranches[idx]);
+        return `
+          <div class="rounded-xl p-4 border ${done ? "bg-emerald-950/30 border-emerald-500/40" : "bg-slate-900/75 border-white/10"} flex flex-col justify-between space-y-3">
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold text-amber-300">${t.title}</span>
+                <span class="text-[11px] px-2 py-0.5 rounded bg-white/5 text-slate-300">Target: ${formatINR(t.targetRate)}/g</span>
               </div>
+              <div class="mt-2 text-xl font-extrabold text-white">${formatINR(amount)}</div>
+              <div class="text-xs text-slate-400 mt-0.5">Est. ~${estGrams}g (22K incl. GST) • ${t.hint}</div>
             </div>
+            <button type="button" data-tranche-idx="${idx}"
+              class="tranche-toggle-btn w-full py-2 px-3 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                done
+                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                  : "bg-white/5 hover:bg-white/10 text-slate-200 border-white/10"
+              }">
+              ${done ? "✓ Completed" : "Mark Part Completed"}
+            </button>
           </div>
         `;
       }).join("");
-      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
-    }
 
-    function renderAlerts() {
-      const container = document.getElementById("alerts-list");
-      const badge = document.getElementById("alert-count-badge");
-      if (!container) return;
-      if (badge) badge.textContent = appState.alerts.length;
-      if (!appState.alerts || appState.alerts.length === 0) {
-        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-6 text-center text-xs text-slate-400">No price alerts triggered yet. When gold drops to your target prices, alerts appear here automatically.</div>`;
-        return;
-      }
-      container.innerHTML = appState.alerts.map((a) => `
-        <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3">
-          <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
-            <span>${escapeHtml(a.karat)} PRICE DROP REACHED</span>
-            <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
-          </div>
-          <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(a.message)}</p>
-        </div>
-      `).join("");
-    }
-
-    function toggleGst() {
-      includeGst = !includeGst;
-      document.getElementById("gst-toggle-label").textContent = includeGst ? "With 3% GST" : "Without 3% GST";
-      recomputeAndRender();
-    }
-
-    function switchChartKarat(karat) {
-      activeChartKarat = karat;
-      const btn22 = document.getElementById("tab-22k"); const btn24 = document.getElementById("tab-24k");
-      if (karat === "22K") { btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer"; btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer"; }
-      else { btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer"; btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer"; }
-      renderChart(getActiveHistoryRows());
-    }
-
-    function openTrancheModal() { prefillSuggestedTarget(); document.getElementById("tranche-modal").classList.remove("hidden"); document.getElementById("tranche-modal").classList.add("flex"); }
-    function closeTrancheModal() { document.getElementById("tranche-modal").classList.add("hidden"); document.getElementById("tranche-modal").classList.remove("flex"); }
-    function prefillSuggestedTarget() {
-      const karat = document.getElementById("tranche-karat").value; const latest = getActiveHistoryRows()?.[0]; if (!latest) return;
-      document.getElementById("tranche-target").value = ((karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) * 0.99).toFixed(2);
-    }
-
-    async function handleCreateTranche(e) {
-      e.preventDefault();
-      const label = document.getElementById("tranche-label").value.trim();
-      const karat = document.getElementById("tranche-karat").value;
-      const target_rate_gram = Number(document.getElementById("tranche-target").value);
-      const allocation_inr = Number(document.getElementById("tranche-allocation").value);
-      if (isDemoMode || !supabaseClient || !currentUser) {
-        appState.tranches.unshift({ id: "demo-" + Date.now(), label, karat, target_rate_gram, allocation_inr, status: "active" });
-        if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
-        closeTrancheModal(); document.getElementById("tranche-form").reset(); renderTranches(getActiveHistoryRows()); return;
-      }
-      try {
-        const { error } = await supabaseClient.from("buy_tranches").insert({ label, karat, target_rate_gram, allocation_inr, status: "active", user_id: currentUser.id });
-        if (error) throw error;
-        closeTrancheModal(); document.getElementById("tranche-form").reset(); await fetchDashboardData();
-        showToast("Alert Saved", `We will alert you when ${karat} gold hits ${formatINR(target_rate_gram, 0)}/g.`, "info");
-      } catch (err) { showToast("Could Not Save", err.message, "error"); }
-    }
-
-    async function updateTrancheStatus(id, newStatus) {
-      if (isDemoMode || !supabaseClient || !currentUser) {
-        const item = appState.tranches.find((t) => t.id === id); if (item) item.status = newStatus;
-        if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
-        renderTranches(getActiveHistoryRows()); return;
-      }
-      try { const { error } = await supabaseClient.from("buy_tranches").update({ status: newStatus }).eq("id", id); if (error) throw error; await fetchDashboardData(); }
-      catch (err) { showToast("Update Failed", err.message, "error"); }
-    }
-
-    async function deleteTranche(id) {
-      if (isDemoMode || !supabaseClient || !currentUser) {
-        appState.tranches = appState.tranches.filter((t) => t.id !== id);
-        if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
-        renderTranches(getActiveHistoryRows()); return;
-      }
-      try { const { error } = await supabaseClient.from("buy_tranches").delete().eq("id", id); if (error) throw error; await fetchDashboardData(); }
-      catch (err) { showToast("Delete Failed", err.message, "error"); }
-    }
-
-    function updateAuthHeaderUI() {
-      const btn = document.getElementById("auth-header-btn"); const label = document.getElementById("auth-header-label");
-      if (!btn || !label) return;
-      btn.classList.remove("hidden"); btn.classList.add("flex");
-      label.textContent = currentUser ? `${(currentUser.email || "Signed In").split("@")[0]} (Sign Out)` : "Sign In";
-    }
-
-    async function handleAuthHeaderClick() {
-      if (currentUser && supabaseClient) {
-        await supabaseClient.auth.signOut(); currentUser = null; updateAuthHeaderUI(); await fetchDashboardData();
-        showToast("Signed Out", "Switched to guest view.", "info");
-      } else openAuthModal();
-    }
-
-    function renderTurnstileWidget() {
-      const container = document.getElementById("turnstile-widget-container");
-      if (!container || typeof window.turnstile === "undefined") return;
-      turnstileToken = "";
-      if (turnstileWidgetId !== null) { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} return; }
-      turnstileWidgetId = window.turnstile.render("#turnstile-widget-container", {
-        sitekey: TURNSTILE_SITE_KEY, theme: "dark",
-        callback: (token) => { turnstileToken = token; },
-        "expired-callback": () => { turnstileToken = ""; },
-        "error-callback": () => { turnstileToken = ""; },
+      document.querySelectorAll(".tranche-toggle-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.getAttribute("data-tranche-idx"));
+          completedTranches[idx] = !completedTranches[idx];
+          localStorage.setItem("goldbuddy_tranches", JSON.stringify(completedTranches));
+          renderTranches();
+        });
       });
     }
 
-    function openAuthModal() {
-      const fb = document.getElementById("auth-feedback"); if (fb) fb.classList.add("hidden");
-      document.getElementById("auth-modal").classList.remove("hidden"); document.getElementById("auth-modal").classList.add("flex");
-      setTimeout(renderTurnstileWidget, 80);
-    }
+    // =========================================================
+    // 3. RENDER RATES, AI SUMMARY & 15-DAY SCENARIOS
+    // =========================================================
+    function renderMarketStory(row, prevRow) {
+      const r22 = Number(row.rate_22k_gram) || 11420;
+      const ai = row.ai_analysis || {};
+      const meta = ai.meta || {};
+      const change22 = meta.change_22k !== undefined
+        ? Number(meta.change_22k)
+        : (prevRow ? r22 - Number(prevRow.rate_22k_gram) : 0);
 
-    function closeAuthModal() {
-      document.getElementById("auth-modal").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("flex");
-    }
+      document.getElementById("ai-headline").textContent =
+        ai.headline || (change22 < 0
+          ? `Gold Drops ${formatINR(Math.abs(change22))}/g Today — Good Staggered Entry Window`
+          : `22K Gold Trading at ${formatINR(r22)}/g — Staggered Buying Recommended`);
 
-    async function signInWithGoogle() {
-      if (!supabaseClient) return;
-      const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.href } });
-      if (error) showToast("Sign In Failed", error.message, "error");
-    }
+      document.getElementById("ai-story").textContent =
+        ai.story || `22K retail gold is currently priced at ${formatINR(r22)}/g (24K at ${formatINR(row.rate_24k_gram)}/g). Splitting purchases into 3 parts helps average out daily swings.`;
 
-    function switchAuthTab(mode) {
-      authMode = mode;
-      const tabIn = document.getElementById("auth-tab-signin"); const tabUp = document.getElementById("auth-tab-signup");
-      const title = document.getElementById("auth-modal-title"); const btn = document.getElementById("auth-submit-btn");
-      const fb = document.getElementById("auth-feedback"); if (fb) fb.classList.add("hidden");
-      turnstileToken = "";
-      if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
-      if (mode === "signup") {
-        tabUp.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
-        tabIn.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        title.textContent = "Create GoldBuddy Account"; btn.textContent = "Create Account";
-      } else {
-        tabIn.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
-        tabUp.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        title.textContent = "Sign In to GoldBuddy"; btn.textContent = "Sign In";
+      const drivers = Array.isArray(ai.drivers) && ai.drivers.length > 0
+        ? ai.drivers.slice(0, 3)
+        : [
+            { title: "Global Bullion Cues", detail: `International gold is near $${Number(row.xau_usd || 3543.9).toFixed(1)}/oz, setting the base trend.` },
+            { title: "USD/INR Currency Impact", detail: `Rupee exchange rate near ₹${Number(row.usd_inr || 92.78).toFixed(2)} directly shapes landed Indian bullion cost.` },
+            { title: "3-Part Staggered Strategy", detail: "Buying in 3 tranches avoids committing 100% of your budget on a single volatile day." }
+          ];
+
+      const badgeColors = [
+        "bg-amber-500/20 text-amber-300",
+        "bg-sky-500/20 text-sky-300",
+        "bg-emerald-500/20 text-emerald-300"
+      ];
+
+      document.getElementById("ai-drivers-list").innerHTML = drivers.map((d, i) => `
+        <div class="rounded-xl bg-slate-900/75 border border-white/10 p-3 flex items-start gap-3">
+          <span class="w-6 h-6 rounded-full ${badgeColors[i % 3]} text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">${i + 1}</span>
+          <div>
+            <div class="text-xs font-bold text-white">${d.title}</div>
+            <div class="text-xs text-slate-400 mt-0.5 leading-relaxed">${d.detail}</div>
+          </div>
+        </div>
+      `).join("");
+
+      // 15-Day Scenario Bands
+      const lowBand = Math.round(r22 * 0.988);
+      const highBand = Math.round(r22 * 1.006);
+      const dipLow = Math.round(r22 * 0.975);
+      const dipHigh = Math.round(r22 * 0.986);
+      const riskLow = Math.round(r22 * 1.015);
+      const riskHigh = Math.round(r22 * 1.028);
+
+      document.getElementById("scenario-band").textContent = `${formatINR(lowBand)}–${formatINR(highBand)}/g`;
+      document.getElementById("scenario-dip").textContent = `${formatINR(dipLow)}–${formatINR(dipHigh)}/g`;
+      document.getElementById("scenario-risk").textContent = `${formatINR(riskLow)}–${formatINR(riskHigh)}/g`;
+
+      const isDip = change22 <= 0;
+      document.getElementById("gauge-zone-label").textContent = isDip ? "Dip Zone" : "Elevated Zone";
+      document.getElementById("gauge-pill").textContent = isDip ? "Below Recent Average" : "Above Recent Average";
+      document.getElementById("scenario-trend").textContent = isDip ? "Stable to Lower" : "Firm / Rising";
+      const dot = document.getElementById("gauge-dot");
+      if (dot) {
+        dot.setAttribute("cx", isDip ? "118" : "42");
+        dot.setAttribute("cy", "34");
       }
     }
 
-    async function handleEmailAuthSubmit(e) {
-      e.preventDefault();
-      if (!supabaseClient) return;
-      const email = document.getElementById("auth-email-input").value.trim();
-      const password = document.getElementById("auth-password-input").value;
-      const fb = document.getElementById("auth-feedback"); const btn = document.getElementById("auth-submit-btn");
-      if (fb) fb.classList.add("hidden");
-      if (!turnstileToken && typeof window.turnstile !== "undefined") {
-        if (fb) { fb.className = "text-xs text-amber-300 text-center bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5"; fb.textContent = "Please complete the security check above first."; }
-        return;
-      }
-      btn.disabled = true; btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
-      try {
-        if (authMode === "signup") {
-          const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href, captchaToken: turnstileToken || undefined } });
-          if (error) throw error;
-          if (data?.session) { currentUser = data.user; updateAuthHeaderUI(); closeAuthModal(); await fetchDashboardData(); showToast("Account Created!", "Welcome to GoldBuddy.", "info"); }
-          else if (fb) { fb.className = "text-xs text-emerald-300 text-center bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5"; fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`; }
+    function applyRateData(rows) {
+      if (!rows || rows.length === 0) return;
+      historyRows = rows;
+      latestRate = rows[0];
+      const prevRow = rows.length > 1 ? rows[1] : null;
+
+      const r22 = Number(latestRate.rate_22k_gram);
+      const r24 = Number(latestRate.rate_24k_gram);
+      const meta = (latestRate.ai_analysis && latestRate.ai_analysis.meta) || {};
+
+      const chg22 = meta.change_22k !== undefined ? Number(meta.change_22k) : (prevRow ? r22 - Number(prevRow.rate_22k_gram) : 0);
+      const chg24 = meta.change_24k !== undefined ? Number(meta.change_24k) : (prevRow ? r24 - Number(prevRow.rate_24k_gram) : 0);
+
+      document.getElementById("rate-22k-display").textContent = formatINR(r22);
+      document.getElementById("rate-24k-display").textContent = formatINR(r24);
+      document.getElementById("rate-22k-gst").textContent = formatINR(r22 * 1.03);
+      document.getElementById("rate-22k-pavan").textContent = formatINR(r22 * 8);
+      document.getElementById("rate-24k-gst").textContent = formatINR(r24 * 1.03);
+      document.getElementById("rate-24k-10g").textContent = formatINR(r24 * 10);
+
+      const fmtBadge = (elId, diff) => {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (diff < 0) {
+          el.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+          el.textContent = `${diff} ▼`;
+        } else if (diff > 0) {
+          el.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30";
+          el.textContent = `+${diff} ▲`;
         } else {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password, options: { captchaToken: turnstileToken || undefined } });
-          if (error) throw error;
-          currentUser = data.user; updateAuthHeaderUI(); closeAuthModal(); await fetchDashboardData(); showToast("Signed In!", "Your private 3-part plan & alerts are loaded.", "info");
+          el.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-slate-300";
+          el.textContent = "0 • Unchanged";
         }
-      } catch (err) {
-        const msg = /invalid login credentials/i.test(err.message || "") ? "Incorrect email or password. Please try again." : (err.message || "Authentication failed.");
-        if (fb) { fb.className = "text-xs text-rose-300 text-center bg-rose-500/15 border border-rose-500/35 rounded-lg p-2.5"; fb.textContent = msg; }
-        showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", msg, "error");
-      } finally {
-        turnstileToken = "";
-        if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
-        btn.disabled = false; btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
+      };
+      fmtBadge("change-22k-badge", chg22);
+      fmtBadge("change-24k-badge", chg24);
+
+      document.getElementById("usd-inr-val").textContent = `₹${Number(latestRate.usd_inr || 92.78).toFixed(2)}`;
+      document.getElementById("xau-usd-val").textContent = `$${Number(latestRate.xau_usd || 3543.9).toFixed(1)}/oz`;
+
+      const dt = new Date(latestRate.fetched_at || Date.now());
+      document.getElementById("rate-date-badge").textContent = dt.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+      document.getElementById("last-updated-text").textContent = `Updated ${dt.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}`;
+
+      if (meta.source) {
+        const srcBadge = document.getElementById("rate-source-badge");
+        srcBadge.textContent = meta.source;
+        srcBadge.classList.remove("hidden");
+      }
+
+      renderMarketStory(latestRate, prevRow);
+      recalculateGoldWorth();
+      renderTranches();
+    }
+
+    async function loadRatesFromSupabase() {
+      // Render instant cached data first
+      try {
+        const cached = JSON.parse(localStorage.getItem("goldbuddy_cached_history") || "null");
+        if (cached && cached.length > 0) applyRateData(cached);
+      } catch (_) {}
+
+      if (!sb) return;
+      const { data, error } = await sb
+        .from("gold_rates_history")
+        .select("*")
+        .order("fetched_at", { ascending: false })
+        .limit(10);
+
+      if (!error && data && data.length > 0) {
+        localStorage.setItem("goldbuddy_cached_history", JSON.stringify(data));
+        applyRateData(data);
       }
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
-      populateForecastDateDropdown();
-      const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY)) || DEFAULT_SUPABASE_URL;
-      const savedKey = localStorage.getItem(STORAGE_ANON_KEY) || DEFAULT_SUPABASE_ANON_KEY;
-      if (savedUrl && savedKey && window.supabase) {
-        supabaseClient = window.supabase.createClient(savedUrl, savedKey);
-        isDemoMode = false;
-        supabaseClient.auth.onAuthStateChange((_event, session) => {
-          currentUser = session?.user ?? null;
-          updateAuthHeaderUI();
-          fetchDashboardData();
+    // =========================================================
+    // 4. MINING ANIMATION & ROCKET FIREWORK
+    // =========================================================
+    function playFireworkCelebration() {
+      const canvas = document.getElementById("firework-canvas");
+      if (!canvas) return;
+      canvas.classList.remove("hidden");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const ctx = canvas.getContext("2d");
+      const particles = [];
+      const cx = canvas.width * 0.5;
+      const cy = canvas.height * 0.45;
+      for (let i = 0; i < 65; i++) {
+        const angle = (Math.PI * 2 * i) / 65;
+        const speed = 2 + Math.random() * 5;
+        particles.push({
+          x: cx,
+          y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          alpha: 1,
+          color: i % 2 === 0 ? "#FBBF24" : "#34D399"
         });
       }
-      fetchDashboardData();
-      setInterval(updateRefreshCooldownUI, 30000);
+      let frame = 0;
+      function step() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.06;
+          p.alpha -= 0.022;
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        frame++;
+        if (frame < 48) requestAnimationFrame(step);
+        else canvas.classList.add("hidden");
+      }
+      requestAnimationFrame(step);
+    }
+
+    // =========================================================
+    // 5. EVENT LISTENERS & AUTH
+    // =========================================================
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Calculator Mode Toggle
+      const modeBudgetBtn = document.getElementById("mode-budget-btn");
+      const modeWeightBtn = document.getElementById("mode-weight-btn");
+      const budgetWrap = document.getElementById("calc-budget-wrapper");
+      const gramsWrap = document.getElementById("calc-grams-wrapper");
+
+      modeBudgetBtn.addEventListener("click", () => {
+        calcMode = "budget";
+        modeBudgetBtn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 transition cursor-pointer";
+        modeWeightBtn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition cursor-pointer";
+        budgetWrap.classList.remove("hidden");
+        gramsWrap.classList.add("hidden");
+        recalculateGoldWorth();
+      });
+
+      modeWeightBtn.addEventListener("click", () => {
+        calcMode = "weight";
+        modeWeightBtn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 transition cursor-pointer";
+        modeBudgetBtn.className = "px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 hover:text-white transition cursor-pointer";
+        gramsWrap.classList.remove("hidden");
+        budgetWrap.classList.add("hidden");
+        recalculateGoldWorth();
+      });
+
+      ["calc-budget", "calc-grams", "calc-karat", "calc-making"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("input", recalculateGoldWorth);
+      });
+
+      // Apply Calculator Budget to 3-Part Plan
+      document.getElementById("apply-to-plan-btn").addEventListener("click", () => {
+        if (calcMode === "budget") {
+          planBudget = Math.max(1000, Number(document.getElementById("calc-budget").value) || 100000);
+        } else {
+          const totalText = document.getElementById("res-total").textContent.replace(/[₹,]/g, "");
+          planBudget = Math.max(1000, Number(totalText) || 100000);
+        }
+        completedTranches = [false, false, false];
+        localStorage.setItem("goldbuddy_tranches", JSON.stringify(completedTranches));
+        renderTranches();
+        playFireworkCelebration();
+        showToast("3-Part Plan Updated", `Split ${formatINR(planBudget)} across 3 smart buying tranches.`, "success");
+      });
+
+      // Auth Modal Controls
+      const authModal = document.getElementById("auth-modal");
+      const authBtn = document.getElementById("auth-btn");
+      document.getElementById("close-auth-btn").addEventListener("click", () => {
+        authModal.classList.add("hidden");
+        authModal.classList.remove("flex");
+      });
+
+      authBtn.addEventListener("click", async () => {
+        if (currentUser && sb) {
+          await sb.auth.signOut();
+          currentUser = null;
+          authBtn.textContent = "Sign In";
+          showToast("Signed Out", "You have been signed out.");
+        } else {
+          authModal.classList.remove("hidden");
+          authModal.classList.add("flex");
+        }
+      });
+
+      document.getElementById("google-signin-btn").addEventListener("click", async () => {
+        if (!sb) return;
+        await sb.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: window.location.href }
+        });
+      });
+
+      document.getElementById("magic-link-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!sb) return;
+        const email = document.getElementById("auth-email").value.trim();
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: window.location.href }
+        });
+        if (error) showToast("Sign-In Error", error.message, "error");
+        else {
+          showToast("Magic Link Sent", `Check ${email} to finish signing in.`, "success");
+          authModal.classList.add("hidden");
+          authModal.classList.remove("flex");
+        }
+      });
+
+      // Refresh Button (Requires Sign-In)
+      document.getElementById("refresh-btn").addEventListener("click", async () => {
+        if (!currentUser) {
+          showToast("Sign In Required", "Please sign in to trigger an on-demand rate refresh.", "info");
+          authModal.classList.remove("hidden");
+          authModal.classList.add("flex");
+          return;
+        }
+        const icon = document.getElementById("refresh-icon");
+        icon.classList.add("animate-spin");
+        try {
+          const { data, error } = await sb.functions.invoke("fetch-gold-rate", { body: {} });
+          if (error) throw error;
+          if (data && data.cached) {
+            showToast("Recently Updated", `Rates already synced within the last 30 mins (${data.wait_minutes || 25}m left).`, "info");
+          } else {
+            await loadRatesFromSupabase();
+            playFireworkCelebration();
+            showToast("Rates Refreshed", "Live Indian gold rates and AI insights updated.", "success");
+          }
+        } catch (err) {
+          showToast("Refresh Failed", err.message || "Could not fetch live rates.", "error");
+        } finally {
+          icon.classList.remove("animate-spin");
+        }
+      });
+
+      // Check existing session & load live rates
+      if (sb) {
+        const { data: sessionData } = await sb.auth.getSession();
+        if (sessionData && sessionData.session && sessionData.session.user) {
+          currentUser = sessionData.session.user;
+          authBtn.textContent = "Sign Out";
+          document.getElementById("cooldown-text").textContent = "Signed in • Click Refresh to sync live rates (up to 5/day).";
+        }
+      }
+
+      await loadRatesFromSupabase();
     });
   </script>
 </body>

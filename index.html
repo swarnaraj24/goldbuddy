@@ -97,11 +97,8 @@
           <span id="gst-toggle-label">Excl. 3% GST</span>
         </button>
 
-        <button type="button" id="admin-override-btn" onclick="openAdminOverrideModal()" class="hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-purple-500/40 bg-purple-500/15 hover:bg-purple-500/25 text-purple-200 cursor-pointer transition-colors">
-          <span>Admin Override</span>
-        </button>
-
-        <button type="button" id="refresh-btn" onclick="handleManualRefresh()" title="Refresh gold price" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors disabled:opacity-50 cursor-pointer">
+        <!-- Manual Refresh Button (Signed-in users can refresh; guests prompted to sign in) -->
+        <button type="button" id="refresh-btn" onclick="handleManualRefresh()" title="Refresh live gold rate" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors disabled:opacity-50 cursor-pointer">
           <i id="refresh-icon" data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
           <span id="refresh-btn-text" class="hidden sm:inline">Refresh</span>
         </button>
@@ -124,12 +121,12 @@
     </div>
 
     <div id="demo-banner" class="hidden rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-2.5 text-xs text-slate-300">
-      <strong class="text-amber-300">Sample Prices Shown:</strong> Connect or refresh to load live Indian retail gold rates.
+      <strong class="text-amber-300">Sample Prices Shown:</strong> Connect to load live Indian retail gold rates.
     </div>
 
     <!-- Clean Metadata Bar -->
     <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400 px-1">
-      <div id="live-status-trigger" onclick="handleSecretAdminTap()" class="flex items-center gap-2 cursor-pointer select-none" title="Live market status">
+      <div class="flex items-center gap-2">
         <span id="status-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
         <span id="status-text" class="font-medium text-slate-300">Live India Retail Rate</span>
         <span>&bull;</span>
@@ -138,7 +135,7 @@
       <div class="flex items-center gap-3 font-mono text-[11px]">
         <span>USD/INR: <strong id="board-usd" class="text-slate-200">—</strong></span>
         <span>XAU: <strong id="board-xau" class="text-slate-200">—</strong></span>
-        <span id="updated-time-badge" class="font-sans text-slate-500">Just now</span>
+        <span id="updated-time-badge" class="font-sans text-slate-500">Auto-updates every 30m</span>
       </div>
     </div>
 
@@ -199,10 +196,10 @@
 
         <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs self-start">
           <button type="button" id="mode-budget-btn" onclick="switchCalcMode('budget')" class="px-3.5 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-colors cursor-pointer">
-            Budget (&₹ &rarr; g)
+            Budget (₹ &rarr; g)
           </button>
           <button type="button" id="mode-grams-btn" onclick="switchCalcMode('grams')" class="px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer">
-            Weight (g &rarr; &₹)
+            Weight (g &rarr; ₹)
           </button>
         </div>
       </div>
@@ -578,41 +575,6 @@
     </div>
   </div>
 
-  <!-- MODAL: Admin Rate Override -->
-  <div id="admin-override-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-    <div class="w-full max-w-md rounded-2xl bg-[#111827] border border-purple-500/40 p-6 shadow-2xl space-y-4">
-      <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-base font-bold text-white">Admin Retail Rate Override</h3>
-          <p class="text-xs text-slate-400">Bypass 30m wait &amp; calibrate today's exact 24K &amp; 22K rates</p>
-        </div>
-        <button type="button" onclick="closeAdminOverrideModal()" class="text-slate-400 hover:text-white text-sm font-bold px-2 py-1 cursor-pointer">✕</button>
-      </div>
-
-      <form onsubmit="handleAdminOverrideSubmit(event)" class="space-y-4">
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label for="ov-24k" class="block text-xs font-medium text-slate-300 mb-1">24K Gold / g (₹)</label>
-            <input type="number" step="1" id="ov-24k" required value="12458" oninput="document.getElementById('ov-22k').value = Math.round((Number(this.value) || 0) * (22 / 24))"
-              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono font-bold text-white focus:border-purple-500 focus:outline-none" />
-          </div>
-          <div>
-            <label for="ov-22k" class="block text-xs font-medium text-slate-300 mb-1">22K Gold / g (₹)</label>
-            <input type="number" step="1" id="ov-22k" required value="11420"
-              class="w-full rounded-xl bg-slate-900 border border-slate-700 px-3.5 py-2.5 text-sm font-mono font-bold text-white focus:border-purple-500 focus:outline-none" />
-          </div>
-        </div>
-        <p class="text-[11px] text-slate-400">
-          Updates the live database immediately, recalibrates automatic future fetches, and refreshes the AI Market Summary.
-        </p>
-        <div class="flex items-center justify-end gap-2.5">
-          <button type="button" onclick="closeAdminOverrideModal()" class="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:bg-slate-800 cursor-pointer">Cancel</button>
-          <button type="submit" id="ov-submit-btn" class="px-4 py-2 rounded-xl text-xs font-semibold bg-purple-500 hover:bg-purple-400 text-white cursor-pointer">Apply Live Rate</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script>
     const AFFILIATE_PARTNERS = [
       {
@@ -659,8 +621,6 @@
     const STORAGE_ANON_KEY = "goldbuddy_supabase_anon_key";
     const STORAGE_RATES_CACHE_KEY = "goldbuddy_cached_rates_v1";
     const MAX_FORECAST_DAYS = 15;
-    const FETCH_COOLDOWN_MS = 30 * 60 * 1000;
-    const MAX_DAILY_MANUAL_FETCHES = 5;
 
     let supabaseClient = null;
     let pollingFallbackInterval = null;
@@ -762,12 +722,12 @@
       const rows = [];
       for (let i = 29; i >= 0; i--) {
         const ts = new Date(now - i * 4 * 60 * 60 * 1000).toISOString();
-        const r24 = Number((12780 + Math.sin(i / 3) * 35).toFixed(2));
+        const r24 = Number((12458 + Math.sin(i / 3) * 35).toFixed(2));
         const r22 = Number((r24 * (22 / 24)).toFixed(2));
         rows.push({
           id: 30 - i,
-          xau_usd: 3611.05,
-          usd_inr: 92.79,
+          xau_usd: 3543.9,
+          usd_inr: 92.78,
           rate_24k_gram: r24,
           rate_24k_with_gst: Number((r24 * 1.03).toFixed(2)),
           rate_22k_gram: r22,
@@ -779,9 +739,9 @@
       return {
         history: [...rows].reverse(),
         tranches: [
-          { id: "demo-1", label: "Part 1 (30%) — First Entry", karat: "22K", target_rate_gram: 11690, allocation_inr: 45000, status: "active" },
-          { id: "demo-2", label: "Part 2 (40%) — Moderate Dip", karat: "22K", target_rate_gram: 11575, allocation_inr: 60000, status: "active" },
-          { id: "demo-3", label: "Part 3 (30%) — Deeper Dip", karat: "22K", target_rate_gram: 11435, allocation_inr: 45000, status: "active" },
+          { id: "demo-1", label: "Part 1 (30%) — First Entry", karat: "22K", target_rate_gram: 11395, allocation_inr: 45000, status: "active" },
+          { id: "demo-2", label: "Part 2 (40%) — Moderate Dip", karat: "22K", target_rate_gram: 11280, allocation_inr: 60000, status: "active" },
+          { id: "demo-3", label: "Part 3 (30%) — Deeper Dip", karat: "22K", target_rate_gram: 11145, allocation_inr: 45000, status: "active" },
         ],
         alerts: [],
       };
@@ -832,56 +792,6 @@
     function cleanSupabaseUrl(rawUrl) {
       if (!rawUrl) return "";
       return rawUrl.trim().replace(/\/+$/, "").replace(/\/(rest|functions|auth|realtime)\/v1.*$/i, "");
-    }
-
-    function getDailyFetchKey() {
-      const uid = currentUser?.id || "guest";
-      const today = new Date().toISOString().slice(0, 10);
-      return `goldbuddy_daily_fetches_${uid}_${today}`;
-    }
-
-    function getDailyFetchCount() {
-      return Number(localStorage.getItem(getDailyFetchKey()) || 0);
-    }
-
-    function incrementDailyFetchCount() {
-      const next = getDailyFetchCount() + 1;
-      localStorage.setItem(getDailyFetchKey(), String(next));
-      return next;
-    }
-
-    function getRemainingCooldownMins() {
-      if (isDemoMode || !supabaseClient) return 0;
-      const latestRow = appState.history?.[0];
-      const lastDbTs = latestRow?.fetched_at ? new Date(latestRow.fetched_at).getTime() : 0;
-      const lastLocalTs = Number(localStorage.getItem("goldbuddy_last_fetch_ts") || 0);
-      const newestTs = Math.max(lastDbTs, lastLocalTs);
-      if (!newestTs) return 0;
-      const elapsed = Date.now() - newestTs;
-      if (elapsed >= FETCH_COOLDOWN_MS) return 0;
-      return Math.max(1, Math.ceil((FETCH_COOLDOWN_MS - elapsed) / 60000));
-    }
-
-    function updateRefreshCooldownUI() {
-      const btn = document.getElementById("refresh-btn");
-      const label = document.getElementById("refresh-btn-text");
-      if (!btn || !label) return;
-      const dailyUsed = (!isDemoMode && currentUser) ? getDailyFetchCount() : 0;
-      const minsLeft = getRemainingCooldownMins();
-
-      if (!isDemoMode && currentUser && dailyUsed >= MAX_DAILY_MANUAL_FETCHES) {
-        btn.disabled = true;
-        label.textContent = "Limit (5/5)";
-        btn.title = "Daily manual limit (5/5) reached. Auto-updates every 30 mins.";
-      } else if (minsLeft > 0) {
-        btn.disabled = true;
-        label.textContent = `Wait ${minsLeft}m`;
-        btn.title = `Updated recently. Next live fetch available in ${minsLeft} min.`;
-      } else {
-        btn.disabled = false;
-        label.textContent = "Refresh";
-        btn.title = "Fetch latest Indian gold rate";
-      }
     }
 
     async function fetchDashboardData() {
@@ -964,10 +874,9 @@
       const btn = document.getElementById("refresh-btn");
       const icon = document.getElementById("refresh-icon");
       const label = document.getElementById("refresh-btn-text");
-      if (btn && btn.disabled) return;
-
+      if (!btn || btn.disabled) return;
       if (!isDemoMode && supabaseClient && !currentUser) {
-        showToast("Sign In Required", "Please sign in to trigger a manual live refresh.", "info");
+        showToast("Sign In Required", "Please sign in or create an account to refresh live gold rates.", "info");
         openAuthModal();
         return;
       }
@@ -979,34 +888,41 @@
       try {
         if (isDemoMode || !supabaseClient) {
           const prev = appState.history[0];
-          const new24 = Number((Number(prev.rate_24k_gram) * (1 + (Math.random() - 0.5) * 0.005)).toFixed(2));
+          const deltaPct = (Math.random() - 0.52) * 0.006;
+          const new24 = Number((Number(prev.rate_24k_gram) * (1 + deltaPct)).toFixed(2));
           const new22 = Number((new24 * (22 / 24)).toFixed(2));
           appState.history.unshift({
-            ...prev,
             id: prev.id + 1,
+            xau_usd: prev.xau_usd,
+            usd_inr: prev.usd_inr,
             rate_24k_gram: new24,
             rate_24k_with_gst: Number((new24 * 1.03).toFixed(2)),
             rate_22k_gram: new22,
             rate_22k_with_gst: Number((new22 * 1.03).toFixed(2)),
+            ai_analysis: null,
             fetched_at: new Date().toISOString(),
           });
           recomputeAndRender();
           showToast("Sample Rate Updated", `22K: ${formatINR(new22, 0)}/g`, "info");
+          return;
+        }
+
+        const { data, error } = await supabaseClient.functions.invoke("fetch-gold-rate");
+        if (error) {
+          throw new Error(error.message || "Refresh failed.");
+        }
+        await fetchDashboardData();
+        if (data?.cached) {
+          showToast("Rate Up to Date", `Already updated recently. Next refresh in ${data.mins_until_next_fetch || 30}m.`, "info");
         } else {
-          incrementDailyFetchCount();
-          const { error } = await supabaseClient.functions.invoke("fetch-gold-rate", {
-            body: { force: true },
-          });
-          localStorage.setItem("goldbuddy_last_fetch_ts", String(Date.now()));
-          if (error) document.getElementById("fetch-error-banner")?.classList.remove("hidden");
-          await fetchDashboardData();
-          showToast("Gold Rate Updated", "Fetched today's latest Indian gold rates.", "info");
+          showToast("Gold Rate Updated", `Updated via ${data?.source || "Live Board"}.`, "info");
         }
       } catch (err) {
-        showToast("Update Failed", err.message || "Could not refresh rates.", "error");
+        showToast("Refresh Failed", err.message || "Could not refresh rates.", "error");
       } finally {
         if (icon) icon.classList.remove("animate-spin");
-        updateRefreshCooldownUI();
+        btn.disabled = false;
+        if (label) label.textContent = "Refresh";
       }
     }
 
@@ -1028,4 +944,647 @@
         statusText.textContent = latestSource ? `Live • ${latestSource}` : "Live India Retail Rate";
         demoBanner.classList.add("hidden");
       }
-// ... existing code ... -->
+
+      renderTopCards(rows);
+      recalculateGoldWorth();
+      renderMarketStory(rows);
+      renderDateForecast();
+      renderChart(rows);
+      renderTranches(rows);
+      renderAlerts();
+      renderAffiliatePartners();
+      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
+    }
+
+    function renderTopCards(rows) {
+      const latest = rows?.[0];
+      const s22 = appState.stats22K;
+      const s24 = appState.stats24K;
+      document.getElementById("board-date-badge").textContent = new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" });
+      if (!latest || !s22 || !s24) return;
+
+      document.getElementById("board-usd").textContent = `₹${Number(latest.usd_inr || 92.78).toFixed(2)}`;
+      document.getElementById("board-xau").textContent = `$${Number(latest.xau_usd || 3544).toLocaleString("en-US")}/oz`;
+      document.getElementById("updated-time-badge").textContent = `Updated ${timeAgo(latest.fetched_at)}`;
+
+      const meta = latest?.ai_analysis?.meta || {};
+      const main22 = includeGst ? latest.rate_22k_with_gst : latest.rate_22k_gram;
+      const alt22 = includeGst ? latest.rate_22k_gram : latest.rate_22k_with_gst;
+      const diff22 = typeof meta.change_22k === "number" && meta.change_22k !== 0 ? meta.change_22k : s22.dayChange;
+      document.getElementById("price-22k").textContent = formatINR(main22, 0);
+      document.getElementById("badge-22k").textContent = diff22 === 0 ? "Unchanged" : `${diff22 < 0 ? "" : "+"}${diff22} ${diff22 < 0 ? "▼" : "▲"}`;
+      document.getElementById("badge-22k").className = `px-2.5 py-1 rounded-full text-xs font-mono font-semibold ${diff22 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("subprice-22k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt22, 0)}` : `Incl. 3% GST: ${formatINR(alt22, 0)}`;
+      document.getElementById("pavan-22k").textContent = formatINR(main22 * 8, 0);
+
+      const main24 = includeGst ? latest.rate_24k_with_gst : latest.rate_24k_gram;
+      const alt24 = includeGst ? latest.rate_24k_gram : latest.rate_24k_with_gst;
+      const diff24 = typeof meta.change_24k === "number" && meta.change_24k !== 0 ? meta.change_24k : s24.dayChange;
+      document.getElementById("price-24k").textContent = formatINR(main24, 0);
+      document.getElementById("badge-24k").textContent = diff24 === 0 ? "Unchanged" : `${diff24 < 0 ? "" : "+"}${diff24} ${diff24 < 0 ? "▼" : "▲"}`;
+      document.getElementById("badge-24k").className = `px-2.5 py-1 rounded-full text-xs font-mono font-semibold ${diff24 <= 0 ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`;
+      document.getElementById("subprice-24k").textContent = includeGst ? `Excl. 3% GST: ${formatINR(alt24, 0)}` : `Incl. 3% GST: ${formatINR(alt24, 0)}`;
+      document.getElementById("ten-gram-24k").textContent = formatINR(main24 * 10, 0);
+    }
+
+    function switchCalcMode(mode) {
+      calcMode = mode;
+      const btnBudget = document.getElementById("mode-budget-btn");
+      const btnGrams = document.getElementById("mode-grams-btn");
+      const budgetWrap = document.getElementById("calc-budget-wrapper");
+      const gramsWrap = document.getElementById("calc-grams-wrapper");
+      if (mode === "budget") {
+        btnBudget.className = "px-3.5 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-colors cursor-pointer";
+        btnGrams.className = "px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer";
+        budgetWrap.classList.remove("hidden");
+        gramsWrap.classList.add("hidden");
+      } else {
+        btnGrams.className = "px-3.5 py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-colors cursor-pointer";
+        btnBudget.className = "px-3.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer";
+        gramsWrap.classList.remove("hidden");
+        budgetWrap.classList.add("hidden");
+      }
+      recalculateGoldWorth();
+    }
+
+    function recalculateGoldWorth() {
+      const latest = appState.history?.[0];
+      if (!latest) return;
+      const karat = document.getElementById("calc-karat").value;
+      const makingPct = Math.max(0, Number(document.getElementById("calc-making").value) || 0);
+      const ratePerGram = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
+      const effectiveCostPerGram = ratePerGram * (1 + makingPct / 100) * 1.03;
+
+      let goldVal = 0, makingVal = 0, gstVal = 0;
+      if (calcMode === "budget") {
+        const totalAmt = Math.max(0, Number(document.getElementById("calc-budget-inr").value) || 0);
+        const buyableGrams = effectiveCostPerGram > 0 ? totalAmt / effectiveCostPerGram : 0;
+        goldVal = buyableGrams * ratePerGram;
+        makingVal = goldVal * (makingPct / 100);
+        gstVal = (goldVal + makingVal) * 0.03;
+        document.getElementById("res-primary-label").textContent = `Gold You Can Buy (${karat})`;
+        document.getElementById("res-primary-val").textContent = `${buyableGrams.toFixed(3)} g`;
+      } else {
+        const grams = Math.max(0.1, Number(document.getElementById("calc-grams").value) || 0);
+        goldVal = ratePerGram * grams;
+        makingVal = goldVal * (makingPct / 100);
+        gstVal = (goldVal + makingVal) * 0.03;
+        const totalAmt = goldVal + makingVal + gstVal;
+        document.getElementById("res-primary-label").textContent = `Final Showroom Bill (${karat})`;
+        document.getElementById("res-primary-val").textContent = formatINR(totalAmt, 0);
+      }
+
+      document.getElementById("res-gold-val").textContent = formatINR(goldVal, 0);
+      document.getElementById("res-making-val").textContent = formatINR(makingVal, 0);
+      document.getElementById("res-gst-val").textContent = formatINR(gstVal, 0);
+    }
+
+    function syncCalculatorToPlan() {
+      const amt = calcMode === "budget"
+        ? Math.round(Number(document.getElementById("calc-budget-inr").value) || 0)
+        : Math.round(Number(document.getElementById("res-primary-val").textContent.replace(/[₹,]/g, "")) || 0);
+      if (amt < 1000) {
+        showToast("Enter Higher Amount", "Please enter at least ₹1,000.", "error");
+        return;
+      }
+      const targetInput = document.getElementById("auto-budget-inr");
+      targetInput.value = amt;
+      document.getElementById("staggered-plan-section")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      showToast("Budget Copied", `${formatINR(amt, 0)} copied to your 3-Part Buying Plan.`, "info");
+    }
+
+    function renderMarketStory(rows) {
+      const s22 = appState.stats22K;
+      const latest = rows?.[0];
+      const pill = document.getElementById("trend-pill");
+      const headlineEl = document.getElementById("verdict-headline");
+      const story = document.getElementById("plain-english-story");
+      const driversEl = document.getElementById("drivers-list");
+      const aiBadge = document.getElementById("ai-badge");
+      if (!s22) return;
+
+      const isDropping = s22.dayChange < 0 || s22.pctVsAvg < 0;
+      pill.textContent = s22.dayChange < 0
+        ? `Down ${formatINR(Math.abs(s22.dayChange), 0)}/g Today`
+        : (s22.dayChange > 0 ? `Up +${formatINR(s22.dayChange, 0)}/g Today` : "Steady Today");
+      pill.className = `px-2.5 py-1 rounded-full text-xs font-semibold ${isDropping ? "bg-emerald-500/15 text-emerald-400" : "bg-amber-500/15 text-amber-300"}`;
+
+      if (latest?.ai_analysis?.headline && Array.isArray(latest?.ai_analysis?.drivers)) {
+        aiBadge.classList.remove("hidden");
+        headlineEl.textContent = latest.ai_analysis.headline;
+        headlineEl.className = `text-sm sm:text-base font-bold ${isDropping ? "text-emerald-400" : "text-amber-300"}`;
+        story.textContent = latest.ai_analysis.story;
+        driversEl.innerHTML = latest.ai_analysis.drivers.slice(0, 3).map((d, idx) => `
+          <div class="rounded-lg bg-slate-900/90 border border-slate-800 p-3">
+            <div class="text-xs font-semibold text-white">${idx + 1}. ${escapeHtml(d.title)}</div>
+            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${escapeHtml(d.detail)}</p>
+          </div>
+        `).join("");
+        return;
+      }
+
+      aiBadge.classList.add("hidden");
+      headlineEl.textContent = isDropping
+        ? "Price Dip Today — Favourable Window for Part 1"
+        : "Above 5-Day Average — Consider Staggered Entries";
+      headlineEl.className = `text-sm sm:text-base font-bold ${isDropping ? "text-emerald-400" : "text-amber-300"}`;
+      story.textContent = `22K gold is currently trading at ${formatINR(s22.latestPrice, 0)}/g against a 5-day average of ${formatINR(s22.avgPrice, 0)}/g. Splitting your purchase into 3 parts reduces single-day timing risk.`;
+      driversEl.innerHTML = `
+        <div class="rounded-lg bg-slate-900/90 border border-slate-800 p-3">
+          <div class="text-xs font-semibold text-white">1. Global Spot &amp; USD</div>
+          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">International XAU/USD and US bond yields guide daily Indian bullion direction.</p>
+        </div>
+        <div class="rounded-lg bg-slate-900/90 border border-slate-800 p-3">
+          <div class="text-xs font-semibold text-white">2. USD/INR Exchange</div>
+          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Rupee movement directly impacts domestic landed gold rates.</p>
+        </div>
+        <div class="rounded-lg bg-slate-900/90 border border-slate-800 p-3">
+          <div class="text-xs font-semibold text-white">3. Staggered Advantage</div>
+          <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Buying in 3 parts lets you average your cost if prices dip further.</p>
+        </div>
+      `;
+    }
+
+    function renderDateForecast() {
+      const daysSelect = document.getElementById("forecast-days-select");
+      const karat = document.getElementById("forecast-karat").value;
+      const stats = karat === "24K" ? appState.stats24K : appState.stats22K;
+      if (!stats || !daysSelect) return;
+
+      const daysAhead = Math.min(MAX_FORECAST_DAYS, Math.max(1, Number(daysSelect.value || 5)));
+      const rawDailyRate = stats.trendPct !== 0 ? (stats.trendPct / 100) / 5 : -0.0025;
+      const clampedDailyRate = Math.max(-0.004, Math.min(0.004, rawDailyRate));
+      const supportFloor = stats.avgPrice * 0.965;
+      const rallyCeiling = stats.avgPrice * 1.035;
+      const expectedPrice = Math.min(rallyCeiling, Math.max(supportFloor, stats.latestPrice * (1 + clampedDailyRate * Math.sqrt(daysAhead))));
+      const lowestPrice = Math.max(supportFloor * 0.992, Math.min(stats.latestPrice, expectedPrice) * (1 - 0.003 * Math.sqrt(daysAhead)));
+      const highestPrice = Math.min(rallyCeiling * 1.008, Math.max(stats.latestPrice, expectedPrice) * (1 + 0.004 * Math.sqrt(daysAhead)));
+
+      document.getElementById("forecast-floor-price").textContent = `${formatINR(lowestPrice, 0)} / g`;
+      document.getElementById("forecast-base-price").textContent = `${formatINR(expectedPrice, 0)} / g`;
+      document.getElementById("forecast-ceil-price").textContent = `${formatINR(highestPrice, 0)} / g`;
+    }
+
+    async function generateSmartTranches() {
+      const totalBudget = Number(document.getElementById("auto-budget-inr").value);
+      const karat = document.getElementById("calc-karat").value;
+      const latest = appState.history?.[0];
+      if (!totalBudget || totalBudget < 1000) {
+        showToast("Enter Budget", "Please enter at least ₹1,000.", "error");
+        return;
+      }
+      if (!latest) return;
+
+      const currentBase = karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram);
+      const plan = [
+        { label: `Part 1 (30%) — First Entry`, karat, target_rate_gram: Number((currentBase * 0.998).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+        { label: `Part 2 (40%) — Moderate Dip`, karat, target_rate_gram: Number((currentBase * 0.988).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.40), status: "active" },
+        { label: `Part 3 (30%) — Deeper Dip`, karat, target_rate_gram: Number((currentBase * 0.976).toFixed(2)), allocation_inr: Math.round(totalBudget * 0.30), status: "active" },
+      ];
+
+      if (isDemoMode || !supabaseClient || !currentUser) {
+        appState.tranches = plan.map((t, idx) => ({ id: `part-${Date.now()}-${idx}`, ...t }));
+        if (!isDemoMode && supabaseClient && !currentUser) {
+          localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
+          showToast("Plan Saved Locally", "Sign in to sync your 3-part plan & receive email alerts.", "info");
+        } else {
+          showToast("3-Part Plan Ready!", `Split ${formatINR(totalBudget, 0)} into 3 steps.`, "info");
+        }
+        renderTranches(appState.history);
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").insert(plan.map((r) => ({ ...r, user_id: currentUser.id })));
+        if (error) throw error;
+        await fetchDashboardData();
+        showToast("3-Part Plan Saved!", `We will alert you when ${karat} gold hits your targets.`, "info");
+      } catch (err) {
+        showToast("Could Not Save Plan", err.message, "error");
+      }
+    }
+
+    function renderChart(rows) {
+      const stats = activeChartKarat === "24K" ? appState.stats24K : appState.stats22K;
+      if (!stats || !rows || rows.length === 0 || typeof Chart === "undefined") return;
+
+      document.getElementById("band-lower").textContent = formatINR(stats.bargainPrice, 0);
+      document.getElementById("band-mean").textContent = formatINR(stats.avgPrice, 0);
+      document.getElementById("band-upper").textContent = formatINR(stats.highPrice, 0);
+
+      const field = activeChartKarat === "24K"
+        ? (includeGst ? "rate_24k_with_gst" : "rate_24k_gram")
+        : (includeGst ? "rate_22k_with_gst" : "rate_22k_gram");
+      const chrono = [...rows].slice(0, 50).sort((a, b) => new Date(a.fetched_at).getTime() - new Date(b.fetched_at).getTime());
+      const labels = chrono.map((r) => new Date(r.fetched_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }));
+
+      const canvas = document.getElementById("goldChart");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (chartInstance) chartInstance.destroy();
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+      gradient.addColorStop(0, "rgba(245, 158, 11, 0.2)");
+      gradient.addColorStop(1, "rgba(245, 158, 11, 0.0)");
+
+      chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: `${activeChartKarat} Gold (₹/g)`,
+              data: chrono.map((r) => Number(r[field])),
+              borderColor: "#FBBF24",
+              backgroundColor: gradient,
+              borderWidth: 2,
+              pointRadius: chrono.length > 25 ? 0 : 3,
+              fill: true,
+              tension: 0.25,
+            },
+            {
+              label: "5-Day Average",
+              data: chrono.map(() => stats.avgPrice),
+              borderColor: "rgba(148, 163, 184, 0.5)",
+              borderWidth: 1.5,
+              borderDash: [4, 4],
+              pointRadius: 0,
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { labels: { color: "#94A3B8", font: { size: 11, family: "Inter" }, boxWidth: 12 } },
+            tooltip: {
+              backgroundColor: "#0F172A",
+              titleColor: "#F8FAFC",
+              bodyColor: "#CBD5E1",
+              borderColor: "#334155",
+              borderWidth: 1,
+              callbacks: { label: (c) => `${c.dataset.label}: ${formatINR(c.parsed.y, 0)}` },
+            },
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: "#64748B", font: { size: 10 }, maxTicksLimit: 6 } },
+            y: { grid: { color: "rgba(30, 41, 59, 0.4)" }, ticks: { color: "#94A3B8", font: { size: 11, family: "JetBrains Mono" }, callback: (v) => "₹" + Number(v).toLocaleString("en-IN") } },
+          },
+        },
+      });
+    }
+
+    function renderTranches(rows) {
+      const container = document.getElementById("tranches-list");
+      const latest = rows?.[0];
+      if (!container) return;
+
+      const tranches = appState.tranches || [];
+      const totalBudget = tranches.reduce((sum, t) => sum + (Number(t.allocation_inr) || 0), 0);
+      const totalGrams = tranches.reduce((sum, t) => {
+        const tb = Number(t.target_rate_gram) || 0;
+        const dt = includeGst ? tb * 1.03 : tb;
+        return sum + (dt > 0 ? (Number(t.allocation_inr) || 0) / dt : 0);
+      }, 0);
+
+      document.getElementById("overview-budget").textContent = formatINR(totalBudget, 0);
+      document.getElementById("overview-grams").textContent = `≈ ${totalGrams.toFixed(2)} g`;
+      document.getElementById("overview-avg-price").textContent = totalGrams > 0 ? `${formatINR(totalBudget / totalGrams, 0)} / g` : "—";
+
+      if (tranches.length === 0) {
+        container.innerHTML = `<div class="sm:col-span-3 rounded-xl border border-dashed border-slate-800 p-5 text-center text-xs text-slate-400">Enter your total gold budget above and click <strong class="text-amber-400">Split Into 3 Parts</strong>.</div>`;
+        return;
+      }
+
+      container.innerHTML = tranches.map((t, idx) => {
+        const baseSpot = latest ? (t.karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) : null;
+        const targetBase = Number(t.target_rate_gram);
+        const displayTarget = includeGst ? targetBase * 1.03 : targetBase;
+        const displaySpot = baseSpot ? (includeGst ? baseSpot * 1.03 : baseSpot) : null;
+        const estGrams = displayTarget > 0 ? (Number(t.allocation_inr) / displayTarget).toFixed(2) : "0.00";
+        const safeId = escapeHtml(t.id);
+
+        let statusText = "Watching";
+        if (displaySpot && displaySpot <= displayTarget) statusText = "Target Hit!";
+        else if (displaySpot) statusText = `Drop ${formatINR(displaySpot - displayTarget, 0)}/g more`;
+
+        return `
+          <div class="rounded-xl bg-slate-950 border border-slate-800 p-3.5 flex flex-col justify-between gap-3">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/15 text-amber-300">${escapeHtml(t.karat)}</span>
+                <button type="button" onclick="deleteTranche('${safeId}')" title="Remove" class="text-slate-500 hover:text-rose-400 text-xs cursor-pointer">✕</button>
+              </div>
+              <div class="text-xs font-bold text-white truncate">${escapeHtml(t.label || `Part ${idx + 1}`)}</div>
+              <div class="space-y-1 text-xs pt-1">
+                <div class="flex justify-between"><span class="text-slate-400">Target Rate</span><span class="font-mono font-bold text-amber-300">${formatINR(displayTarget, 0)}/g</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Allocation</span><span class="font-mono text-white">${formatINR(t.allocation_inr, 0)}</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Est. Weight</span><span class="font-mono text-slate-300">≈ ${estGrams} g</span></div>
+              </div>
+            </div>
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+              <span class="${statusText === 'Target Hit!' ? 'text-emerald-400 font-semibold' : 'text-slate-400'}">${statusText}</span>
+              ${t.status === "triggered" ? `<button type="button" onclick="updateTrancheStatus('${safeId}', 'executed')" class="text-emerald-400 hover:underline font-semibold cursor-pointer">Mark Bought</button>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAlerts() {
+      const container = document.getElementById("alerts-list");
+      const badge = document.getElementById("alert-count-badge");
+      if (!container) return;
+      if (badge) badge.textContent = appState.alerts.length;
+      if (!appState.alerts || appState.alerts.length === 0) {
+        container.innerHTML = `<div class="rounded-xl border border-dashed border-slate-800 p-4 text-center text-xs text-slate-500">No price alerts triggered yet. Sign in and set targets above to receive automatic alerts.</div>`;
+        return;
+      }
+      container.innerHTML = appState.alerts.map((a) => `
+        <div class="rounded-xl bg-emerald-500/5 border border-emerald-500/20 p-3">
+          <div class="flex items-center justify-between text-[11px] text-emerald-400 font-semibold mb-1">
+            <span>${escapeHtml(a.karat)} TARGET REACHED</span>
+            <span class="text-slate-400 font-normal">${timeAgo(a.created_at)}</span>
+          </div>
+          <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(a.message)}</p>
+        </div>
+      `).join("");
+    }
+
+    function toggleGst() {
+      includeGst = !includeGst;
+      document.getElementById("gst-toggle-label").textContent = includeGst ? "Incl. 3% GST" : "Excl. 3% GST";
+      recomputeAndRender();
+    }
+
+    function switchChartKarat(karat) {
+      activeChartKarat = karat;
+      const btn22 = document.getElementById("tab-22k");
+      const btn24 = document.getElementById("tab-24k");
+      if (karat === "22K") {
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer";
+      } else {
+        btn24.className = "px-3 py-1 rounded-md text-xs font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        btn22.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-400 hover:text-white cursor-pointer";
+      }
+      renderChart(appState.history);
+    }
+
+    function openTrancheModal() {
+      prefillSuggestedTarget();
+      document.getElementById("tranche-modal").classList.remove("hidden");
+      document.getElementById("tranche-modal").classList.add("flex");
+    }
+
+    function closeTrancheModal() {
+      document.getElementById("tranche-modal").classList.add("hidden");
+      document.getElementById("tranche-modal").classList.remove("flex");
+    }
+
+    function prefillSuggestedTarget() {
+      const karat = document.getElementById("tranche-karat").value;
+      const latest = appState.history?.[0];
+      if (!latest) return;
+      document.getElementById("tranche-target").value = ((karat === "24K" ? Number(latest.rate_24k_gram) : Number(latest.rate_22k_gram)) * 0.99).toFixed(2);
+    }
+
+    async function handleCreateTranche(e) {
+      e.preventDefault();
+      const label = document.getElementById("tranche-label").value.trim();
+      const karat = document.getElementById("tranche-karat").value;
+      const target_rate_gram = Number(document.getElementById("tranche-target").value);
+      const allocation_inr = Number(document.getElementById("tranche-allocation").value);
+
+      if (isDemoMode || !supabaseClient || !currentUser) {
+        appState.tranches.unshift({ id: "demo-" + Date.now(), label, karat, target_rate_gram, allocation_inr, status: "active" });
+        if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
+        closeTrancheModal();
+        document.getElementById("tranche-form").reset();
+        renderTranches(appState.history);
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").insert({ label, karat, target_rate_gram, allocation_inr, status: "active", user_id: currentUser.id });
+        if (error) throw error;
+        closeTrancheModal();
+        document.getElementById("tranche-form").reset();
+        await fetchDashboardData();
+        showToast("Alert Saved", `We will alert you when ${karat} gold hits ${formatINR(target_rate_gram, 0)}/g.`, "info");
+      } catch (err) {
+        showToast("Could Not Save", err.message, "error");
+      }
+    }
+
+    async function updateTrancheStatus(id, newStatus) {
+      if (isDemoMode || !supabaseClient || !currentUser) {
+        const item = appState.tranches.find((t) => t.id === id);
+        if (item) item.status = newStatus;
+        if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
+        renderTranches(appState.history);
+        return;
+      }
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").update({ status: newStatus }).eq("id", id);
+        if (error) throw error;
+        await fetchDashboardData();
+      } catch (err) {
+        showToast("Update Failed", err.message, "error");
+      }
+    }
+
+    async function deleteTranche(id) {
+      if (isDemoMode || !supabaseClient || !currentUser) {
+        appState.tranches = appState.tranches.filter((t) => t.id !== id);
+        if (!isDemoMode && supabaseClient && !currentUser) localStorage.setItem("goldbuddy_guest_tranches", JSON.stringify(appState.tranches));
+        renderTranches(appState.history);
+        return;
+      }
+      try {
+        const { error } = await supabaseClient.from("buy_tranches").delete().eq("id", id);
+        if (error) throw error;
+        await fetchDashboardData();
+      } catch (err) {
+        showToast("Delete Failed", err.message, "error");
+      }
+    }
+
+    function updateAuthHeaderUI() {
+      const label = document.getElementById("auth-header-label");
+      if (!label) return;
+      label.textContent = currentUser ? `${(currentUser.email || "Account").split("@")[0]} (Sign Out)` : "Sign In";
+    }
+
+    async function handleAuthHeaderClick() {
+      if (currentUser && supabaseClient) {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        updateAuthHeaderUI();
+        await fetchDashboardData();
+        showToast("Signed Out", "Switched to guest view.", "info");
+      } else {
+        openAuthModal();
+      }
+    }
+
+    function renderTurnstileWidget() {
+      const container = document.getElementById("turnstile-widget-container");
+      if (!container || typeof window.turnstile === "undefined") return;
+      turnstileToken = "";
+      if (turnstileWidgetId !== null) {
+        try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {}
+        return;
+      }
+      turnstileWidgetId = window.turnstile.render("#turnstile-widget-container", {
+        sitekey: TURNSTILE_SITE_KEY,
+        theme: "dark",
+        callback: (token) => { turnstileToken = token; },
+        "expired-callback": () => { turnstileToken = ""; },
+        "error-callback": () => { turnstileToken = ""; },
+      });
+    }
+
+    function openAuthModal() {
+      const fb = document.getElementById("auth-feedback");
+      if (fb) fb.classList.add("hidden");
+      document.getElementById("auth-modal").classList.remove("hidden");
+      document.getElementById("auth-modal").classList.add("flex");
+      setTimeout(renderTurnstileWidget, 80);
+    }
+
+    function closeAuthModal() {
+      document.getElementById("auth-modal").classList.add("hidden");
+      document.getElementById("auth-modal").classList.remove("flex");
+    }
+
+    async function signInWithGoogle() {
+      if (!supabaseClient) return;
+      const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.href } });
+      if (error) showToast("Sign In Failed", error.message, "error");
+    }
+
+    function switchAuthTab(mode) {
+      authMode = mode;
+      const tabIn = document.getElementById("auth-tab-signin");
+      const tabUp = document.getElementById("auth-tab-signup");
+      const title = document.getElementById("auth-modal-title");
+      const btn = document.getElementById("auth-submit-btn");
+      const fb = document.getElementById("auth-feedback");
+      if (fb) fb.classList.add("hidden");
+      turnstileToken = "";
+      if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") {
+        try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {}
+      }
+      if (mode === "signup") {
+        tabUp.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        tabIn.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white cursor-pointer";
+        title.textContent = "Create GoldBuddy Account";
+        btn.textContent = "Create Account";
+      } else {
+        tabIn.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 cursor-pointer";
+        tabUp.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white cursor-pointer";
+        title.textContent = "Sign In to GoldBuddy";
+        btn.textContent = "Sign In";
+      }
+    }
+
+    async function handleEmailAuthSubmit(e) {
+      e.preventDefault();
+      if (!supabaseClient) return;
+      const email = document.getElementById("auth-email-input").value.trim();
+      const password = document.getElementById("auth-password-input").value;
+      const fb = document.getElementById("auth-feedback");
+      const btn = document.getElementById("auth-submit-btn");
+      if (fb) fb.classList.add("hidden");
+
+      if (!turnstileToken && typeof window.turnstile !== "undefined") {
+        if (fb) {
+          fb.className = "text-xs text-amber-300 text-center bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5";
+          fb.textContent = "Please complete the security check above first.";
+        }
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
+      try {
+        if (authMode === "signup") {
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: window.location.href, captchaToken: turnstileToken || undefined },
+          });
+          if (error) throw error;
+          if (data?.session) {
+            currentUser = data.user;
+            updateAuthHeaderUI();
+            closeAuthModal();
+            await fetchDashboardData();
+            showToast("Account Created!", "Welcome to GoldBuddy.", "info");
+          } else if (fb) {
+            fb.className = "text-xs text-emerald-300 text-center bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5";
+            fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`;
+          }
+        } else {
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+            options: { captchaToken: turnstileToken || undefined },
+          });
+          if (error) throw error;
+          currentUser = data.user;
+          updateAuthHeaderUI();
+          closeAuthModal();
+          await fetchDashboardData();
+          showToast("Signed In!", "Your 3-part plan & alerts are loaded.", "info");
+        }
+      } catch (err) {
+        const msg = /invalid login credentials/i.test(err.message || "")
+          ? "Incorrect email or password. Please try again."
+          : (err.message || "Authentication failed.");
+        if (fb) {
+          fb.className = "text-xs text-rose-300 text-center bg-rose-500/15 border border-rose-500/35 rounded-lg p-2.5";
+          fb.textContent = msg;
+        }
+      } finally {
+        turnstileToken = "";
+        if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") {
+          try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {}
+        }
+        btn.disabled = false;
+        btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      try { if (window.lucide) window.lucide.createIcons(); } catch (_e) {}
+      populateForecastDateDropdown();
+
+      try {
+        const cachedRaw = localStorage.getItem(STORAGE_RATES_CACHE_KEY);
+        if (cachedRaw) {
+          const parsed = JSON.parse(cachedRaw);
+          if (Array.isArray(parsed) && parsed.length > 0) appState.history = parsed;
+        }
+      } catch (_e) {}
+
+      const savedUrl = cleanSupabaseUrl(localStorage.getItem(STORAGE_URL_KEY)) || DEFAULT_SUPABASE_URL;
+      const savedKey = localStorage.getItem(STORAGE_ANON_KEY) || DEFAULT_SUPABASE_ANON_KEY;
+      if (savedUrl && savedKey && window.supabase) {
+        supabaseClient = window.supabase.createClient(savedUrl, savedKey);
+        isDemoMode = false;
+        if (appState.history.length > 0) recomputeAndRender();
+        supabaseClient.auth.onAuthStateChange((_event, session) => {
+          currentUser = session?.user ?? null;
+          updateAuthHeaderUI();
+          fetchDashboardData();
+        });
+      }
+      fetchDashboardData();
+    });
+  </script>
+</body>
+</html>

@@ -2589,84 +2589,215 @@
       } else openAuthModal();
     }
 
-    function renderTurnstileWidget() {
-      const container = document.getElementById("turnstile-widget-container");
-      if (!container || typeof window.turnstile === "undefined") return;
-      turnstileToken = "";
-      if (turnstileWidgetId !== null) { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} return; }
-      turnstileWidgetId = window.turnstile.render("#turnstile-widget-container", {
-        sitekey: TURNSTILE_SITE_KEY, theme: "dark",
-        callback: (token) => { turnstileToken = token; },
-        "expired-callback": () => { turnstileToken = ""; },
-        "error-callback": () => { turnstileToken = ""; },
+    // ------------------------------------------------------------
+    // Authentication: Google OAuth, Email/Password, Turnstile
+    // ------------------------------------------------------------
+    const AUTH_REDIRECT_URL = "https://swarnaraj24.github.io/goldbuddy/";
+
+    function waitForTurnstile(timeoutMs = 10000) {
+      return new Promise((resolve, reject) => {
+        const started = Date.now();
+        const poll = () => {
+          if (window.turnstile) return resolve(window.turnstile);
+          if (Date.now() - started >= timeoutMs) {
+            return reject(new Error("Security verification failed to load. Please refresh and try again."));
+          }
+          setTimeout(poll, 150);
+        };
+        poll();
       });
     }
 
-    function openAuthModal() {
-      const fb = document.getElementById("auth-feedback"); if (fb) fb.classList.add("hidden");
-      document.getElementById("auth-modal").classList.remove("hidden"); document.getElementById("auth-modal").classList.add("flex");
-      setTimeout(renderTurnstileWidget, 80);
+    async function renderTurnstileWidget() {
+      const container = document.getElementById("turnstile-widget-container");
+      if (!container) return;
+
+      try {
+        const turnstile = await waitForTurnstile();
+
+        if (turnstileWidgetId !== null) {
+          try {
+            turnstile.reset(turnstileWidgetId);
+            turnstileToken = "";
+            return;
+          } catch (err) {
+            console.warn("Turnstile reset failed; recreating widget.", err);
+            turnstileWidgetId = null;
+          }
+        }
+
+        // Clear stale markup before creating the widget.
+        container.replaceChildren();
+
+        turnstileWidgetId = turnstile.render(container, {
+          sitekey: TURNSTILE_SITE_KEY,
+          theme: "dark",
+          callback: (token) => { turnstileToken = token; },
+          "expired-callback": () => { turnstileToken = ""; },
+          "error-callback": () => {
+            turnstileToken = "";
+            showAuthFeedback("Security verification failed. Please try again.", "error");
+          },
+          "timeout-callback": () => { turnstileToken = ""; }
+        });
+      } catch (err) {
+        turnstileToken = "";
+        turnstileWidgetId = null;
+        console.error("Turnstile initialization:", err);
+        showAuthFeedback(err.message || "Security verification could not be loaded.", "error");
+      }
+    }
+
+    function showAuthFeedback(message, type = "error") {
+      const fb = document.getElementById("auth-feedback");
+      if (!fb) return;
+      fb.textContent = message;
+      if (type === "success") {
+        fb.className = "text-xs text-emerald-300 text-center bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5";
+      } else if (type === "warning") {
+        fb.className = "text-xs text-amber-300 text-center bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5";
+      } else {
+        fb.className = "text-xs text-rose-300 text-center bg-rose-500/15 border border-rose-500/35 rounded-lg p-2.5";
+      }
+    }
+
+    async function openAuthModal() {
+      const fb = document.getElementById("auth-feedback");
+      if (fb) fb.classList.add("hidden");
+      const modal = document.getElementById("auth-modal");
+      if (!modal) return;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      await renderTurnstileWidget();
     }
 
     function closeAuthModal() {
-      document.getElementById("auth-modal").classList.add("hidden"); document.getElementById("auth-modal").classList.remove("flex");
+      const modal = document.getElementById("auth-modal");
+      if (!modal) return;
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
     }
 
     async function signInWithGoogle() {
-      if (!supabaseClient) return;
-      const { error } = await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.href } });
-      if (error) showToast("Sign In Failed", error.message, "error");
+      if (!supabaseClient) {
+        showToast("Authentication Error", "Supabase is not initialized.", "error");
+        return;
+      }
+      try {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+          provider: "google",
+          options: { redirectTo: AUTH_REDIRECT_URL }
+        });
+        if (error) {
+          console.error("Google OAuth:", error);
+          showToast("Sign In Failed", error.message, "error");
+        }
+      } catch (err) {
+        console.error("Google OAuth exception:", err);
+        showToast("Sign In Failed", err.message || "Unable to start Google sign-in.", "error");
+      }
     }
 
     function switchAuthTab(mode) {
       authMode = mode;
-      const tabIn = document.getElementById("auth-tab-signin"); const tabUp = document.getElementById("auth-tab-signup");
-      const title = document.getElementById("auth-modal-title"); const btn = document.getElementById("auth-submit-btn");
-      const fb = document.getElementById("auth-feedback"); if (fb) fb.classList.add("hidden");
+      const tabIn = document.getElementById("auth-tab-signin");
+      const tabUp = document.getElementById("auth-tab-signup");
+      const title = document.getElementById("auth-modal-title");
+      const btn = document.getElementById("auth-submit-btn");
+      const fb = document.getElementById("auth-feedback");
+      if (fb) fb.classList.add("hidden");
+
       turnstileToken = "";
-      if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
+      if (turnstileWidgetId !== null && window.turnstile) {
+        try { window.turnstile.reset(turnstileWidgetId); } catch (err) { console.warn(err); }
+      }
+
       if (mode === "signup") {
         tabUp.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
         tabIn.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        title.textContent = "Create GoldBuddy Account"; btn.textContent = "Create Account";
+        title.textContent = "Create GoldBuddy Account";
+        btn.textContent = "Create Account";
       } else {
         tabIn.className = "py-1.5 rounded-lg font-semibold bg-amber-500 text-slate-950 transition-all cursor-pointer";
         tabUp.className = "py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition-all cursor-pointer";
-        title.textContent = "Sign In to GoldBuddy"; btn.textContent = "Sign In";
+        title.textContent = "Sign In to GoldBuddy";
+        btn.textContent = "Sign In";
       }
     }
 
     async function handleEmailAuthSubmit(e) {
       e.preventDefault();
-      if (!supabaseClient) return;
-      const email = document.getElementById("auth-email-input").value.trim();
-      const password = document.getElementById("auth-password-input").value;
-      const fb = document.getElementById("auth-feedback"); const btn = document.getElementById("auth-submit-btn");
-      if (fb) fb.classList.add("hidden");
-      if (!turnstileToken && typeof window.turnstile !== "undefined") {
-        if (fb) { fb.className = "text-xs text-amber-300 text-center bg-amber-500/10 border border-amber-500/30 rounded-lg p-2.5"; fb.textContent = "Please complete the security check above first."; }
+      if (!supabaseClient) {
+        showAuthFeedback("Supabase is not initialized.", "error");
         return;
       }
-      btn.disabled = true; btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
+
+      const email = document.getElementById("auth-email-input").value.trim();
+      const password = document.getElementById("auth-password-input").value;
+      const btn = document.getElementById("auth-submit-btn");
+
+      if (!email || !password) {
+        showAuthFeedback("Please enter your email and password.", "warning");
+        return;
+      }
+      if (!turnstileToken) {
+        showAuthFeedback("Please complete the security verification first.", "warning");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = authMode === "signup" ? "Creating Account..." : "Signing In...";
+
       try {
         if (authMode === "signup") {
-          const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href, captchaToken: turnstileToken || undefined } });
+          const { data, error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: AUTH_REDIRECT_URL,
+              captchaToken: turnstileToken
+            }
+          });
           if (error) throw error;
-          if (data?.session) { currentUser = data.user; updateAuthHeaderUI(); closeAuthModal(); await fetchDashboardData(); showToast("Account Created!", "Welcome to GoldBuddy.", "info"); }
-          else if (fb) { fb.className = "text-xs text-emerald-300 text-center bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5"; fb.textContent = `Account created! Check ${email} to confirm your email, then sign in.`; }
+
+          if (data?.session && data?.user) {
+            currentUser = data.user;
+            updateAuthHeaderUI();
+            closeAuthModal();
+            await fetchDashboardData();
+            showToast("Account Created!", "Welcome to GoldBuddy.", "info");
+          } else {
+            showAuthFeedback(`Account created! Please check ${email} to confirm your email.`, "success");
+          }
         } else {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password, options: { captchaToken: turnstileToken || undefined } });
+          const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+            options: { captchaToken: turnstileToken }
+          });
           if (error) throw error;
-          currentUser = data.user; updateAuthHeaderUI(); closeAuthModal(); await fetchDashboardData(); showToast("Signed In!", "Your private 3-part plan & alerts are loaded.", "info");
+
+          currentUser = data.user;
+          updateAuthHeaderUI();
+          closeAuthModal();
+          await fetchDashboardData();
+          showToast("Signed In!", "Your private plan and alerts are loaded.", "info");
         }
       } catch (err) {
-        const msg = /invalid login credentials/i.test(err.message || "") ? "Incorrect email or password. Please try again." : (err.message || "Authentication failed.");
-        if (fb) { fb.className = "text-xs text-rose-300 text-center bg-rose-500/15 border border-rose-500/35 rounded-lg p-2.5"; fb.textContent = msg; }
-        showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", msg, "error");
+        console.error("Email authentication:", err);
+        const message = /invalid login credentials/i.test(err.message || "")
+          ? "Incorrect email or password. Please try again."
+          : (err.message || "Authentication failed.");
+        showAuthFeedback(message, "error");
+        showToast(authMode === "signup" ? "Sign Up Failed" : "Sign In Failed", message, "error");
       } finally {
         turnstileToken = "";
-        if (turnstileWidgetId !== null && typeof window.turnstile !== "undefined") { try { window.turnstile.reset(turnstileWidgetId); } catch (_e) {} }
-        btn.disabled = false; btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
+        if (turnstileWidgetId !== null && window.turnstile) {
+          try { window.turnstile.reset(turnstileWidgetId); } catch (err) { console.warn(err); }
+        }
+        btn.disabled = false;
+        btn.textContent = authMode === "signup" ? "Create Account" : "Sign In";
       }
     }
 
